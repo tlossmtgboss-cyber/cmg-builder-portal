@@ -691,7 +691,10 @@
 
 <!-- ===== Top Bar ===== -->
 <div class="top-bar">
-  <div class="top-bar-brand">CMG Home Loans</div>
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
+    <div class="top-bar-brand">CMG Home Loans</div>
+  </div>
   <div class="top-bar-center">Smart Docs Portal</div>
   <div class="top-bar-actions">
     <button class="btn-save-progress" id="saveProgressBtn">Save Progress</button>
