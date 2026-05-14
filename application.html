@@ -253,6 +253,10 @@
           <p class="panel-sub">Anyone with ownership or executive authority over the company. Add at least one. Use the + button for additional principals.</p>
         </div>
         <div class="panel-body">
+          <label style="display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg-soft);font-size:13px;font-weight:500;color:var(--text-primary);transition:all 150ms ease;" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor=document.getElementById('sameAsOwner').checked?'var(--brand)':'var(--border)'">
+            <input type="checkbox" id="sameAsOwner" onchange="fillPrincipalFromOwner(this.checked)" style="accent-color:var(--brand);width:16px;height:16px;" />
+            Principal #1 is the same as the company contact
+          </label>
           <div id="principalsList"></div>
           <button type="button" class="btn-secondary mt-2" onclick="addPrincipal()">+ Add another principal</button>
         </div>
@@ -617,6 +621,25 @@
       </div>`);
   }
   addPrincipal();
+
+  function fillPrincipalFromOwner(checked) {
+    const row = document.querySelector('[data-principal-idx="0"]');
+    if (!row) return;
+    const set = (attr, val) => { const el = row.querySelector('[data-principal="'+attr+'"]'); if (el) el.value = val; };
+    if (checked) {
+      const gf = f => { const el = document.querySelector('[data-field="'+f+'"]'); return el ? el.value : ''; };
+      set('name', (gf('contactFirst') + ' ' + gf('contactLast')).trim());
+      set('email', gf('contactEmail'));
+      set('phone', gf('contactPhone'));
+      set('address', gf('companyAddress'));
+      set('city', gf('companyCity'));
+      set('state', gf('companyState'));
+      set('zip', gf('companyZip'));
+    } else {
+      ['name','email','phone','address','city','state','zip'].forEach(a => set(a, ''));
+    }
+    saveFormData();
+  }
 
   // =========================================================================
   // Trade refs
