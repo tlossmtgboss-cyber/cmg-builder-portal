@@ -116,6 +116,55 @@
   .btn-submit-app:active:not(:disabled) { transform: translateY(1px); }
   .btn-submit-app:disabled { opacity: 0.45; cursor: not-allowed; }
 
+  .btn-save-progress {
+    background: #fff;
+    color: var(--brand);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Geist', system-ui, sans-serif;
+    cursor: pointer;
+    transition: all 200ms ease;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .btn-save-progress:hover {
+    background: var(--brand-tint);
+    border-color: var(--brand);
+  }
+
+  .top-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ===== Toast notification ===== */
+  .toast-notification {
+    position: fixed;
+    top: 72px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: var(--brand);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Geist', system-ui, sans-serif;
+    box-shadow: 0 4px 16px rgba(31,61,46,.18);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease, transform 300ms ease;
+  }
+  .toast-notification.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
   /* ===== Progress Steps ===== */
   .progress-bar {
     background: var(--bg-surface);
@@ -644,8 +693,14 @@
 <div class="top-bar">
   <div class="top-bar-brand">CMG Home Loans</div>
   <div class="top-bar-center">Smart Docs Portal</div>
-  <button class="btn-submit-app" id="submitAppBtn" disabled>Submit Application</button>
+  <div class="top-bar-actions">
+    <button class="btn-save-progress" id="saveProgressBtn">Save Progress</button>
+    <button class="btn-submit-app" id="submitAppBtn" disabled>Submit Application</button>
+  </div>
 </div>
+
+<!-- Toast notification -->
+<div class="toast-notification" id="toastNotification"></div>
 
 <!-- ===== Progress Steps ===== -->
 <div class="progress-bar">
@@ -738,7 +793,7 @@
       </div>
     </div>
     <p class="modal-email" id="confirmEmail"></p>
-    <button class="btn-done" id="doneBtn">Done</button>
+    <button class="btn-done" id="doneBtn">Go to Builder Portal &rarr;</button>
   </div>
 </div>
 
@@ -1097,6 +1152,22 @@
 
   updateCounter();
 
+  // ===== Toast helper =====
+  function showToast(message) {
+    var toast = document.getElementById('toastNotification');
+    toast.textContent = message;
+    toast.classList.add('visible');
+    setTimeout(function() {
+      toast.classList.remove('visible');
+    }, 2000);
+  }
+
+  // ===== Save Progress button =====
+  document.getElementById('saveProgressBtn').addEventListener('click', function() {
+    saveUploads();
+    showToast('Progress saved');
+  });
+
   // ===== Submit button =====
   var submitBtn = document.getElementById('submitAppBtn');
   var modal = document.getElementById('successModal');
@@ -1142,7 +1213,7 @@
 
   // Done button
   document.getElementById('doneBtn').addEventListener('click', function() {
-    modal.classList.remove('visible');
+    window.location.href = 'portal.html';
   });
 
   // Close modal on overlay click

@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F2EDE2;
+    --bg-soft: #FBF8F2;
+    --bg-sidebar: #F6F2EA;
+    --border: #ECE6D8;
+    --border-strong: #D8D0BD;
+    --text-primary: #1A1F1B;
+    --text-secondary: #4F554E;
+    --text-muted: #8B8A7E;
+    --text-faint: #B5B2A4;
+    --brand: #1F3D2E;
+    --brand-hover: #2A4F3D;
+    --brand-tint: #EFF3EE;
+    --brand-soft: #E5EDE6;
+    --gold: #B8924A;
+    --gold-soft: #F5EDD9;
+    --gold-deep: #6B4F1A;
+    --success: #2D7A52;
+    --success-soft: #E3EFE5;
+    --danger: #9B2C2C;
+    --danger-soft: #FDE8E8;
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body {
+    font-family: 'Geist', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-feature-settings: 'ss01', 'cv01', 'cv11';
+    letter-spacing: -0.005em;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  /* Paper grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(rgba(31,61,46,.025) 1px, transparent 1px);
+    background-size: 4px 4px;
+    opacity: .6;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+
+  /* ===== Layout Shell ===== */
+  .layout-shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+
+  /* ===== Top Bar ===== */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 56px;
+    background: rgba(250,247,241,.96);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    box-shadow: 0 1px 4px rgba(31,61,46,.04);
+  }
+  .top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .top-bar-brand {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--brand);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .top-bar-label {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .top-bar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand);
+    color: #fff;
+    font-family: 'Geist', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .top-bar-username {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .sign-out-link {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 150ms ease;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    letter-spacing: 0.04em;
+  }
+  .sign-out-link:hover { color: var(--danger); }
+
+  /* ===== Main Split ===== */
+  .main-split { display: grid; grid-template-columns: 240px 1fr; height: 100%; overflow: hidden; }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    padding: 24px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+  }
+  .sidebar-eyebrow {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 12px 10px;
+    margin-bottom: 4px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 120ms ease;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    position: relative;
+    border: 1px solid transparent;
+  }
+  .nav-item:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+  .nav-item.active {
+    background: var(--bg-surface);
+    color: var(--brand);
+    font-weight: 600;
+    border-color: var(--border);
+    box-shadow: 0 1px 3px rgba(31,61,46,.04);
+  }
+  .nav-icon {
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: 15px;
+    line-height: 1;
+  }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 999px;
+    min-width: 18px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar-footer-text {
+    font-size: 11px;
+    color: var(--text-faint);
+    line-height: 1.5;
+  }
+
+  /* ===== Content Area ===== */
+  .content-area {
+    overflow-y: auto;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .content-inner {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 36px 40px 80px;
+  }
+
+  /* ===== Welcome Banner ===== */
+  .welcome-banner {
+    margin-bottom: 32px;
+  }
+  .welcome-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--brand);
+    letter-spacing: -0.025em;
+    margin: 0 0 6px;
+    line-height: 1.15;
+  }
+  .welcome-company {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0 0 4px;
+  }
+  .welcome-date {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(31,61,46,.03);
+  }
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .card-body { padding: 24px; }
+
+  /* ===== Status Badge ===== */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .status-badge.review {
+    background: var(--gold-soft);
+    color: var(--gold-deep);
+    border: 1px solid #E8D9B5;
+  }
+  .status-badge.approved {
+    background: var(--success-soft);
+    color: var(--success);
+    border: 1px solid #C5DFC9;
+  }
+
+  /* ===== Timeline / Progress ===== */
+  .timeline-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    padding: 8px 0;
+    position: relative;
+  }
+  .timeline-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+  }
+  .timeline-dot-wrap {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 10px;
+  }
+  .timeline-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 200ms ease;
+  }
+  .timeline-dot.completed {
+    background: var(--success);
+    color: #fff;
+  }
+  .timeline-dot.active {
+    background: var(--gold-soft);
+    border: 2px solid var(--gold);
+    color: var(--gold-deep);
+    box-shadow: 0 0 0 4px rgba(184,146,74,.12);
+  }
+  .timeline-dot.active .dot-inner {
+    width: 8px;
+    height: 8px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+  }
+  .timeline-dot.pending {
+    background: var(--bg-elevated);
+    border: 1.5px solid var(--border-strong);
+    color: var(--text-faint);
+  }
+  .timeline-connector {
+    position: absolute;
+    top: 16px;
+    left: calc(50% + 18px);
+    right: calc(-50% + 18px);
+    height: 2px;
+    z-index: 1;
+    border-radius: 1px;
+  }
+  .timeline-connector.done { background: var(--success); }
+  .timeline-connector.ahead { background: var(--border); }
+  .timeline-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.35;
+    max-width: 120px;
+  }
+  .timeline-label.active-label { color: var(--gold-deep); font-weight: 600; }
+  .timeline-label.completed-label { color: var(--success); }
+  .timeline-label.pending-label { color: var(--text-faint); }
+  .timeline-date {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 3px;
+    letter-spacing: 0.02em;
+  }
+  .timeline-sublabel {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  /* ===== Two Column Grid ===== */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px; }
+
+  /* ===== Document List ===== */
+  .doc-list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .doc-list-item:last-child { border-bottom: none; }
+  .doc-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--success-soft);
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .doc-label {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 400;
+  }
+  .doc-signed {
+    margin-left: auto;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--success);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .doc-divider {
+    border: none;
+    border-top: 1px dashed var(--border-strong);
+    margin: 12px 0;
+  }
+  .doc-sub-header {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  /* ===== Key-Value Pairs ===== */
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .kv-value {
+    font-size: 13.5px;
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: right;
+    word-break: break-word;
+  }
+
+  /* ===== Quick Actions ===== */
+  .actions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 24px; }
+  .action-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 150ms ease;
+  }
+  .action-card:hover { border-color: var(--border-strong); box-shadow: 0 4px 12px rgba(31,61,46,.05); }
+  .action-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--brand-tint);
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin: 0 auto 14px;
+  }
+  .action-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .action-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 150ms ease;
+    text-decoration: none;
+    font-family: 'Geist', system-ui, sans-serif;
+  }
+  .action-btn.primary {
+    background: var(--brand);
+    color: #fff;
+  }
+  .action-btn.primary:hover { background: var(--brand-hover); }
+  .action-btn.disabled {
+    background: var(--bg-elevated);
+    color: var(--text-faint);
+    cursor: not-allowed;
+    border: 1px solid var(--border);
+  }
+  .action-btn.secondary {
+    background: var(--bg-surface);
+    color: var(--brand);
+    border: 1px solid var(--border-strong);
+  }
+  .action-btn.secondary:hover { background: var(--brand-tint); border-color: var(--brand); }
+
+  /* ===== Activity Feed ===== */
+  .activity-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-dot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand);
+    flex-shrink: 0;
+  }
+  .activity-dot.gold { background: var(--gold); }
+  .activity-line {
+    width: 1px;
+    flex: 1;
+    min-height: 16px;
+    background: var(--border);
+    margin-top: 4px;
+  }
+  .activity-text {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.45;
+  }
+  .activity-time {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    color: var(--text-faint);
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ===== Footer ===== */
+  .portal-footer {
+    padding: 24px 40px;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+  .footer-brand {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .footer-help {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+  }
+
+  /* ===== Card Link ===== */
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--brand);
+    text-decoration: none;
+    margin-top: 8px;
+    transition: color 150ms ease;
+  }
+  .card-link:hover { color: var(--brand-hover); text-decoration: underline; }
+
+  /* ===== No Data State ===== */
+  .no-data-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 70vh;
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .no-data-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+  }
+  .no-data-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .no-data-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .no-data-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: var(--brand);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 150ms ease;
+    border: none;
+    cursor: pointer;
+  }
+  .no-data-btn:hover { background: var(--brand-hover); box-shadow: 0 4px 16px rgba(31,61,46,.15); }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .main-split { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .two-col { grid-template-columns: 1fr; }
+    .actions-grid { grid-template-columns: 1fr; }
+    .content-inner { padding: 24px 20px 60px; }
+    .timeline-track { flex-direction: column; align-items: flex-start; gap: 0; }
+    .timeline-step { flex-direction: row; align-items: center; text-align: left; gap: 12px; padding: 8px 0; }
+    .timeline-connector { display: none; }
+    .timeline-dot-wrap { margin-bottom: 0; }
+    .timeline-label { max-width: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- No Data State (shown when no application found) -->
+<div class="no-data-state" id="noDataState">
+  <div class="no-data-icon">&#9744;</div>
+  <div class="no-data-title">No Application Found</div>
+  <div class="no-data-desc">It looks like you haven't submitted a builder application yet.<br />Create an account to get started.</div>
+  <a href="register.html" class="no-data-btn">Create Account &rarr;</a>
+</div>
+
+<!-- Main Portal Layout -->
+<div class="layout-shell" id="portalShell" style="display: none;">
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span class="top-bar-brand">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></span>
+      <span class="top-bar-label">Builder Portal</span>
+    </div>
+    <div class="top-bar-right">
+      <div class="top-bar-user">
+        <div class="avatar-circle" id="avatarInitials">--</div>
+        <span class="top-bar-username" id="topBarName">Builder</span>
+      </div>
+      <a class="sign-out-link" id="signOutLink">Sign Out</a>
+    </div>
+  </div>
+
+  <!-- Main Split -->
+  <div class="main-split">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-eyebrow">Navigation</div>
+      <a class="nav-item active" data-nav="dashboard">
+        <span class="nav-icon">&#9634;</span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" data-nav="application">
+        <span class="nav-icon">&#9997;</span>
+        <span>My Application</span>
+      </a>
+      <a class="nav-item" data-nav="documents">
+        <span class="nav-icon">&#9776;</span>
+        <span>Documents</span>
+      </a>
+      <a class="nav-item" data-nav="messages">
+        <span class="nav-icon">&#9993;</span>
+        <span>Messages</span>
+        <span class="nav-badge">0</span>
+      </a>
+      <a class="nav-item" data-nav="settings">
+        <span class="nav-icon">&#9881;</span>
+        <span>Settings</span>
+      </a>
+      <div class="sidebar-footer">
+        <div class="sidebar-footer-text">CMG Home Loans<br />Builder Portal v1.0</div>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <div class="content-inner">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <h1 class="welcome-title" id="welcomeTitle">Welcome back!</h1>
+          <p class="welcome-company" id="welcomeCompany"></p>
+          <span class="welcome-date" id="welcomeDate"></span>
+        </div>
+
+        <!-- Status Card -->
+        <div class="card" style="margin-bottom: 0;">
+          <div class="card-header">
+            <h2 class="card-title">Application Status</h2>
+            <span class="status-badge review" id="statusBadge">
+              <span style="font-size: 8px;">&#9679;</span>
+              Under Review
+            </span>
+          </div>
+          <div class="card-body">
+            <!-- Timeline -->
+            <div class="timeline-track" id="timeline">
+              <!-- Step 1: Submitted -->
+              <div class="timeline-step">
+                <div class="timeline-dot-wrap">
+                  <div class="timeline-dot completed">&#10003;</div>
+                </div>
+                <div class="timeline-label completed-label">Application Submitted</div>
+                <div class="timeline-date" id="timelineDate1"></div>
+                <div class="timeline-connector done"></div>
+              </div>
+              <!-- Step 2: Doc Review -->
+              <div class="timeline-step">
+                <div class="timeline-dot-wrap">
+                  <div class="timeline-dot completed">&#10003;</div>
+                </div>
+                <div class="timeline-label completed-label">Document Review</div>
+                <div class="timeline-date" id="timelineDate2"></div>
+                <div class="timeline-connector done"></div>
+              </div>
+              <!-- Step 3: Underwriting -->
+              <div class="timeline-step">
+                <div class="timeline-dot-wrap">
+                  <div class="timeline-dot active"><div class="dot-inner"></div></div>
+                </div>
+                <div class="timeline-label active-label">Underwriting Review</div>
+                <div class="timeline-date" style="color: var(--gold-deep);">In Progress</div>
+                <div class="timeline-connector ahead"></div>
+              </div>
+              <!-- Step 4: Approved -->
+              <div class="timeline-step">
+                <div class="timeline-dot-wrap">
+                  <div class="timeline-dot pending">4</div>
+                </div>
+                <div class="timeline-label pending-label">Approved</div>
+                <div class="timeline-date">&mdash;</div>
+              </div>
+            </div>
+            <div class="timeline-sublabel" style="text-align: center; margin: 4px auto 0;">
+              Your application is being reviewed by the CMG construction lending team. You'll be notified of any updates.
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Grid -->
+        <div class="two-col">
+
+          <!-- Left Column: Document Packet -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Submitted Documents</h2>
+            </div>
+            <div class="card-body" id="docListBody">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Right Column: Project Summary -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">Project Details</h2>
+            </div>
+            <div class="card-body" id="projectDetailsBody">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="actions-grid">
+          <!-- Upload Documents -->
+          <div class="action-card">
+            <div class="action-icon">&#128196;</div>
+            <div class="action-title">Upload Additional Documents</div>
+            <div class="action-desc">Submit any additional documents requested by your loan officer</div>
+            <a href="documents.html" class="action-btn primary">Upload Documents &rarr;</a>
+          </div>
+          <!-- Message LO -->
+          <div class="action-card">
+            <div class="action-icon" style="background: var(--gold-soft); color: var(--gold-deep);">&#9993;</div>
+            <div class="action-title">Message Your LO</div>
+            <div class="action-desc">Send a message to your CMG loan officer directly from the portal</div>
+            <button class="action-btn disabled" disabled>Coming Soon</button>
+          </div>
+          <!-- Update Info -->
+          <div class="action-card">
+            <div class="action-icon" style="background: var(--success-soft); color: var(--success);">&#9998;</div>
+            <div class="action-title">Update Information</div>
+            <div class="action-desc">Edit your application details or update your company information</div>
+            <a href="application.html" class="action-btn secondary">Edit Application &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Activity Feed -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h2 class="card-title">Recent Activity</h2>
+          </div>
+          <div class="card-body" id="activityFeed">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="portal-footer">
+          <div class="footer-brand">CMG Home Loans &middot; Builder Portal</div>
+          <div class="footer-help">Need help? Contact your loan officer</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // =========================================================================
+  // Load data from localStorage
+  // =========================================================================
+  var account = null;
+  var formData = null;
+  var docUploads = null;
+  var signature = null;
+
+  try {
+    var rawAcct = localStorage.getItem('builderAccount');
+    if (rawAcct) account = JSON.parse(rawAcct);
+
+    var rawForm = localStorage.getItem('builderFormData');
+    if (rawForm) formData = JSON.parse(rawForm);
+
+    var rawUploads = localStorage.getItem('builderDocUploads');
+    if (rawUploads) docUploads = JSON.parse(rawUploads);
+
+    var rawSig = localStorage.getItem('builderSignature');
+    if (rawSig) signature = JSON.parse(rawSig);
+  } catch (e) { /* ignore parse errors */ }
+
+  // =========================================================================
+  // Check if we have data — show no-data state if not
+  // =========================================================================
+  if (!account && !formData) {
+    document.getElementById('noDataState').style.display = 'flex';
+    document.getElementById('portalShell').style.display = 'none';
+    return;
+  }
+
+  // Show the portal
+  document.getElementById('noDataState').style.display = 'none';
+  document.getElementById('portalShell').style.display = 'grid';
+
+  // =========================================================================
+  // Helpers
+  // =========================================================================
+  function escHtml(str) {
+    if (!str) return '';
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return 'Today';
+    try {
+      var d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (e) {
+      return 'Today';
+    }
+  }
+
+  function formatShortDate(dateStr) {
+    if (!dateStr) return todayStr();
+    try {
+      var d = new Date(dateStr);
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch (e) {
+      return todayStr();
+    }
+  }
+
+  function todayStr() {
+    var d = new Date();
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function formatCurrency(val) {
+    if (!val) return '--';
+    var num = parseFloat(val);
+    if (isNaN(num)) return val;
+    return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  // =========================================================================
+  // Merge account + form data
+  // =========================================================================
+  var firstName = (account && account.firstName) || (formData && formData.contactFirst) || '';
+  var lastName = (account && account.lastName) || (formData && formData.contactLast) || '';
+  var fullName = (firstName + ' ' + lastName).trim() || 'Builder';
+  var companyName = (account && account.companyName) || (formData && formData.companyName) || '';
+  var ein = (account && account.ein) || (formData && formData.ein) || '';
+  var submittedDate = (signature && signature.date) || (account && account.createdAt) || new Date().toISOString();
+  var isTx = formData && formData.isTx === 'yes';
+  var drawAtClose = formData && formData.drawAtClose === 'yes';
+
+  // =========================================================================
+  // Populate Top Bar
+  // =========================================================================
+  var initials = ((firstName.charAt(0) || '') + (lastName.charAt(0) || '')).toUpperCase() || 'B';
+  document.getElementById('avatarInitials').textContent = initials;
+  document.getElementById('topBarName').textContent = fullName;
+
+  // =========================================================================
+  // Populate Welcome Banner
+  // =========================================================================
+  document.getElementById('welcomeTitle').textContent = 'Welcome back, ' + (firstName || 'Builder') + '!';
+  if (companyName) {
+    document.getElementById('welcomeCompany').textContent = companyName;
+  }
+  document.getElementById('welcomeDate').textContent = 'Application submitted ' + formatDate(submittedDate);
+
+  // =========================================================================
+  // Timeline Dates
+  // =========================================================================
+  var subDateShort = formatShortDate(submittedDate);
+  document.getElementById('timelineDate1').textContent = subDateShort;
+  document.getElementById('timelineDate2').textContent = subDateShort;
+
+  // =========================================================================
+  // Document Packet
+  // =========================================================================
+  var docHTML = '';
+
+  // E-signed documents
+  var esignDocs = [
+    { name: 'Builder Acknowledgment Form', always: true },
+    { name: 'Builder & Project Review', always: true },
+    { name: 'Texas Loan Supplement', always: false, condition: isTx },
+    { name: 'Draw Request', always: false, condition: drawAtClose },
+    { name: 'W-9 Form', always: true }
+  ];
+
+  var esignCount = 0;
+  esignDocs.forEach(function(doc) {
+    if (!doc.always && !doc.condition) return;
+    esignCount++;
+    docHTML += '<div class="doc-list-item">';
+    docHTML += '  <div class="doc-check">&#10003;</div>';
+    docHTML += '  <span class="doc-label">' + escHtml(doc.name) + '</span>';
+    docHTML += '  <span class="doc-signed">E-Signed</span>';
+    docHTML += '</div>';
+  });
+
+  // Supporting documents from uploads
+  var uploadCount = 0;
+  if (docUploads && typeof docUploads === 'object') {
+    var uploadNames = [];
+    Object.keys(docUploads).forEach(function(key) {
+      var upload = docUploads[key];
+      if (upload && upload.name) {
+        uploadNames.push(upload.name);
+        uploadCount++;
+      }
+    });
+
+    if (uploadNames.length > 0) {
+      docHTML += '<hr class="doc-divider" />';
+      docHTML += '<div class="doc-sub-header">Supporting Documents</div>';
+      uploadNames.forEach(function(name) {
+        docHTML += '<div class="doc-list-item">';
+        docHTML += '  <div class="doc-check">&#10003;</div>';
+        docHTML += '  <span class="doc-label">' + escHtml(name) + '</span>';
+        docHTML += '  <span class="doc-signed">Uploaded</span>';
+        docHTML += '</div>';
+      });
+    }
+  }
+
+  docHTML += '<div style="padding-top: 12px;">';
+  docHTML += '  <a href="documents.html" class="card-link">View All Documents &rarr;</a>';
+  docHTML += '</div>';
+
+  document.getElementById('docListBody').innerHTML = docHTML;
+
+  // =========================================================================
+  // Project Details
+  // =========================================================================
+  var projectHTML = '';
+
+  var projectAddress = (formData && formData.projectAddress) || '';
+  var projectCity = (formData && formData.projectCity) || '';
+  var projectState = (formData && formData.projectState) || '';
+  var projectZip = (formData && formData.projectZip) || '';
+  var fullAddress = projectAddress;
+  if (projectCity || projectState || projectZip) {
+    var parts = [];
+    if (projectCity) parts.push(projectCity);
+    if (projectState) parts.push(projectState);
+    if (projectZip) parts.push(projectZip);
+    if (fullAddress) fullAddress += ', ';
+    fullAddress += parts.join(', ');
+  }
+
+  var borrowerName = (formData && formData.borrowerName) || '';
+  var contractAmount = (formData && formData.contractAmount) || '';
+  var duration = (formData && formData.estimatedDuration) || '';
+
+  var kvPairs = [
+    { label: 'Property Address', value: fullAddress || '--' },
+    { label: 'Borrower', value: borrowerName || '--' },
+    { label: 'Contract Amount', value: formatCurrency(contractAmount) },
+    { label: 'Duration', value: duration ? duration + ' months' : '--' },
+    { label: 'Company', value: companyName || '--' },
+    { label: 'EIN', value: ein || '--' }
+  ];
+
+  kvPairs.forEach(function(kv) {
+    projectHTML += '<div class="kv-row">';
+    projectHTML += '  <span class="kv-label">' + escHtml(kv.label) + '</span>';
+    projectHTML += '  <span class="kv-value">' + escHtml(kv.value) + '</span>';
+    projectHTML += '</div>';
+  });
+
+  projectHTML += '<div style="padding-top: 12px;">';
+  projectHTML += '  <a href="application.html" class="card-link">View Full Application &rarr;</a>';
+  projectHTML += '</div>';
+
+  document.getElementById('projectDetailsBody').innerHTML = projectHTML;
+
+  // =========================================================================
+  // Activity Feed
+  // =========================================================================
+  var activityHTML = '';
+  var actItems = [];
+
+  actItems.push({
+    text: 'Application submitted successfully',
+    time: 'Today',
+    dot: 'brand'
+  });
+
+  if (esignCount > 0) {
+    actItems.push({
+      text: 'Document packet e-signed (' + esignCount + ' document' + (esignCount !== 1 ? 's' : '') + ')',
+      time: 'Today',
+      dot: 'brand'
+    });
+  }
+
+  if (uploadCount > 0) {
+    actItems.push({
+      text: 'Supporting documents uploaded (' + uploadCount + ' file' + (uploadCount !== 1 ? 's' : '') + ')',
+      time: 'Today',
+      dot: 'brand'
+    });
+  }
+
+  actItems.push({
+    text: 'Your application is now being reviewed',
+    time: 'Today',
+    dot: 'gold'
+  });
+
+  actItems.forEach(function(item, idx) {
+    var isLast = idx === actItems.length - 1;
+    activityHTML += '<div class="activity-item">';
+    activityHTML += '  <div class="activity-dot-col">';
+    activityHTML += '    <div class="activity-dot' + (item.dot === 'gold' ? ' gold' : '') + '"></div>';
+    if (!isLast) {
+      activityHTML += '    <div class="activity-line"></div>';
+    }
+    activityHTML += '  </div>';
+    activityHTML += '  <div>';
+    activityHTML += '    <div class="activity-text">' + escHtml(item.text) + '</div>';
+    activityHTML += '    <div class="activity-time">' + escHtml(item.time) + '</div>';
+    activityHTML += '  </div>';
+    activityHTML += '</div>';
+  });
+
+  document.getElementById('activityFeed').innerHTML = activityHTML;
+
+  // =========================================================================
+  // Sidebar Navigation
+  // =========================================================================
+  var navItems = document.querySelectorAll('.nav-item[data-nav]');
+  navItems.forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      // Remove active from all
+      navItems.forEach(function(n) { n.classList.remove('active'); });
+      // Add active to clicked
+      item.classList.add('active');
+
+      // Navigate for application and documents
+      var nav = item.getAttribute('data-nav');
+      if (nav === 'application') {
+        window.location.href = 'application.html';
+      } else if (nav === 'documents') {
+        window.location.href = 'documents.html';
+      }
+    });
+  });
+
+  // =========================================================================
+  // Sign Out
+  // =========================================================================
+  document.getElementById('signOutLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    try {
+      localStorage.removeItem('builderAccount');
+      localStorage.removeItem('builderFormData');
+      localStorage.removeItem('builderDocUploads');
+      localStorage.removeItem('builderSignature');
+      localStorage.removeItem('builderEsignData');
+    } catch (err) { /* ignore */ }
+    window.location.href = 'register.html';
+  });
+
+})();
+</script>
+</body>
+</html>

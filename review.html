@@ -700,19 +700,154 @@
     shortTitle: 'W-9',
     pages: [
       function() {
-        return '<h1 class="paper-doc-title" style="font-size: 28px;">Request for Taxpayer Identification Number and Certification</h1>' +
-          '<div class="paper-doc-sub">IRS Form W-9 (Rev. March 2024) &middot; Give Form to the requester. Do not send to the IRS.</div>' +
-          '<div class="paper-body">' +
-            '<h2 class="paper-section-title" style="margin-top: 14px;">Part I &mdash; Identification</h2>' +
-            '<p><strong>1.</strong> Name of entity/individual: ' + fld(companyName, 'wider') + '</p>' +
-            '<p><strong>2.</strong> Business name / DBA (if different): ' + fld(dba || '—', 'wider') + '</p>' +
-            '<p style="margin-top: 12px;"><strong>5.</strong> Address: ' + fld(companyAddress, 'wider') + '</p>' +
-            '<p><strong>6.</strong> City ' + fld(companyCity) + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;State ' + fld(companyState, 'tiny') + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;Zip ' + fld(companyZip, 'short') + '</p>' +
-            '<h2 class="paper-section-title">Part I &mdash; Taxpayer Identification Number (TIN)</h2>' +
-            '<p>Enter your TIN. For LLCs taxed as partnership, enter EIN.</p>' +
-            '<p><strong>Employer Identification Number (EIN):</strong> ' + fld(ein) + '</p>' +
-            '<h2 class="paper-section-title">Part II &mdash; Certification</h2>' +
-            '<p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Under penalties of perjury, I certify that: (1) The number shown on this form is my correct taxpayer identification number; (2) I am not subject to backup withholding; (3) I am a U.S. citizen or other U.S. person; and (4) The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.</p>' +
+        // Parse EIN into two groups if available (XX-XXXXXXX)
+        var einClean = (ein || '').replace(/[^0-9]/g, '');
+        var einGroup1 = einClean.substring(0, 2) || '';
+        var einGroup2 = einClean.substring(2) || '';
+
+        return '' +
+          // ── W-9 Top Banner ──
+          '<div style="border: 2px solid #000; margin-bottom: 0;">' +
+            '<div style="display: grid; grid-template-columns: 180px 1fr 180px; border-bottom: 2px solid #000;">' +
+              // Left column: Form number
+              '<div style="padding: 10px 14px; border-right: 2px solid #000;">' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 26px; font-weight: 700; line-height: 1.1;">Form <span style="font-size: 32px;">W-9</span></div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-top: 2px;">(Rev. March 2024)</div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 9.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">Department of the Treasury<br/>Internal Revenue Service</div>' +
+              '</div>' +
+              // Center column: Title
+              '<div style="padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 17px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em;">Request for Taxpayer<br/>Identification Number and Certification</div>' +
+              '</div>' +
+              // Right column: Instruction
+              '<div style="padding: 10px 14px; border-left: 2px solid #000; display: flex; flex-direction: column; justify-content: center;">' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; line-height: 1.4; text-align: center;">' +
+                  '<span style="font-weight: 600;">&#9654; Give Form to the requester.</span><br/>' +
+                  '<span style="font-style: italic;">Do not send to the IRS.</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            // ── Line 1 ──
+            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>1</strong>&nbsp; Name of entity/individual as shown on your income tax return. Name is required on this line; do not leave this line blank.</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' + fld(companyName, 'wider') + '</div>' +
+            '</div>' +
+
+            // ── Line 2 ──
+            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>2</strong>&nbsp; Business name/disregarded entity name, if different from above</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' + fld(dba || '', 'wider') + '</div>' +
+            '</div>' +
+
+            // ── Line 3 ──
+            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;"><strong>3</strong>&nbsp; Check appropriate box for federal tax classification of the person whose name is entered on line 1. Check only one of the following seven boxes.</div>' +
+              '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center;">' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Individual/sole proprietor or single-member LLC</label>' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> C Corporation</label>' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> S Corporation</label>' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Partnership</label>' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Trust/estate</label>' +
+              '</div>' +
+              '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center; margin-top: 4px;">' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> LLC &mdash; Enter tax classification (C=C corporation, S=S corporation, P=partnership): <span class="paper-fld tiny" style="margin-left: 4px; min-width: 30px;">___</span></label>' +
+                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Other (see instructions) &#9654; <span class="paper-fld short" style="margin-left: 4px;">________</span></label>' +
+              '</div>' +
+            '</div>' +
+
+            // ── Line 4: Exemptions ──
+            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;"><strong>4</strong>&nbsp; Exemptions (codes apply only to certain entities, not individuals; see instructions on page 3)</div>' +
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exempt payee code (if any): <span class="paper-fld short">____</span></div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exemption from FATCA reporting code (if any): <span class="paper-fld short">____</span></div>' +
+              '</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 9px; color: var(--text-muted); margin-top: 4px; font-style: italic;">(Applies to accounts maintained outside the U.S.)</div>' +
+            '</div>' +
+
+            // ── Line 5 ──
+            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>5</strong>&nbsp; Address (number, street, and apt. or suite no.) See instructions.</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' + fld(companyAddress, 'wider') + '</div>' +
+            '</div>' +
+
+            // ── Line 6 ──
+            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>6</strong>&nbsp; City, state, and ZIP code</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' +
+                fld(companyCity) + '<span style="margin: 0 8px; color: var(--text-muted);">,</span>' +
+                fld(companyState, 'tiny') + '<span style="margin: 0 8px;"></span>' +
+                fld(companyZip, 'short') +
+              '</div>' +
+            '</div>' +
+
+            // ── Line 7 ──
+            '<div style="border-bottom: 2px solid #000; padding: 6px 14px 8px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>7</strong>&nbsp; List account number(s) here (optional)</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;"><span class="paper-fld wider">&mdash;</span></div>' +
+            '</div>' +
+
+          '</div>' +
+
+          // ── Part I: TIN ──
+          '<div style="border: 2px solid #000; border-top: none; margin-bottom: 0;">' +
+            '<div style="background: #000; color: #fff; padding: 5px 14px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em;">Part I&nbsp;&nbsp;&nbsp;&nbsp;Taxpayer Identification Number (TIN)</div>' +
+            '<div style="padding: 12px 14px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">Enter your TIN in the appropriate box. The TIN provided must match the name given on line 1 to avoid backup withholding. For individuals, this is generally your social security number (SSN). However, for a resident alien, sole proprietor, or disregarded entity, see the instructions for Part I, later. For other entities, it is your employer identification number (EIN). If you do not have a number, see <em>How to get a TIN</em>, later.</div>' +
+              '<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center;">' +
+                // SSN box
+                '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center;">' +
+                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Social Security Number</div>' +
+                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-family: \'Geist Mono\', monospace; font-size: 20px; letter-spacing: 0.1em; color: var(--text-faint);">' +
+                    '<span class="paper-fld short" style="min-width: 52px; text-align: center;">___</span>' +
+                    '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
+                    '<span class="paper-fld tiny" style="min-width: 36px; text-align: center;">__</span>' +
+                    '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
+                    '<span class="paper-fld short" style="min-width: 64px; text-align: center;">____</span>' +
+                  '</div>' +
+                '</div>' +
+                // OR divider
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; font-weight: 700; color: var(--text-secondary);">OR</div>' +
+                // EIN box
+                '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center; ' + (einClean ? 'border-color: var(--brand); background: var(--brand-tint);' : '') + '">' +
+                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Employer Identification Number</div>' +
+                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-family: \'Geist Mono\', monospace; font-size: 20px; letter-spacing: 0.1em;">' +
+                    '<span class="paper-fld tiny" style="min-width: 36px; text-align: center;">' + escHtml(einGroup1 || '__') + '</span>' +
+                    '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
+                    '<span class="paper-fld" style="min-width: 110px; text-align: center;">' + escHtml(einGroup2 || '_______') + '</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // ── Part II: Certification ──
+          '<div style="border: 2px solid #000; border-top: none;">' +
+            '<div style="background: #000; color: #fff; padding: 5px 14px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em;">Part II&nbsp;&nbsp;&nbsp;&nbsp;Certification</div>' +
+            '<div style="padding: 12px 14px;">' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12.5px; line-height: 1.55; color: var(--text-primary); margin-bottom: 8px;"><strong>Under penalties of perjury, I certify that:</strong></div>' +
+              '<ol style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; line-height: 1.55; color: var(--text-secondary); padding-left: 22px; margin: 0 0 12px;">' +
+                '<li style="margin-bottom: 4px;">The number shown on this form is my correct taxpayer identification number (or I am waiting for a number to be issued to me); and</li>' +
+                '<li style="margin-bottom: 4px;">I am not subject to backup withholding because: (a) I am exempt from backup withholding, or (b) I have not been notified by the Internal Revenue Service (IRS) that I am subject to backup withholding as a result of a failure to report all interest or dividends, or (c) the IRS has notified me that I am no longer subject to backup withholding; and</li>' +
+                '<li style="margin-bottom: 4px;">I am a U.S. citizen or other U.S. person (defined below); and</li>' +
+                '<li style="margin-bottom: 4px;">The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.</li>' +
+              '</ol>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; font-style: italic;">Certification instructions. You must cross out item 2 above if you have been notified by the IRS that you are currently subject to backup withholding because you have failed to report all interest and dividends on your tax return. For real estate transactions, item 2 does not apply. For mortgage interest paid, acquisition or abandonment of secured property, cancellation of debt, contributions to an individual retirement arrangement (IRA), and generally, payments other than interest and dividends, you are not required to sign the certification, but you must provide your correct TIN. See the instructions for Part II, later.</div>' +
+              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10.5px; color: var(--text-muted); line-height: 1.5; padding: 8px 12px; background: var(--bg-soft); border-radius: 3px; margin-bottom: 14px;">The Internal Revenue Service does not require your consent to any provision of this document other than the certifications required to avoid backup withholding.</div>' +
+
+              // Signature section
+              '<div style="display: grid; grid-template-columns: 1fr 200px; gap: 24px; padding-top: 12px; border-top: 1.5px solid #000;">' +
+                '<div>' +
+                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Signature of U.S. person &#9654;</div>' +
+                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 32px;"></div>' +
+                '</div>' +
+                '<div>' +
+                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Date &#9654;</div>' +
+                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 32px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; padding-top: 8px; color: var(--brand);">' + todayDisplay + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
           '</div>';
       }
     ]
@@ -950,12 +1085,29 @@
     var input = document.getElementById('initialInput');
     var val = input.value.trim();
     if (!val) return;
-    if (pendingInitialPageId) {
-      initialedPages[pendingInitialPageId] = val;
+    var pageId = pendingInitialPageId;
+    if (pageId) {
+      initialedPages[pageId] = val;
     }
     closeInitialModal();
+
+    // Update the specific initial box in-place instead of re-rendering
+    // the entire paper area (which would scroll to top).
+    if (pageId) {
+      var box = document.querySelector('.initial-box[data-page-id="' + pageId + '"]');
+      if (box) {
+        box.classList.add('initialed');
+        var valueEl = box.querySelector('.initial-value');
+        if (valueEl) {
+          valueEl.innerHTML = '<span class="initial-check">&#10003;</span> ' + escHtml(val);
+        }
+        // Remove click handler by replacing with clone
+        var newBox = box.cloneNode(true);
+        box.parentNode.replaceChild(newBox, box);
+      }
+    }
+
     renderSidebar();
-    renderPaperArea();
     updateSubmitState();
   };
 
