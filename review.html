@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Document Review & E-Sign</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #EFEAE0; --bg-surface: #FFFFFF; --bg-sidebar: #F6F2EA; --bg-elevated: #F2EDE2; --bg-soft: #FBF8F2;
+    --border: #ECE6D8; --border-strong: #D8D0BD; --border-active: #1F3D2E;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E; --text-faint: #B5B2A4;
+    --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-soft: #E5EDE6; --brand-tint: #EFF3EE;
+    --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
+    --success: #2D7A52; --danger: #9B2C2C;
+    --paper: #FCFAF6; --paper-shadow: rgba(80,60,30,.12);
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); font-feature-settings: 'ss01','cv01','cv11'; letter-spacing: -0.005em; margin: 0; height: 100vh; overflow: hidden; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .font-serif { font-family: 'Crimson Pro', Georgia, serif; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #C9C0AB; border-radius: 8px; border: 2px solid var(--bg-page); }
+
+  .layout-shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+  .top-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 10; }
+  .main-split { display: grid; grid-template-columns: 280px 1fr; height: 100%; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { background: var(--bg-sidebar); border-right: 1px solid var(--border); overflow-y: auto; padding: 22px 18px; }
+  .side-eyebrow { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 0 6px 10px; }
+  .doc-nav-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; margin-bottom: 4px; border-radius: 8px; cursor: pointer; transition: all 120ms ease; border-left: 2px solid transparent; }
+  .doc-nav-item:hover { background: var(--bg-elevated); }
+  .doc-nav-item.active { background: var(--bg-surface); border-left-color: var(--success); box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .doc-nav-icon { width: 28px; height: 36px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 2px; font-family: 'Geist Mono', monospace; font-size: 8.5px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+  .doc-nav-icon::before { content: ""; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 7px 7px 0; border-color: transparent var(--bg-sidebar) transparent transparent; }
+  .doc-nav-item.active .doc-nav-icon::before { border-color: transparent var(--bg-surface) transparent transparent; }
+  .doc-nav-title { font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--text-primary); }
+  .doc-nav-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: 'Geist Mono', monospace; }
+  .doc-nav-status { display: flex; align-items: center; gap: 5px; margin-top: 6px; font-size: 11px; font-family: 'Geist Mono', monospace; }
+  .doc-nav-status .check { color: var(--success); font-weight: 600; }
+  .doc-nav-status .pending { color: var(--text-faint); }
+  .doc-nav-progress { height: 3px; background: var(--bg-elevated); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .doc-nav-progress-fill { height: 100%; background: var(--success); transition: width 250ms ease; border-radius: 3px; }
+
+  /* PAPER (document) */
+  .paper-area { background: var(--bg-page); overflow-y: auto; padding: 36px 36px 80px; scroll-behavior: smooth; }
+  .paper {
+    background: var(--paper);
+    max-width: 820px;
+    margin: 0 auto;
+    box-shadow:
+      0 1px 2px var(--paper-shadow),
+      0 8px 24px var(--paper-shadow),
+      0 24px 48px rgba(80,60,30,.08);
+    padding: 80px 90px 100px;
+    position: relative;
+    border-radius: 2px;
+    color: var(--text-primary);
+    line-height: 1.55;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 14.5px;
+  }
+  .paper + .paper { margin-top: 32px; }
+  .paper-page-num { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--text-faint); letter-spacing: 0.1em; }
+  .paper-header-logo { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500; color: var(--brand); margin-bottom: 4px; letter-spacing: -0.02em; }
+  .paper-doc-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; color: var(--text-primary); margin-bottom: 14px; }
+  .paper-doc-sub { font-size: 13px; color: var(--text-muted); border-bottom: 1px solid var(--border-strong); padding-bottom: 18px; margin-bottom: 24px; font-family: 'Geist', sans-serif; }
+
+  .paper-section-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 28px 0 12px; letter-spacing: -0.005em; }
+  .paper-body p { margin-bottom: 12px; }
+  .paper-body strong { color: var(--text-primary); font-weight: 600; }
+
+  /* Read-only filled field */
+  .paper-fld {
+    display: inline;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px dotted var(--gold);
+    padding: 1px 6px 2px;
+    font: inherit;
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 120px;
+  }
+  .paper-fld.wide { min-width: 260px; }
+  .paper-fld.wider { min-width: 380px; }
+  .paper-fld.short { min-width: 80px; }
+  .paper-fld.tiny { min-width: 50px; }
+
+  /* Paper radio (read-only indicator) */
+  .paper-radio-ro {
+    display: inline-flex; gap: 0;
+    margin-left: 6px; border-radius: 4px;
+    background: var(--bg-elevated); padding: 2px;
+  }
+  .paper-radio-ro span {
+    background: transparent; padding: 3px 10px;
+    font: inherit; font-size: 12.5px; color: var(--text-faint);
+    border-radius: 3px;
+  }
+  .paper-radio-ro span.active { background: var(--brand); color: #fff; }
+
+  /* Paper table */
+  .paper-table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 13px; font-family: 'Geist', sans-serif; }
+  .paper-table th { text-align: left; border-bottom: 1.5px solid var(--text-primary); padding: 6px 8px; font-weight: 600; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); }
+  .paper-table td { border-bottom: 1px dotted var(--border-strong); padding: 8px 8px; vertical-align: top; }
+
+  /* Sign block */
+  .sign-block { margin: 28px 0 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding-top: 20px; border-top: 1px solid var(--border-strong); }
+  .sign-row { display: flex; flex-direction: column; }
+  .sign-line { border-bottom: 1.5px solid var(--text-primary); height: 36px; position: relative; padding: 6px 0 0; }
+  .sign-line .sign-value { font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: var(--brand); }
+  .sign-line input { width: 100%; border: none; background: transparent; font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: var(--brand); padding: 0; }
+  .sign-line input:focus { outline: none; }
+  .sign-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+
+  /* Initial box */
+  .initial-box {
+    position: absolute;
+    bottom: 36px;
+    right: 60px;
+    width: 100px;
+    height: 56px;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 180ms ease;
+    background: var(--bg-soft);
+  }
+  .initial-box:hover { border-color: var(--brand); background: var(--brand-tint); }
+  .initial-box .initial-prompt {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .initial-box.initialed {
+    border-color: var(--success);
+    background: #EDF7F0;
+    cursor: default;
+  }
+  .initial-box.initialed .initial-prompt { display: none; }
+  .initial-box .initial-value {
+    display: none;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--brand);
+    font-weight: 500;
+  }
+  .initial-box.initialed .initial-value { display: flex; align-items: center; gap: 6px; }
+  .initial-box .initial-check { color: var(--success); font-size: 14px; }
+  .initial-box-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* Doc pages */
+  .doc-page { display: none; }
+  .doc-page.active { display: block; animation: pageIn 280ms ease; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Conditional banner */
+  .cond-banner { background: var(--gold-soft); border: 1px solid #E8D9B5; border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px 16px; font-size: 12.5px; color: var(--gold-deep); display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-family: 'Geist', sans-serif; max-width: 820px; margin-left: auto; margin-right: auto; }
+
+  /* Bullets paper-style */
+  .paper-bullets { padding-left: 22px; margin: 8px 0 12px; }
+  .paper-bullets li { margin-bottom: 6px; }
+
+  /* Buttons */
+  .btn-primary { background: var(--brand); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: none; cursor: pointer; transition: all 150ms ease; }
+  .btn-primary:hover:not(:disabled) { background: var(--brand-hover); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--text-secondary); padding: 8px 12px; font-size: 13px; border: none; cursor: pointer; }
+  .btn-ghost:hover { color: var(--text-primary); }
+
+  .page-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding: 5px 12px; background: var(--bg-elevated); border-radius: 999px; font-family: 'Geist Mono', monospace; letter-spacing: 0.06em; }
+
+  /* Initial modal */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(20,30,22,.45); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.open { display: flex; }
+  .modal-card { background: var(--bg-surface); border-radius: 16px; max-width: 420px; width: 100%; padding: 36px 40px; box-shadow: 0 32px 80px rgba(0,0,0,.2); animation: modalIn 280ms ease; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .modal-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+  .modal-input { width: 100%; background: var(--bg-soft); border: 1.5px solid var(--border-strong); border-radius: 8px; padding: 14px 18px; font-family: 'Fraunces', serif; font-style: italic; font-size: 28px; color: var(--brand); text-align: center; letter-spacing: 0.04em; transition: border-color 150ms ease; }
+  .modal-input:focus { outline: none; border-color: var(--brand); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .modal-btn-cancel { background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary); padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .modal-btn-confirm { background: var(--brand); color: #fff; padding: 10px 24px; border-radius: 6px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; }
+  .modal-btn-confirm:hover { background: var(--brand-hover); }
+  .modal-preview { text-align: center; margin: 12px 0 0; font-family: 'Fraunces', serif; font-style: italic; font-size: 32px; color: var(--brand); min-height: 44px; }
+
+  /* E-sign final page */
+  .esign-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--brand);
+    padding: 8px 4px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 24px;
+    color: var(--brand);
+    transition: all 150ms ease;
+  }
+  .esign-input:focus { outline: none; border-bottom-color: var(--success); }
+  .esign-input::placeholder { color: var(--text-faint); font-size: 16px; font-style: normal; font-family: 'Geist', sans-serif; }
+
+  /* Document checklist on final page */
+  .doc-checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dotted var(--border); font-family: 'Geist', sans-serif; font-size: 13px; }
+  .doc-checklist-item:last-child { border-bottom: none; }
+  .doc-checklist-check { width: 18px; height: 18px; border-radius: 50%; background: #E3EFE5; color: var(--success); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+
+  /* Submit success overlay */
+  .submit-overlay { position: fixed; inset: 0; background: rgba(20,30,22,.45); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .submit-overlay.open { display: flex; }
+  .submit-card { background: var(--bg-surface); border-radius: 16px; max-width: 520px; width: 100%; padding: 40px 44px; box-shadow: 0 32px 80px rgba(0,0,0,.2); animation: modalIn 350ms ease; text-align: center; }
+  .submit-icon { width: 64px; height: 64px; border-radius: 50%; background: #E3EFE5; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--success); margin: 0 auto 20px; }
+  .submit-title { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .submit-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 24px; }
+
+  /* Ref block */
+  .ref-block { background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px; }
+  .ref-block.gold { background: var(--gold-soft); border-left: 2px solid var(--gold); }
+  .principal-block { background: var(--bg-soft); padding: 14px 18px; border-radius: 4px; margin-bottom: 10px; border-left: 2px solid var(--gold); }
+
+  /* Certification checkbox (pre-checked, read-only) */
+  .cert-checkbox { accent-color: var(--brand); margin-top: 4px; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="layout-shell">
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="flex items-center gap-3">
+      <div class="font-display text-lg font-medium" style="color: var(--brand);">CMG <span style="font-weight: 400; color: var(--text-primary);">Home Loans</span></div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span style="font-family: 'Geist', sans-serif; font-size: 13px; color: var(--text-secondary); font-weight: 500;">Document Review & E-Sign</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="page-pill" id="pageIndicator">Page 1 of --</span>
+      <button class="btn-primary" id="submitPacketBtn" disabled onclick="submitPacket()">Submit Packet</button>
+    </div>
+  </header>
+
+  <div class="main-split">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="side-eyebrow">Document Packet</div>
+      <div id="docNav"></div>
+
+      <div style="margin-top: 24px; padding: 14px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border);">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Progress</div>
+        <div id="progressSummary" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;"></div>
+      </div>
+    </aside>
+
+    <!-- PAPER AREA -->
+    <main class="paper-area" id="paperArea"></main>
+
+  </div>
+</div>
+
+<!-- Initial Modal -->
+<div class="modal-overlay" id="initialModal">
+  <div class="modal-card">
+    <div class="modal-title">Initial this page</div>
+    <div class="modal-sub">Type your initials below to confirm you have reviewed this page.</div>
+    <input type="text" class="modal-input" id="initialInput" maxlength="4" autocomplete="off" />
+    <div class="modal-preview" id="initialPreview"></div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeInitialModal()">Cancel</button>
+      <button class="modal-btn-confirm" id="initialConfirmBtn" onclick="confirmInitial()">Apply Initials</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Success Overlay -->
+<div class="submit-overlay" id="submitOverlay">
+  <div class="submit-card">
+    <div class="submit-icon">&#10003;</div>
+    <div class="submit-title">Packet Submitted</div>
+    <p class="submit-sub">Your builder application packet has been signed and submitted. All documents have been recorded with your electronic signature.</p>
+    <div style="text-align: left; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div id="submitDocList"></div>
+    </div>
+    <button class="btn-primary" onclick="window.location.href='documents.html'" style="width: 100%;">Continue to Documents</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ---------------------------------------------------------------------------
+  // Data from localStorage
+  // ---------------------------------------------------------------------------
+  var formData = {};
+  var account = {};
+  try { formData = JSON.parse(localStorage.getItem('builderFormData') || '{}'); } catch(e) {}
+  try { account = JSON.parse(localStorage.getItem('builderAccount') || '{}'); } catch(e) {}
+
+  // Helpers to safely read nested values
+  function fd(key, fallback) { return formData[key] || fallback || ''; }
+  function ac(key, fallback) { return account[key] || fallback || ''; }
+
+  // Derive fields
+  var companyName = fd('companyName', ac('companyName', 'Builder Company'));
+  var dba = fd('dba', '');
+  var parentCompany = fd('parentCompany', '');
+  var companyAddress = fd('companyAddress', '');
+  var companyCity = fd('companyCity', '');
+  var companyState = fd('companyState', '');
+  var companyZip = fd('companyZip', '');
+  var ein = fd('ein', ac('ein', ''));
+  var contactFirst = fd('contactFirst', ac('firstName', 'Builder'));
+  var contactLast = fd('contactLast', ac('lastName', 'Representative'));
+  var contactPhone = fd('contactPhone', ac('phone', ''));
+  var contactEmail = fd('contactEmail', ac('email', ''));
+  var borrowerName = fd('borrowerName', '');
+  var coBorrowerName = fd('coBorrowerName', '');
+  var projectAddress = fd('projectAddress', '');
+  var projectCity = fd('projectCity', '');
+  var projectState = fd('projectState', '');
+  var projectZip = fd('projectZip', '');
+  var contractAmount = fd('contractAmount', '');
+  var estimatedDuration = fd('estimatedDuration', '');
+  var isTx = fd('isTx', 'no');
+  var drawAtClose = fd('drawAtClose', 'no');
+  var principals = fd('principals', []);
+  if (!Array.isArray(principals)) principals = [];
+  var bankRefs = fd('bankRefs', []);
+  if (!Array.isArray(bankRefs)) bankRefs = [];
+  var tradeRefs = fd('tradeRefs', []);
+  if (!Array.isArray(tradeRefs)) tradeRefs = [];
+  var supplierRefs = fd('supplierRefs', []);
+  if (!Array.isArray(supplierRefs)) supplierRefs = [];
+
+  // Background
+  var litigation = fd('litigation', 'no');
+  var litigationDetail = fd('litigationDetail', '');
+  var judgments = fd('judgments', 'no');
+  var judgmentsDetail = fd('judgmentsDetail', '');
+  var bankruptcy = fd('bankruptcy', 'no');
+  var bankruptcyDetail = fd('bankruptcyDetail', '');
+  var workersComp = fd('workersComp', 'yes');
+  var workersCompReason = fd('workersCompReason', '');
+  var yearsInBusiness = fd('yearsInBusiness', '');
+  var projectTypes = fd('projectTypes', []);
+  if (!Array.isArray(projectTypes)) projectTypes = [];
+  var inHouseTrades = fd('inHouseTrades', '');
+
+  // Construction history
+  var histResNew = fd('histResNew', {});
+  var histResReno = fd('histResReno', {});
+  var histCommercial = fd('histCommercial', {});
+  var sales3yr = fd('sales3yr', []);
+  if (!Array.isArray(sales3yr)) sales3yr = [];
+
+  // Completion date
+  var completionDate = '';
+  if (estimatedDuration) {
+    var d = new Date();
+    d.setMonth(d.getMonth() + parseInt(estimatedDuration, 10));
+    completionDate = d.toISOString().split('T')[0];
+  }
+
+  var today = new Date().toISOString().split('T')[0];
+  var todayDisplay = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  var fullProjectAddress = [projectAddress, projectCity, projectState, projectZip].filter(Boolean).join(', ');
+  var fullCompanyAddress = [companyAddress, companyCity, companyState, companyZip].filter(Boolean).join(', ');
+  var principalTitle = (principals[0] && principals[0].title) ? principals[0].title : '';
+
+  // Format currency
+  function fmtCurrency(val) {
+    if (!val) return '';
+    var num = String(val).replace(/[^0-9.]/g, '');
+    if (!num) return val;
+    return '$' + parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  // Render a read-only field span
+  function fld(value, cls) {
+    cls = cls || '';
+    var v = value || '';
+    return '<span class="paper-fld ' + cls + '">' + escHtml(v || '—') + '</span>';
+  }
+
+  // Render Y/N radio (read-only)
+  function ynRadio(value) {
+    var y = (value === 'yes' || value === 'Yes' || value === true) ? 'active' : '';
+    var n = (!y || y !== 'active') ? 'active' : '';
+    // Recheck: if value is specifically 'yes', y is active
+    if (value === 'yes' || value === 'Yes' || value === true) {
+      return '<span class="paper-radio-ro"><span class="active">Yes</span><span>No</span></span>';
+    }
+    return '<span class="paper-radio-ro"><span>Yes</span><span class="active">No</span></span>';
+  }
+
+  function escHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Build document definitions
+  // ---------------------------------------------------------------------------
+  var documents = [];
+  var globalPageIndex = 0;
+
+  // --- DOC 1: BAF (3 pages) ---
+  documents.push({
+    id: 'baf',
+    title: 'Builder Acknowledgment Form',
+    shortTitle: 'BAF',
+    pages: [
+      // Page 1: Project Summary
+      function() {
+        return '<div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>' +
+          '<h1 class="paper-doc-title">Builder Acknowledgment Form</h1>' +
+          '<div class="paper-doc-sub">CMG Home Loans &middot; 3160 Crow Canyon Rd Ste 400, San Ramon, CA 94583</div>' +
+          '<div class="paper-body">' +
+            '<p><strong>Project Address:</strong> ' + fld(fullProjectAddress, 'wider') + '</p>' +
+            '<p><strong>Borrower:</strong> ' + fld(borrowerName, 'wide') + '</p>' +
+            '<p><strong>Co-Borrower:</strong> ' + fld(coBorrowerName, 'wide') + '</p>' +
+            '<p><strong>Builder:</strong> ' + fld(companyName, 'wide') + '</p>' +
+            '<p><strong>Builder Address:</strong> ' + fld(fullCompanyAddress, 'wider') + '</p>' +
+            '<p><strong>Contract Price:</strong> ' + fld(fmtCurrency(contractAmount)) + '</p>' +
+            '<p><strong>Build Duration:</strong> ' + fld(estimatedDuration ? estimatedDuration + ' months' : '') + '</p>' +
+            '<p><strong>Completion Date:</strong> ' + fld(completionDate) + '</p>' +
+            '<p style="margin-top: 20px; font-style: italic; color: var(--text-secondary);">This agreement ("Builder Acknowledgment") is made by the above-named builder ("Builder"). The Builder in consideration of the above-named borrower(s) ("Borrower") agree with the intent to be legally bound, agrees as follows:</p>' +
+            '<h2 class="paper-section-title">Construction Loan</h2>' +
+            '<p>Borrower has applied to Lender for a construction loan ("Loan"). Borrower intends to pay the Contract price, using proceeds of the Loan from Lender. Lender will make the Loan in accordance with the terms of the Construction Contract.</p>' +
+            '<h2 class="paper-section-title">Construction Contract</h2>' +
+            '<p>Borrower and Builder have entered into a construction contract ("Contract") for a price of ' + fld(fmtCurrency(contractAmount)) + '. Builder agrees that the Contract is a <strong>fixed price</strong> Contract and may not exceed the Contract price stated above except by approved Change Order. Build duration: ' + fld(estimatedDuration ? estimatedDuration + ' months' : '', 'short') + '. Completion Date: ' + fld(completionDate, 'short') + '.</p>' +
+          '</div>';
+      },
+      // Page 2: Terms & Conditions
+      function() {
+        return '<div class="paper-body">' +
+          '<h2 class="paper-section-title">Loan Administration</h2>' +
+          '<p>Lender will provide construction loan administration services. To facilitate loan administration, Lender has provided Builder with the Builder Packet which includes a document checklist and accompanying checklist guide.</p>' +
+          '<h2 class="paper-section-title">Construction Budget and Advancements</h2>' +
+          '<p>The Work shall proceed in accordance with: the blueprints, shop drawings, plans and specifications for the Work; the written itemization of the Work and the Contract Price; and the itemized description of each segment of the Work that sets the corresponding payment advancements as specified in the Construction Budget accepted by the Lender.</p>' +
+          '<h2 class="paper-section-title">Change Orders</h2>' +
+          '<p>Any change in the Contract Price, change in the Work or change in the contract time must be set forth in a Change Order signed by Borrower and Builder. Builder will provide to Lender copies of all change orders, including cost overruns, for approval. Builder agrees to not complete any work not included in the Construction Contract and Approved Construction Budget until a written change order has been signed by Builder and the Borrower <em>and Lender has approved it in writing</em>.</p>' +
+          '<h2 class="paper-section-title">Insurance During the Construction Period</h2>' +
+          '<p>Builder shall keep in place an active policy for Builder\'s General Liability Insurance (minimum $1M) and Workers\' Compensation Insurance. Builder\'s Risk Insurance must be maintained throughout the course of construction.</p>' +
+          '<h2 class="paper-section-title">Construction Loan Disbursement Request</h2>' +
+          '<p style="color: var(--danger); font-weight: 500;">The Lender does not advance funds for deposits on materials, up front purchase of materials, or stored materials. These are the Builder\'s responsibility. The Lender advances construction draws for work completed.</p>' +
+          '<p><strong>Maximum 6 post-closing inspections/draws + 1 final</strong> is CMG\'s policy and industry standard. Final disbursement no less than 10% of contract amount. Each draw request must be accompanied by a lien waiver or lien release.</p>' +
+          '<h2 class="paper-section-title">Right of Lender to Inspect</h2>' +
+          '<p>Lender shall have the right to inspect the Property and the Improvements at any time.</p>' +
+        '</div>';
+      },
+      // Page 3: BAF Signature Page
+      function() {
+        return '<div class="paper-body">' +
+          '<h2 class="paper-section-title">Entire Agreement</h2>' +
+          '<p>This Builder Acknowledgment and the Construction contract represent the final agreement between the Borrower and Builder. Builder acknowledges that the execution and delivery of this Builder Acknowledgment is its free and voluntary act and deed.</p>' +
+          '<h2 class="paper-section-title">Signature</h2>' +
+          '<p style="margin-bottom: 28px;">Builder acknowledges that they have read and fully understand all terms and conditions of this Builder Acknowledgment.</p>' +
+          '<div class="sign-block">' +
+            '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(companyName) + '</span></div><div class="sign-label">Builder Company Name</div></div>' +
+            '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(contactFirst + ' ' + contactLast) + '</span></div><div class="sign-label">Printed Name of Signer</div></div>' +
+            '<div class="sign-row"><div class="sign-line"><input id="bafSignature" placeholder="Type to e-sign" /></div><div class="sign-label">Signature (type to e-sign)</div></div>' +
+            '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(principalTitle) + '</span></div><div class="sign-label">Job Title</div></div>' +
+            '<div class="sign-row" style="grid-column: 1 / -1; max-width: 280px;"><div class="sign-line"><span class="sign-value">' + todayDisplay + '</span></div><div class="sign-label">Date</div></div>' +
+          '</div>' +
+        '</div>';
+      }
+    ]
+  });
+
+  // --- DOC 2: BPR (4 pages) ---
+  documents.push({
+    id: 'bpr',
+    title: 'Builder & Project Review',
+    shortTitle: 'BPR',
+    pages: [
+      // Page 1: Company & Principals
+      function() {
+        var principalsHtml = '';
+        for (var i = 0; i < principals.length; i++) {
+          var p = principals[i];
+          principalsHtml += '<div class="principal-block">' +
+            '<p><strong>' + (i+1) + '.</strong> ' + fld((p.firstName || '') + ' ' + (p.lastName || '')) + ' &middot; Title ' + fld(p.title || '') + ' &middot; Ownership ' + fld(p.ownership ? p.ownership + '%' : '', 'tiny') + ' &middot; ' + fld(p.years ? p.years + ' yrs' : '', 'tiny') + '</p>' +
+            '<p style="margin-top: 4px; padding-left: 14px;">Email ' + fld(p.email || '', 'wide') + ' &middot; Phone ' + fld(p.phone || '') + '</p>' +
+          '</div>';
+        }
+        if (!principalsHtml) {
+          principalsHtml = '<div class="principal-block"><p style="color: var(--text-faint); font-style: italic;">No principals listed</p></div>';
+        }
+
+        return '<div style="font-family: \'Geist\', sans-serif; font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">New Construction</div>' +
+          '<h1 class="paper-doc-title">Builder & Project Review</h1>' +
+          '<div class="paper-doc-sub">Pre-close project and builder review</div>' +
+          '<div class="paper-body">' +
+            '<h2 class="paper-section-title">Contractor Company Information</h2>' +
+            '<p><strong>Company Name:</strong> ' + fld(companyName, 'wider') + '</p>' +
+            '<p><strong>DBA:</strong> ' + fld(dba, 'wide') + '&nbsp;&nbsp;<strong>Parent Company:</strong> ' + fld(parentCompany || '—', 'wide') + '</p>' +
+            '<p><strong>Address:</strong> ' + fld(companyAddress, 'wider') + '</p>' +
+            '<p><strong>City:</strong> ' + fld(companyCity) + '&nbsp;&nbsp;<strong>State:</strong> ' + fld(companyState, 'tiny') + '&nbsp;&nbsp;<strong>Zip:</strong> ' + fld(companyZip, 'short') + '&nbsp;&nbsp;<strong>EIN:</strong> ' + fld(ein) + '</p>' +
+            '<p style="margin-top: 14px;"><em style="color: var(--text-secondary);">Point of contact completing this questionnaire:</em></p>' +
+            '<p>First ' + fld(contactFirst) + '&nbsp;&nbsp;Last ' + fld(contactLast) + '&nbsp;&nbsp;Phone ' + fld(contactPhone) + '&nbsp;&nbsp;Email ' + fld(contactEmail, 'wide') + '</p>' +
+            '<h2 class="paper-section-title">Principals / Officers / Members</h2>' +
+            principalsHtml +
+          '</div>';
+      },
+      // Page 2: Background & Experience
+      function() {
+        var ptHtml = '';
+        var allTypes = ['Residential New 1-4', 'Multi-Family', 'Factory Built', 'Renovation', 'Commercial', 'Other'];
+        allTypes.forEach(function(t) {
+          var isActive = projectTypes.indexOf(t) !== -1;
+          ptHtml += '<span class="' + (isActive ? 'active' : '') + '">' + t + '</span>';
+        });
+
+        var salesHtml = '';
+        for (var i = 0; i < sales3yr.length; i++) {
+          var s = sales3yr[i];
+          salesHtml += '<tr><td><strong>' + escHtml(s.year || '') + '</strong></td><td>' + fld(fmtCurrency(s.totalSales)) + '</td><td>' + fld(s.projectsCompleted || '') + '</td></tr>';
+        }
+        if (!salesHtml) {
+          salesHtml = '<tr><td colspan="3" style="color: var(--text-faint); font-style: italic;">No sales data provided</td></tr>';
+        }
+
+        return '<div class="paper-body">' +
+          '<h2 class="paper-section-title">Background Information</h2>' +
+          '<p>Currently involved in litigation? ' + ynRadio(litigation) + '</p>' +
+          (litigationDetail ? '<p style="padding-left: 20px; font-style: italic; color: var(--text-secondary);">' + escHtml(litigationDetail) + '</p>' : '') +
+          '<p>Any judgments, liens, or garnishments? ' + ynRadio(judgments) + '</p>' +
+          (judgmentsDetail ? '<p style="padding-left: 20px; font-style: italic; color: var(--text-secondary);">' + escHtml(judgmentsDetail) + '</p>' : '') +
+          '<p>Bankruptcy discharged in last 7 years? ' + ynRadio(bankruptcy) + '</p>' +
+          (bankruptcyDetail ? '<p style="padding-left: 20px; font-style: italic; color: var(--text-secondary);">' + escHtml(bankruptcyDetail) + '</p>' : '') +
+          '<p>Workers\' Compensation insurance? ' + ynRadio(workersComp) + '</p>' +
+          (workersCompReason ? '<p style="padding-left: 20px; font-size: 12px; color: var(--text-muted); font-style: italic;">Reason: ' + escHtml(workersCompReason) + '</p>' : '') +
+          '<h2 class="paper-section-title">Construction Experience</h2>' +
+          '<p>Years in Business: ' + fld(yearsInBusiness, 'tiny') + '</p>' +
+          '<p>Project Types: <span class="paper-radio-ro">' + ptHtml + '</span></p>' +
+          '<p>In-house trades: ' + fld(inHouseTrades, 'wider') + '</p>' +
+          '<h2 class="paper-section-title">Construction History (Last 5 Years)</h2>' +
+          '<p><strong>Residential New Construction:</strong> Started ' + fld(histResNew.started || '', 'tiny') + ' &middot; Completed ' + fld(histResNew.completed || '', 'tiny') + ' &middot; In Progress ' + fld(histResNew.inProgress || '', 'tiny') + ' &middot; Avg Size ' + fld(fmtCurrency(histResNew.avgSize), 'short') + '</p>' +
+          '<p><strong>Residential Renovation:</strong> Started ' + fld(histResReno.started || '', 'tiny') + ' &middot; Completed ' + fld(histResReno.completed || '', 'tiny') + ' &middot; In Progress ' + fld(histResReno.inProgress || '', 'tiny') + ' &middot; Avg Size ' + fld(fmtCurrency(histResReno.avgSize), 'short') + '</p>' +
+          '<p><strong>Commercial:</strong> Started ' + fld(histCommercial.started || '', 'tiny') + ' &middot; Completed ' + fld(histCommercial.completed || '', 'tiny') + ' &middot; In Progress ' + fld(histCommercial.inProgress || '', 'tiny') + ' &middot; Avg Size ' + fld(fmtCurrency(histCommercial.avgSize), 'short') + '</p>' +
+          '<h2 class="paper-section-title">Residential New Construction Sales &mdash; Last 3 Years</h2>' +
+          '<table class="paper-table"><thead><tr><th>Year</th><th>Total Sales ($)</th><th>Projects Completed</th></tr></thead><tbody>' + salesHtml + '</tbody></table>' +
+        '</div>';
+      },
+      // Page 3: References
+      function() {
+        var bankHtml = '';
+        for (var i = 0; i < bankRefs.length; i++) {
+          var b = bankRefs[i];
+          bankHtml += '<div class="ref-block">' +
+            '<p><strong>' + (i+1) + '.</strong> Lender ' + fld(b.lender || '') + ' &middot; LO ' + fld(b.contactName || '') + ' &middot; ' + fld(b.years ? b.years + ' yrs' : '', 'tiny') + '</p>' +
+            '<p style="padding-left: 14px;">Phone ' + fld(b.phone || '') + ' &middot; Email ' + fld(b.email || '', 'wide') + '</p>' +
+          '</div>';
+        }
+        if (!bankHtml) bankHtml = '<div class="ref-block"><p style="color: var(--text-faint); font-style: italic;">No banking references provided</p></div>';
+
+        var tradeHtml = '';
+        for (var i = 0; i < tradeRefs.length; i++) {
+          var t = tradeRefs[i];
+          tradeHtml += '<div class="ref-block">' +
+            '<p><strong>' + (i+1) + '.</strong> ' + fld(t.company || '') + ' &middot; Trade ' + fld(t.trade || '') + ' &middot; ' + fld(t.years ? t.years + ' yrs' : '', 'tiny') + ' &middot; Contact ' + fld(t.contactName || '') + '</p>' +
+            '<p style="padding-left: 14px;">Phone ' + fld(t.phone || '') + ' &middot; Email ' + fld(t.email || '', 'wide') + '</p>' +
+          '</div>';
+        }
+        if (!tradeHtml) tradeHtml = '<div class="ref-block"><p style="color: var(--text-faint); font-style: italic;">No trade references provided</p></div>';
+
+        var supplierHtml = '';
+        for (var i = 0; i < supplierRefs.length; i++) {
+          var s = supplierRefs[i];
+          var isLumber = s.isPrimaryLumber || (s.material && s.material.toLowerCase().indexOf('lumber') !== -1);
+          supplierHtml += '<div class="ref-block ' + (isLumber ? 'gold' : '') + '">' +
+            '<p><strong>' + (i+1) + '.</strong> ' + fld(s.company || '') + (isLumber ? ' &middot; <span style="font-size: 11px; color: var(--gold-deep); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-family: Geist, sans-serif;">&#9733; Primary Lumber</span>' : ' &middot; Material ' + fld(s.material || '')) + ' &middot; ' + fld(s.years ? s.years + ' yrs' : '', 'tiny') + '</p>' +
+            '<p style="padding-left: 14px;">Contact ' + fld(s.contactName || '') + ' &middot; Phone ' + fld(s.phone || '') + ' &middot; Email ' + fld(s.email || '', 'wide') + '</p>' +
+          '</div>';
+        }
+        if (!supplierHtml) supplierHtml = '<div class="ref-block"><p style="color: var(--text-faint); font-style: italic;">No supplier references provided</p></div>';
+
+        return '<div class="paper-body">' +
+          '<h2 class="paper-section-title">Banking References</h2>' + bankHtml +
+          '<h2 class="paper-section-title">Trade References (3 Sub-Contractors, past 12 months)</h2>' + tradeHtml +
+          '<h2 class="paper-section-title">Supplier References (3 &mdash; one MUST be primary lumber)</h2>' + supplierHtml +
+        '</div>';
+      },
+      // Page 4: Project Authorization
+      function() {
+        return '<div class="paper-body">' +
+          '<h2 class="paper-section-title">Project Information</h2>' +
+          '<p><strong>Subject Property:</strong> ' + fld(fullProjectAddress, 'wider') + '</p>' +
+          '<p><strong>Borrower(s):</strong> ' + fld(borrowerName + (coBorrowerName ? ' & ' + coBorrowerName : ''), 'wide') + '</p>' +
+          '<p><strong>Contract Amount:</strong> ' + fld(fmtCurrency(contractAmount)) + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;<strong>Duration:</strong> ' + fld(estimatedDuration ? estimatedDuration + ' months' : '', 'tiny') + '</p>' +
+          '<h2 class="paper-section-title">Authorization</h2>' +
+          '<p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; font-family: Geist, sans-serif;">By providing my initials on this page, I certify all information provided in the Builder & Project Review is true and accurate to the best of my knowledge. I authorize CMG Home Loans to verify the references and information provided herein.</p>' +
+        '</div>';
+      }
+    ]
+  });
+
+  // --- DOC 3: Texas Supplement (conditional) ---
+  if (isTx === 'yes') {
+    documents.push({
+      id: 'texas',
+      title: 'Texas Loan Supplement',
+      shortTitle: 'TX Supp',
+      conditional: true,
+      condLabel: 'Texas Property',
+      pages: [
+        function() {
+          return '<div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>' +
+            '<h1 class="paper-doc-title">Texas Loan Supplement</h1>' +
+            '<div class="paper-doc-sub">Mechanic\'s Lien Contract &mdash; Builder & Borrower data</div>' +
+            '<div class="paper-body">' +
+              '<p style="margin-bottom: 18px; font-style: italic; color: var(--text-secondary);">This supplement provides the information CMG needs to draft the Mechanic\'s Lien Contract required for all Texas construction loans. Please confirm every field below.</p>' +
+              '<h2 class="paper-section-title">Project</h2>' +
+              '<p><strong>Property Address:</strong> ' + fld(fullProjectAddress, 'wider') + '</p>' +
+              '<p><strong>Contract Amount:</strong> ' + fld(fmtCurrency(contractAmount)) + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;<strong>Completion Date:</strong> ' + fld(completionDate) + '</p>' +
+              '<h2 class="paper-section-title">Builder</h2>' +
+              '<p><strong>Builder Name:</strong> ' + fld(companyName, 'wide') + '</p>' +
+              '<p><strong>Builder Address:</strong> ' + fld(fullCompanyAddress, 'wider') + '</p>' +
+              '<h2 class="paper-section-title">Builder\'s Authorized Agent</h2>' +
+              '<p style="margin-bottom: 12px;"><em style="color: var(--text-secondary); font-size: 13px;">Person who will sign the Mechanic\'s Lien Contract at closing on behalf of the Builder.</em></p>' +
+              '<p><strong>Agent Name:</strong> ' + fld(contactFirst + ' ' + contactLast, 'wide') + '</p>' +
+              '<p><strong>Agent Title:</strong> ' + fld(principalTitle) + '</p>' +
+              '<h2 class="paper-section-title">Property Status Certification</h2>' +
+              '<div style="background: var(--gold-soft); border: 1px solid #E8D9B5; padding: 14px 18px; border-radius: 4px; margin-top: 8px;">' +
+                '<p style="margin: 0; display: flex; gap: 10px; align-items: flex-start;">' +
+                  '<input type="checkbox" checked class="cert-checkbox" />' +
+                  '<span style="font-family: \'Geist\', sans-serif; font-size: 13px; line-height: 1.5;"><strong>I certify</strong> that work has not commenced on the subject property and the property is vacant with no existing structures, in accordance with Texas Property Code requirements for the Mechanic\'s Lien Contract.</span>' +
+                '</p>' +
+              '</div>' +
+            '</div>';
+        }
+      ]
+    });
+  }
+
+  // --- DOC 4: Draw Request (conditional) ---
+  if (drawAtClose === 'yes') {
+    documents.push({
+      id: 'draw',
+      title: 'Draw Request — Initial',
+      shortTitle: 'Draw',
+      conditional: true,
+      condLabel: 'Draw at Closing',
+      pages: [
+        function() {
+          return '<div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>' +
+            '<h1 class="paper-doc-title">Construction Loan Draw Request</h1>' +
+            '<div class="paper-doc-sub">Initial disbursement at closing &mdash; soft costs only &middot; Max 10% of contract less borrower deposit</div>' +
+            '<div class="paper-body">' +
+              '<p>Loan Number: ' + fld('Pending') + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;Date: ' + fld(todayDisplay) + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;Draw # ' + fld('Initial', 'tiny') + '</p>' +
+              '<p>Property: ' + fld(fullProjectAddress, 'wider') + '</p>' +
+              '<p>Borrower: ' + fld(borrowerName + (coBorrowerName ? ' & ' + coBorrowerName : ''), 'wide') + '</p>' +
+              '<h2 class="paper-section-title">Line Items at Closing</h2>' +
+              '<table class="paper-table">' +
+                '<thead><tr><th>Budget Line Item</th><th>Description</th><th>Amount</th><th>Payee Name</th></tr></thead>' +
+                '<tbody>' +
+                  '<tr><td style="color: var(--text-faint); font-style: italic;">—</td><td style="color: var(--text-faint); font-style: italic;">To be completed by LO</td><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td></tr>' +
+                  '<tr><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td></tr>' +
+                  '<tr><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td><td style="color: var(--text-faint);">—</td></tr>' +
+                '</tbody>' +
+              '</table>' +
+              '<p style="font-size: 12px; color: var(--text-muted); font-style: italic;">Line items will be completed by your loan officer prior to closing.</p>' +
+            '</div>';
+        }
+      ]
+    });
+  }
+
+  // --- DOC 5: W-9 ---
+  documents.push({
+    id: 'w9',
+    title: 'W-9 Form',
+    shortTitle: 'W-9',
+    pages: [
+      function() {
+        return '<h1 class="paper-doc-title" style="font-size: 28px;">Request for Taxpayer Identification Number and Certification</h1>' +
+          '<div class="paper-doc-sub">IRS Form W-9 (Rev. March 2024) &middot; Give Form to the requester. Do not send to the IRS.</div>' +
+          '<div class="paper-body">' +
+            '<h2 class="paper-section-title" style="margin-top: 14px;">Part I &mdash; Identification</h2>' +
+            '<p><strong>1.</strong> Name of entity/individual: ' + fld(companyName, 'wider') + '</p>' +
+            '<p><strong>2.</strong> Business name / DBA (if different): ' + fld(dba || '—', 'wider') + '</p>' +
+            '<p style="margin-top: 12px;"><strong>5.</strong> Address: ' + fld(companyAddress, 'wider') + '</p>' +
+            '<p><strong>6.</strong> City ' + fld(companyCity) + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;State ' + fld(companyState, 'tiny') + '&nbsp;&nbsp;&middot;&nbsp;&nbsp;Zip ' + fld(companyZip, 'short') + '</p>' +
+            '<h2 class="paper-section-title">Part I &mdash; Taxpayer Identification Number (TIN)</h2>' +
+            '<p>Enter your TIN. For LLCs taxed as partnership, enter EIN.</p>' +
+            '<p><strong>Employer Identification Number (EIN):</strong> ' + fld(ein) + '</p>' +
+            '<h2 class="paper-section-title">Part II &mdash; Certification</h2>' +
+            '<p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Under penalties of perjury, I certify that: (1) The number shown on this form is my correct taxpayer identification number; (2) I am not subject to backup withholding; (3) I am a U.S. citizen or other U.S. person; and (4) The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.</p>' +
+          '</div>';
+      }
+    ]
+  });
+
+  // ---------------------------------------------------------------------------
+  // Flatten all pages, track which doc each belongs to
+  // ---------------------------------------------------------------------------
+  var allPages = []; // { docIndex, pageIndexInDoc, render, id (unique) }
+  var totalDocPages = 0;
+  documents.forEach(function(doc, di) {
+    doc.pageStart = totalDocPages;
+    doc.pages.forEach(function(renderFn, pi) {
+      allPages.push({ docIndex: di, pageIndexInDoc: pi, render: renderFn, id: 'p_' + di + '_' + pi });
+      totalDocPages++;
+    });
+  });
+
+  // Add the final E-Sign page (not part of any document)
+  var esignPageIndex = allPages.length;
+  allPages.push({
+    docIndex: -1,
+    pageIndexInDoc: 0,
+    render: function() {
+      var checklistHtml = '';
+      documents.forEach(function(doc) {
+        checklistHtml += '<div class="doc-checklist-item"><div class="doc-checklist-check">&#10003;</div><span>' + escHtml(doc.title) + '</span><span style="margin-left: auto; font-family: Geist Mono, monospace; font-size: 10px; color: var(--text-muted);">' + doc.pages.length + ' pg</span></div>';
+      });
+      return '<div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>' +
+        '<h1 class="paper-doc-title">Electronic Signature & Certification</h1>' +
+        '<div class="paper-doc-sub">Final certification and e-signature for builder application packet</div>' +
+        '<div class="paper-body">' +
+          '<p style="font-size: 15px; line-height: 1.65;">I, <strong>' + escHtml(contactFirst + ' ' + contactLast) + '</strong>, as authorized representative of <strong>' + escHtml(companyName) + '</strong>, certify that all information provided in this builder application packet is true and accurate to the best of my knowledge. I understand that any misrepresentation may result in denial of the builder application or termination of any existing builder relationship with CMG Home Loans.</p>' +
+          '<h2 class="paper-section-title" style="margin-top: 32px;">Documents Included in This Packet</h2>' +
+          '<div style="margin-bottom: 28px;">' + checklistHtml + '</div>' +
+          '<h2 class="paper-section-title">Electronic Signature</h2>' +
+          '<p style="font-family: Geist, sans-serif; font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Type your full legal name below to apply your electronic signature to all documents in this packet.</p>' +
+          '<div style="margin-bottom: 8px;">' +
+            '<input type="text" class="esign-input" id="finalSignature" placeholder="Type your full legal name to e-sign" autocomplete="off" />' +
+          '</div>' +
+          '<div style="display: flex; gap: 32px; margin-top: 20px;">' +
+            '<div><div style="font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);">Date</div><div style="font-size: 14px; margin-top: 4px;">' + todayDisplay + '</div></div>' +
+            '<div><div style="font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);">IP Address</div><div style="font-size: 14px; margin-top: 4px; color: var(--text-secondary);">Recorded at signing</div></div>' +
+          '</div>' +
+          '<div style="margin-top: 32px; text-align: center;">' +
+            '<button class="btn-primary" id="completeSubmitBtn" disabled onclick="submitPacket()" style="padding: 14px 40px; font-size: 15px;">Complete & Submit Packet</button>' +
+            '<p style="font-size: 11px; color: var(--text-muted); margin-top: 10px; font-family: Geist, sans-serif;">By clicking submit, you agree to the use of electronic records and signatures.</p>' +
+          '</div>' +
+        '</div>';
+    },
+    id: 'p_esign'
+  });
+
+  var totalPages = allPages.length;
+
+  // ---------------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------------
+  var initialedPages = {}; // page id -> initials string
+  var currentDocIndex = 0;
+  var pendingInitialPageId = null;
+  var defaultInitials = (contactFirst.charAt(0) + contactLast.charAt(0)).toUpperCase() || 'XX';
+
+  // ---------------------------------------------------------------------------
+  // Render sidebar
+  // ---------------------------------------------------------------------------
+  function renderSidebar() {
+    var nav = document.getElementById('docNav');
+    var html = '';
+    documents.forEach(function(doc, di) {
+      var isActive = di === currentDocIndex;
+      var pageCount = doc.pages.length;
+      var initialedCount = 0;
+      doc.pages.forEach(function(_, pi) {
+        if (initialedPages['p_' + di + '_' + pi]) initialedCount++;
+      });
+      var allDone = initialedCount === pageCount;
+      var pct = Math.round((initialedCount / pageCount) * 100);
+
+      html += '<div class="doc-nav-item ' + (isActive ? 'active' : '') + '" data-doc-index="' + di + '">' +
+        '<div class="doc-nav-icon">' + (allDone ? '<span style="color: var(--success); font-size: 12px;">&#10003;</span>' : 'PDF') + '</div>' +
+        '<div style="flex: 1; min-width: 0;">' +
+          '<div class="doc-nav-title">' + escHtml(doc.title) + '</div>' +
+          '<div class="doc-nav-meta">' + pageCount + ' page' + (pageCount !== 1 ? 's' : '') + (doc.conditional ? ' &middot; Conditional' : ' &middot; ' + doc.shortTitle) + '</div>' +
+          '<div class="doc-nav-status">' +
+            (allDone ? '<span class="check">&#10003; All initialed</span>' : '<span class="pending">' + initialedCount + '/' + pageCount + ' initialed</span>') +
+          '</div>' +
+          '<div class="doc-nav-progress"><div class="doc-nav-progress-fill" style="width: ' + pct + '%;' + (allDone ? ' background: var(--success);' : '') + '"></div></div>' +
+        '</div>' +
+      '</div>';
+    });
+
+    // E-Sign nav item
+    var isEsignActive = currentDocIndex === -1;
+    var esignDone = document.getElementById('finalSignature') && document.getElementById('finalSignature').value.length >= 3;
+    html += '<div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">' +
+      '<div class="doc-nav-item ' + (isEsignActive ? 'active' : '') + '" data-doc-index="-1">' +
+        '<div class="doc-nav-icon" style="background: var(--brand-tint); border-color: var(--brand);">' + (esignDone ? '<span style="color: var(--success); font-size: 12px;">&#10003;</span>' : '<span style="font-size: 10px; color: var(--brand);">&#9998;</span>') + '</div>' +
+        '<div style="flex: 1; min-width: 0;">' +
+          '<div class="doc-nav-title">E-Signature Page</div>' +
+          '<div class="doc-nav-meta">Final certification</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+    nav.innerHTML = html;
+
+    // Rebind click handlers
+    nav.querySelectorAll('.doc-nav-item').forEach(function(item) {
+      item.addEventListener('click', function() {
+        var idx = parseInt(item.dataset.docIndex, 10);
+        navigateToDoc(idx);
+      });
+    });
+
+    // Update progress summary
+    var totalInitialable = allPages.length - 1; // exclude e-sign page
+    var totalInitialed = Object.keys(initialedPages).length;
+    var summary = document.getElementById('progressSummary');
+    summary.innerHTML = '<div>' + totalInitialed + ' of ' + totalInitialable + ' pages initialed</div>' +
+      '<div style="margin-top: 4px;">' + (esignDone ? '<span style="color: var(--success);">&#10003; Signature applied</span>' : '<span style="color: var(--text-faint);">Signature pending</span>') + '</div>';
+  }
+
+  // ---------------------------------------------------------------------------
+  // Render paper area
+  // ---------------------------------------------------------------------------
+  function renderPaperArea() {
+    var area = document.getElementById('paperArea');
+    var html = '';
+
+    if (currentDocIndex === -1) {
+      // E-sign page
+      var page = allPages[esignPageIndex];
+      html += '<div class="paper" style="border-top: 3px solid var(--brand);">' +
+        '<div class="paper-page-num">Page ' + totalPages + ' of ' + totalPages + '</div>' +
+        page.render() +
+      '</div>';
+    } else {
+      var doc = documents[currentDocIndex];
+
+      // Conditional banner
+      if (doc.conditional) {
+        html += '<div class="cond-banner">' +
+          '<span class="font-mono" style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;">Conditional &middot; ' + escHtml(doc.condLabel) + '</span>' +
+          '<span>This document is included because ' + (doc.id === 'texas' ? 'the subject property is in Texas.' : 'the builder requested a disbursement at closing.') + '</span>' +
+        '</div>';
+      }
+
+      doc.pages.forEach(function(renderFn, pi) {
+        var pageId = 'p_' + currentDocIndex + '_' + pi;
+        var absPage = doc.pageStart + pi + 1;
+        var isInitialed = !!initialedPages[pageId];
+        var borderTop = (pi === 0 && doc.conditional) ? 'border-top: 4px solid var(--gold);' : '';
+
+        html += '<div class="paper" style="' + borderTop + '">' +
+          '<div class="paper-page-num">Page ' + absPage + ' of ' + totalPages + '</div>' +
+          renderFn() +
+          '<div class="initial-box ' + (isInitialed ? 'initialed' : '') + '" data-page-id="' + pageId + '">' +
+            '<div class="initial-prompt">Tap to<br/>Initial</div>' +
+            '<div class="initial-value"><span class="initial-check">&#10003;</span> ' + escHtml(initialedPages[pageId] || '') + '</div>' +
+            '<div class="initial-box-label">Builder Initials</div>' +
+          '</div>' +
+        '</div>';
+      });
+    }
+
+    area.innerHTML = html;
+    area.scrollTo({ top: 0, behavior: 'auto' });
+
+    // Bind initial box clicks
+    area.querySelectorAll('.initial-box:not(.initialed)').forEach(function(box) {
+      box.addEventListener('click', function() {
+        openInitialModal(box.dataset.pageId);
+      });
+    });
+
+    // Bind final signature input
+    var sigInput = document.getElementById('finalSignature');
+    if (sigInput) {
+      sigInput.addEventListener('input', function() {
+        updateSubmitState();
+        renderSidebar();
+      });
+    }
+
+    // Update page indicator
+    updatePageIndicator();
+  }
+
+  function updatePageIndicator() {
+    var indicator = document.getElementById('pageIndicator');
+    if (currentDocIndex === -1) {
+      indicator.textContent = 'Page ' + totalPages + ' of ' + totalPages;
+    } else {
+      var doc = documents[currentDocIndex];
+      var start = doc.pageStart + 1;
+      var end = doc.pageStart + doc.pages.length;
+      if (start === end) {
+        indicator.textContent = 'Page ' + start + ' of ' + totalPages;
+      } else {
+        indicator.textContent = 'Pages ' + start + '–' + end + ' of ' + totalPages;
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Navigation
+  // ---------------------------------------------------------------------------
+  function navigateToDoc(docIndex) {
+    currentDocIndex = docIndex;
+    renderSidebar();
+    renderPaperArea();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Initials modal
+  // ---------------------------------------------------------------------------
+  function openInitialModal(pageId) {
+    pendingInitialPageId = pageId;
+    var modal = document.getElementById('initialModal');
+    var input = document.getElementById('initialInput');
+    var preview = document.getElementById('initialPreview');
+    input.value = defaultInitials;
+    preview.textContent = defaultInitials;
+    modal.classList.add('open');
+    setTimeout(function() { input.focus(); input.select(); }, 100);
+  }
+
+  window.closeInitialModal = function() {
+    document.getElementById('initialModal').classList.remove('open');
+    pendingInitialPageId = null;
+  };
+
+  window.confirmInitial = function() {
+    var input = document.getElementById('initialInput');
+    var val = input.value.trim();
+    if (!val) return;
+    if (pendingInitialPageId) {
+      initialedPages[pendingInitialPageId] = val;
+    }
+    closeInitialModal();
+    renderSidebar();
+    renderPaperArea();
+    updateSubmitState();
+  };
+
+  // Modal input preview
+  document.getElementById('initialInput').addEventListener('input', function() {
+    document.getElementById('initialPreview').textContent = this.value || '';
+  });
+
+  // Close modal on overlay click
+  document.getElementById('initialModal').addEventListener('click', function(e) {
+    if (e.target === this) closeInitialModal();
+  });
+
+  // Enter key to confirm
+  document.getElementById('initialInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); confirmInitial(); }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Submit state
+  // ---------------------------------------------------------------------------
+  function updateSubmitState() {
+    var totalInitialable = allPages.length - 1;
+    var totalInitialed = Object.keys(initialedPages).length;
+    var allInitialed = totalInitialed >= totalInitialable;
+
+    var sigInput = document.getElementById('finalSignature');
+    var hasSig = sigInput && sigInput.value.trim().length >= 3;
+
+    var topBtn = document.getElementById('submitPacketBtn');
+    topBtn.disabled = !(allInitialed && hasSig);
+
+    var bottomBtn = document.getElementById('completeSubmitBtn');
+    if (bottomBtn) {
+      bottomBtn.disabled = !(allInitialed && hasSig);
+    }
+  }
+
+  window.submitPacket = function() {
+    var sigInput = document.getElementById('finalSignature');
+    if (!sigInput || sigInput.value.trim().length < 3) return;
+
+    // Save signature to localStorage
+    var sigData = {
+      name: sigInput.value.trim(),
+      date: new Date().toISOString(),
+      pages: initialedPages
+    };
+    try {
+      localStorage.setItem('builderSignature', JSON.stringify(sigData));
+    } catch(e) {}
+
+    // Build doc list for overlay
+    var listHtml = '';
+    documents.forEach(function(doc) {
+      listHtml += '<div class="doc-checklist-item"><div class="doc-checklist-check">&#10003;</div><span>' + escHtml(doc.title) + '</span><span style="margin-left: auto; font-family: Geist Mono, monospace; font-size: 10px; color: var(--success);">SIGNED</span></div>';
+    });
+    document.getElementById('submitDocList').innerHTML = listHtml;
+    document.getElementById('submitOverlay').classList.add('open');
+  };
+
+  // Close submit overlay on overlay click
+  document.getElementById('submitOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('open');
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // Boot
+  // ---------------------------------------------------------------------------
+  renderSidebar();
+  renderPaperArea();
+  updateSubmitState();
+})();
+</script>
+
+</body>
+</html>

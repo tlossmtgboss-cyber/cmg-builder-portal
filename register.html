@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Register</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F2EDE2;
+    --border: #ECE6D8;
+    --border-strong: #D8D0BD;
+    --text-primary: #1A1F1B;
+    --text-secondary: #4F554E;
+    --text-muted: #8B8A7E;
+    --text-faint: #B5B2A4;
+    --brand: #1F3D2E;
+    --brand-hover: #2A4F3D;
+    --brand-tint: #EFF3EE;
+    --gold: #B8924A;
+    --gold-soft: #F5EDD9;
+    --gold-deep: #6B4F1A;
+    --danger: #9B2C2C;
+    --danger-soft: #FDE8E8;
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body {
+    font-family: 'Geist', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-feature-settings: 'ss01', 'cv01', 'cv11';
+    letter-spacing: -0.005em;
+    margin: 0;
+    min-height: 100vh;
+  }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  /* Paper grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: radial-gradient(rgba(31,61,46,.025) 1px, transparent 1px);
+    background-size: 4px 4px;
+    opacity: .6;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+
+  /* Form inputs */
+  .field-label {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .field-label .req { color: var(--danger); margin-left: 3px; }
+
+  .input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: 'Geist', system-ui, sans-serif;
+    transition: all 150ms ease;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(31,61,46,.08);
+  }
+  .input::placeholder { color: var(--text-faint); }
+  .input.error { border-color: var(--danger); }
+  .input.error:focus { box-shadow: 0 0 0 3px rgba(155,44,44,.08); }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--danger);
+    margin-top: 4px;
+    display: none;
+  }
+  .field-error.visible { display: block; }
+
+  /* Primary button */
+  .btn-primary {
+    width: 100%;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Geist', system-ui, sans-serif;
+    cursor: pointer;
+    transition: all 200ms ease;
+    letter-spacing: -0.01em;
+  }
+  .btn-primary:hover { background: var(--brand-hover); box-shadow: 0 4px 16px rgba(31,61,46,.18); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Hero decorative line */
+  .hero-divider {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+    border-radius: 1px;
+  }
+
+  /* Bullet styling */
+  .feature-list { list-style: none; padding: 0; margin: 0; }
+  .feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+  .feature-list li .bullet-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--gold);
+  }
+
+  /* Card */
+  .form-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(31,61,46,.05), 0 1px 3px rgba(31,61,46,.04);
+    overflow: hidden;
+  }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    background: var(--danger);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,.15);
+    transform: translateX(120%);
+    transition: transform 300ms cubic-bezier(.22,1,.36,1);
+  }
+  .toast.show { transform: translateX(0); }
+
+  /* Fade-in animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fadeUp 0.5s ease-out both; }
+  .animate-in-delay { animation: fadeUp 0.5s ease-out 0.15s both; }
+</style>
+</head>
+<body>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<div style="position: relative; z-index: 1;">
+
+  <!-- Hero Section -->
+  <header style="padding: 56px 24px 40px; text-align: center;" class="animate-in">
+    <!-- Logo -->
+    <div style="margin-bottom: 28px;">
+      <span class="font-display" style="font-size: 22px; font-weight: 600; color: var(--brand); letter-spacing: -0.02em;">
+        CMG Home Loans
+      </span>
+    </div>
+
+    <div class="hero-divider" style="margin: 0 auto 28px;"></div>
+
+    <h1 class="font-display" style="font-size: 38px; font-weight: 600; color: var(--brand); margin: 0 0 12px; line-height: 1.15;">
+      Builder Application Portal
+    </h1>
+
+    <p style="font-size: 16px; color: var(--text-secondary); max-width: 480px; margin: 0 auto 28px; line-height: 1.55;">
+      Complete your builder packet to get approved for CMG construction lending.
+    </p>
+
+    <!-- Feature bullets -->
+    <div style="display: inline-block; text-align: left;">
+      <ul class="feature-list">
+        <li>
+          <svg class="bullet-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="14" height="14" rx="3" />
+            <path d="M7 10l2 2 4-4" />
+          </svg>
+          <span>90+ fields across 12 sections</span>
+        </li>
+        <li>
+          <svg class="bullet-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 14l4-4 3 3 5-6" />
+            <path d="M14 5h3v3" />
+          </svg>
+          <span>Upload required documents</span>
+        </li>
+        <li>
+          <svg class="bullet-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 17V7a2 2 0 012-2h6a2 2 0 012 2v10" />
+            <path d="M3 17h14" />
+            <path d="M8 11h4" />
+          </svg>
+          <span>E-sign your packet digitally</span>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Registration Form -->
+  <main style="max-width: 520px; margin: 0 auto; padding: 0 24px 64px;" class="animate-in-delay">
+    <div class="form-card">
+      <!-- Card header -->
+      <div style="padding: 24px 32px 20px; border-bottom: 1px solid var(--border); background: var(--bg-page);">
+        <h2 class="font-display" style="font-size: 22px; font-weight: 600; color: var(--text-primary); margin: 0 0 4px;">
+          Create Your Builder Account
+        </h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+          All fields are required to begin your application.
+        </p>
+      </div>
+
+      <!-- Form body -->
+      <form id="registerForm" style="padding: 28px 32px 32px;" novalidate>
+
+        <!-- Company Legal Name -->
+        <div style="margin-bottom: 20px;">
+          <label class="field-label" for="companyName">
+            Company Legal Name <span class="req">*</span>
+          </label>
+          <input
+            type="text"
+            id="companyName"
+            name="companyName"
+            class="input"
+            placeholder="Acme Builders LLC"
+            required
+            autocomplete="organization"
+          />
+          <div class="field-error" id="companyNameError">Company name is required.</div>
+        </div>
+
+        <!-- EIN -->
+        <div style="margin-bottom: 20px;">
+          <label class="field-label" for="ein">
+            EIN <span class="req">*</span>
+          </label>
+          <input
+            type="text"
+            id="ein"
+            name="ein"
+            class="input"
+            placeholder="XX-XXXXXXX"
+            required
+            maxlength="10"
+            autocomplete="off"
+          />
+          <div class="field-error" id="einError">Valid EIN required (format: XX-XXXXXXX).</div>
+        </div>
+
+        <!-- Name row -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div>
+            <label class="field-label" for="firstName">
+              Contact First Name <span class="req">*</span>
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              class="input"
+              placeholder="Jane"
+              required
+              autocomplete="given-name"
+            />
+            <div class="field-error" id="firstNameError">First name is required.</div>
+          </div>
+          <div>
+            <label class="field-label" for="lastName">
+              Contact Last Name <span class="req">*</span>
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              class="input"
+              placeholder="Smith"
+              required
+              autocomplete="family-name"
+            />
+            <div class="field-error" id="lastNameError">Last name is required.</div>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div style="margin-bottom: 20px;">
+          <label class="field-label" for="email">
+            Email <span class="req">*</span>
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="input"
+            placeholder="jane@acmebuilders.com"
+            required
+            autocomplete="email"
+          />
+          <div class="field-error" id="emailError">Valid email address is required.</div>
+        </div>
+
+        <!-- Phone -->
+        <div style="margin-bottom: 20px;">
+          <label class="field-label" for="phone">
+            Phone <span class="req">*</span>
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            class="input"
+            placeholder="(555) 123-4567"
+            required
+            autocomplete="tel"
+          />
+          <div class="field-error" id="phoneError">Phone number is required.</div>
+        </div>
+
+        <!-- Password -->
+        <div style="margin-bottom: 20px;">
+          <label class="field-label" for="password">
+            Password <span class="req">*</span>
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="input"
+            placeholder="Minimum 8 characters"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
+          <div class="field-error" id="passwordError">Password must be at least 8 characters.</div>
+        </div>
+
+        <!-- Confirm Password -->
+        <div style="margin-bottom: 28px;">
+          <label class="field-label" for="confirmPassword">
+            Confirm Password <span class="req">*</span>
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            class="input"
+            placeholder="Re-enter your password"
+            required
+            minlength="8"
+            autocomplete="new-password"
+          />
+          <div class="field-error" id="confirmPasswordError">Passwords do not match.</div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-primary" id="submitBtn">
+          Create Account &amp; Begin Application
+        </button>
+
+        <!-- Resume link -->
+        <p style="text-align: center; margin: 20px 0 0; font-size: 13px; color: var(--text-muted);">
+          Already have an account?
+          <a href="#" id="resumeLink" style="color: var(--brand); text-decoration: none; font-weight: 500; border-bottom: 1px solid transparent; transition: border-color 150ms;"
+             onmouseover="this.style.borderBottomColor='var(--brand)'"
+             onmouseout="this.style.borderBottomColor='transparent'">
+            Resume Application
+          </a>
+        </p>
+      </form>
+    </div>
+
+    <!-- Security note -->
+    <div style="text-align: center; margin-top: 20px; padding: 0 16px;">
+      <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; display: inline-flex; align-items: center; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--gold); flex-shrink: 0;">
+          <rect x="3" y="7" width="10" height="7" rx="1.5" />
+          <path d="M5 7V5a3 3 0 016 0v2" />
+        </svg>
+        Your information is encrypted and stored securely.
+      </p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer style="text-align: center; padding: 32px 24px; border-top: 1px solid var(--border);">
+    <p class="font-mono" style="font-size: 11px; letter-spacing: 0.08em; color: var(--text-muted); margin: 0;">
+      CMG Home Loans &middot; Builder Portal
+    </p>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  const form = document.getElementById('registerForm');
+  const toastEl = document.getElementById('toast');
+  const resumeLink = document.getElementById('resumeLink');
+
+  // Field IDs and their validation rules
+  const fields = [
+    { id: 'companyName', errorId: 'companyNameError', validate: v => v.trim().length > 0 },
+    { id: 'ein', errorId: 'einError', validate: v => /^\d{2}-\d{7}$/.test(v.trim()) },
+    { id: 'firstName', errorId: 'firstNameError', validate: v => v.trim().length > 0 },
+    { id: 'lastName', errorId: 'lastNameError', validate: v => v.trim().length > 0 },
+    { id: 'email', errorId: 'emailError', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+    { id: 'phone', errorId: 'phoneError', validate: v => v.trim().length > 0 },
+    { id: 'password', errorId: 'passwordError', validate: v => v.length >= 8 },
+    { id: 'confirmPassword', errorId: 'confirmPasswordError', validate: function(v) {
+      return v.length >= 8 && v === document.getElementById('password').value;
+    }}
+  ];
+
+  // Clear error on input
+  fields.forEach(function(field) {
+    var input = document.getElementById(field.id);
+    input.addEventListener('input', function() {
+      input.classList.remove('error');
+      document.getElementById(field.errorId).classList.remove('visible');
+    });
+  });
+
+  // EIN auto-formatting: insert dash after 2 digits
+  var einInput = document.getElementById('ein');
+  einInput.addEventListener('input', function(e) {
+    var raw = einInput.value.replace(/[^0-9]/g, '');
+    if (raw.length > 9) raw = raw.slice(0, 9);
+    if (raw.length > 2) {
+      einInput.value = raw.slice(0, 2) + '-' + raw.slice(2);
+    } else {
+      einInput.value = raw;
+    }
+  });
+
+  // Show toast
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(function() { toastEl.classList.remove('show'); }, 3500);
+  }
+
+  // Form submission
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    var valid = true;
+
+    fields.forEach(function(field) {
+      var input = document.getElementById(field.id);
+      var error = document.getElementById(field.errorId);
+      var value = input.value;
+
+      if (!field.validate(value)) {
+        input.classList.add('error');
+        error.classList.add('visible');
+        valid = false;
+      } else {
+        input.classList.remove('error');
+        error.classList.remove('visible');
+      }
+    });
+
+    if (!valid) {
+      // Scroll to first error
+      var firstError = form.querySelector('.input.error');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+      }
+      showToast('Please correct the highlighted fields.');
+      return;
+    }
+
+    // Build account data
+    var accountData = {
+      companyName: document.getElementById('companyName').value.trim(),
+      ein: document.getElementById('ein').value.trim(),
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    // Save to localStorage (do not store password in localStorage)
+    try {
+      localStorage.setItem('builderAccount', JSON.stringify(accountData));
+    } catch (err) {
+      showToast('Unable to save account data. Please enable cookies and try again.');
+      return;
+    }
+
+    // Redirect to application wizard
+    window.location.href = 'application.html';
+  });
+
+  // Resume Application link
+  resumeLink.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    var existing = null;
+    try {
+      existing = localStorage.getItem('builderAccount');
+    } catch (err) {
+      // localStorage unavailable
+    }
+
+    if (existing) {
+      window.location.href = 'application.html';
+    } else {
+      showToast('No existing application found. Please create an account first.');
+    }
+  });
+})();
+</script>
+</body>
+</html>
