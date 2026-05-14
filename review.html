@@ -92,6 +92,34 @@
   .paper-fld.short { min-width: 80px; }
   .paper-fld.tiny { min-width: 50px; }
 
+  /* Editable W-9 input fields */
+  .w9-input {
+    display: inline-block;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px dotted var(--gold);
+    padding: 2px 6px 3px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 15px;
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 120px;
+    outline: none;
+    transition: all 150ms ease;
+  }
+  .w9-input:focus {
+    background: var(--gold-soft);
+    border-bottom-style: solid;
+  }
+  .w9-input:hover:not(:focus) { background: rgba(184,146,74,.07); }
+  .w9-input.wider { min-width: 380px; width: 90%; }
+  .w9-input.wide { min-width: 260px; }
+  .w9-input.short { min-width: 80px; max-width: 100px; }
+  .w9-input.tiny { min-width: 50px; max-width: 60px; text-align: center; }
+  .w9-input.ein-input { font-family: 'Geist Mono', monospace; font-size: 20px; letter-spacing: 0.1em; text-align: center; }
+  .w9-cb { accent-color: var(--brand); cursor: pointer; width: 15px; height: 15px; }
+  .w9-cb-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
   /* Paper radio (read-only indicator) */
   .paper-radio-ro {
     display: inline-flex; gap: 0;
@@ -731,28 +759,28 @@
             // ── Line 1 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>1</strong>&nbsp; Name of entity/individual as shown on your income tax return. Name is required on this line; do not leave this line blank.</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' + fld(companyName, 'wider') + '</div>' +
+              '<div><input class="w9-input wider" data-w9="name" value="' + escHtml(companyName || '') + '" placeholder="Legal name" /></div>' +
             '</div>' +
 
             // ── Line 2 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>2</strong>&nbsp; Business name/disregarded entity name, if different from above</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' + fld(dba || '', 'wider') + '</div>' +
+              '<div><input class="w9-input wider" data-w9="dba" value="' + escHtml(dba || '') + '" placeholder="DBA name" /></div>' +
             '</div>' +
 
             // ── Line 3 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;"><strong>3</strong>&nbsp; Check appropriate box for federal tax classification of the person whose name is entered on line 1. Check only one of the following seven boxes.</div>' +
               '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center;">' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Individual/sole proprietor or single-member LLC</label>' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> C Corporation</label>' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> S Corporation</label>' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Partnership</label>' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Trust/estate</label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="individual"/> Individual/sole proprietor or single-member LLC</label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="ccorp"/> C Corporation</label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="scorp"/> S Corporation</label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="partnership"/> Partnership</label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="trust"/> Trust/estate</label>' +
               '</div>' +
               '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center; margin-top: 4px;">' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> LLC &mdash; Enter tax classification (C=C corporation, S=S corporation, P=partnership): <span class="paper-fld tiny" style="margin-left: 4px; min-width: 30px;">___</span></label>' +
-                '<label style="display: flex; align-items: center; gap: 3px; cursor: default;"><input type="checkbox" disabled style="accent-color: var(--brand); pointer-events: none;"/> Other (see instructions) &#9654; <span class="paper-fld short" style="margin-left: 4px;">________</span></label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="llc"/> LLC &mdash; Enter tax classification (C=C corporation, S=S corporation, P=partnership): <input class="w9-input tiny" data-w9="llcClass" style="margin-left: 4px; min-width: 30px;" placeholder="C/S/P" maxlength="1" /></label>' +
+                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="other"/> Other (see instructions) &#9654; <input class="w9-input short" data-w9="otherClass" style="margin-left: 4px;" placeholder="Specify" /></label>' +
               '</div>' +
             '</div>' +
 
@@ -760,8 +788,8 @@
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;"><strong>4</strong>&nbsp; Exemptions (codes apply only to certain entities, not individuals; see instructions on page 3)</div>' +
               '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exempt payee code (if any): <span class="paper-fld short">____</span></div>' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exemption from FATCA reporting code (if any): <span class="paper-fld short">____</span></div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exempt payee code (if any): <input class="w9-input short" data-w9="exemptPayee" placeholder="Code" /></div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exemption from FATCA reporting code (if any): <input class="w9-input short" data-w9="fatcaCode" placeholder="Code" /></div>' +
               '</div>' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 9px; color: var(--text-muted); margin-top: 4px; font-style: italic;">(Applies to accounts maintained outside the U.S.)</div>' +
             '</div>' +
@@ -769,23 +797,25 @@
             // ── Line 5 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>5</strong>&nbsp; Address (number, street, and apt. or suite no.) See instructions.</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' + fld(companyAddress, 'wider') + '</div>' +
+              '<div><input class="w9-input wider" data-w9="address" value="' + escHtml(companyAddress || '') + '" placeholder="Street address" /></div>' +
             '</div>' +
 
             // ── Line 6 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>6</strong>&nbsp; City, state, and ZIP code</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;">' +
-                fld(companyCity) + '<span style="margin: 0 8px; color: var(--text-muted);">,</span>' +
-                fld(companyState, 'tiny') + '<span style="margin: 0 8px;"></span>' +
-                fld(companyZip, 'short') +
+              '<div>' +
+                '<input class="w9-input" data-w9="city" value="' + escHtml(companyCity || '') + '" placeholder="City" />' +
+                '<span style="margin: 0 6px; color: var(--text-muted);">,</span>' +
+                '<input class="w9-input tiny" data-w9="state" value="' + escHtml(companyState || '') + '" placeholder="ST" maxlength="2" />' +
+                '<span style="margin: 0 6px;"></span>' +
+                '<input class="w9-input short" data-w9="zip" value="' + escHtml(companyZip || '') + '" placeholder="ZIP" />' +
               '</div>' +
             '</div>' +
 
             // ── Line 7 ──
             '<div style="border-bottom: 2px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>7</strong>&nbsp; List account number(s) here (optional)</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 15px; min-height: 22px;"><span class="paper-fld wider">&mdash;</span></div>' +
+              '<div><input class="w9-input wider" data-w9="accounts" placeholder="Account number(s)" /></div>' +
             '</div>' +
 
           '</div>' +
@@ -799,12 +829,12 @@
                 // SSN box
                 '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center;">' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Social Security Number</div>' +
-                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-family: \'Geist Mono\', monospace; font-size: 20px; letter-spacing: 0.1em; color: var(--text-faint);">' +
-                    '<span class="paper-fld short" style="min-width: 52px; text-align: center;">___</span>' +
+                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
+                    '<input class="w9-input ein-input" data-w9="ssn1" style="min-width: 52px; max-width: 60px;" placeholder="___" maxlength="3" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<span class="paper-fld tiny" style="min-width: 36px; text-align: center;">__</span>' +
+                    '<input class="w9-input ein-input" data-w9="ssn2" style="min-width: 36px; max-width: 42px;" placeholder="__" maxlength="2" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<span class="paper-fld short" style="min-width: 64px; text-align: center;">____</span>' +
+                    '<input class="w9-input ein-input" data-w9="ssn3" style="min-width: 60px; max-width: 70px;" placeholder="____" maxlength="4" />' +
                   '</div>' +
                 '</div>' +
                 // OR divider
@@ -812,10 +842,10 @@
                 // EIN box
                 '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center; ' + (einClean ? 'border-color: var(--brand); background: var(--brand-tint);' : '') + '">' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Employer Identification Number</div>' +
-                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px; font-family: \'Geist Mono\', monospace; font-size: 20px; letter-spacing: 0.1em;">' +
-                    '<span class="paper-fld tiny" style="min-width: 36px; text-align: center;">' + escHtml(einGroup1 || '__') + '</span>' +
+                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
+                    '<input class="w9-input ein-input" data-w9="ein1" style="min-width: 36px; max-width: 45px;" value="' + escHtml(einGroup1) + '" placeholder="__" maxlength="2" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<span class="paper-fld" style="min-width: 110px; text-align: center;">' + escHtml(einGroup2 || '_______') + '</span>' +
+                    '<input class="w9-input ein-input" data-w9="ein2" style="min-width: 100px; max-width: 120px;" value="' + escHtml(einGroup2) + '" placeholder="_______" maxlength="7" />' +
                   '</div>' +
                 '</div>' +
               '</div>' +
@@ -840,11 +870,13 @@
               '<div style="display: grid; grid-template-columns: 1fr 200px; gap: 24px; padding-top: 12px; border-top: 1.5px solid #000;">' +
                 '<div>' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Signature of U.S. person &#9654;</div>' +
-                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 32px;"></div>' +
+                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 36px; position: relative;">' +
+                    '<input type="text" data-w9="signature" placeholder="Type full legal name to e-sign" style="width: 100%; border: none; background: transparent; font-family: \'Fraunces\', Georgia, serif; font-style: italic; font-size: 20px; color: var(--brand); padding: 4px 0; outline: none; height: 100%;" />' +
+                  '</div>' +
                 '</div>' +
                 '<div>' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Date &#9654;</div>' +
-                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 32px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; padding-top: 8px; color: var(--brand);">' + todayDisplay + '</div>' +
+                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 36px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; padding-top: 10px; color: var(--brand);">' + todayDisplay + '</div>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -1173,6 +1205,16 @@
   document.getElementById('submitOverlay').addEventListener('click', function(e) {
     if (e.target === this) {
       this.classList.remove('open');
+    }
+  });
+
+  // ---------------------------------------------------------------------------
+  // W-9: make tax classification checkboxes act as radios (one at a time)
+  // ---------------------------------------------------------------------------
+  document.getElementById('paper-area').addEventListener('change', function(e) {
+    if (e.target.name === 'w9taxclass') {
+      var boxes = document.querySelectorAll('input[name="w9taxclass"]');
+      boxes.forEach(function(cb) { if (cb !== e.target) cb.checked = false; });
     }
   });
 
