@@ -818,8 +818,8 @@
         const acct = JSON.parse(acctRaw);
         if (acct.companyName) setFieldVal('companyName', acct.companyName);
         if (acct.ein) setFieldVal('ein', acct.ein);
-        if (acct.contactFirst) setFieldVal('contactFirst', acct.contactFirst);
-        if (acct.contactLast) setFieldVal('contactLast', acct.contactLast);
+        if (acct.firstName || acct.contactFirst) setFieldVal('contactFirst', acct.firstName || acct.contactFirst);
+        if (acct.lastName || acct.contactLast) setFieldVal('contactLast', acct.lastName || acct.contactLast);
         if (acct.phone) setFieldVal('contactPhone', acct.phone);
         if (acct.email) setFieldVal('contactEmail', acct.email);
       } catch (_) {}
