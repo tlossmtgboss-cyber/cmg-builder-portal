@@ -114,12 +114,33 @@
   /* Save confirmation toast */
   .save-toast { position: fixed; top: 24px; right: 24px; background: var(--brand); color: #fff; padding: 14px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.15); transform: translateY(-20px); opacity: 0; transition: all 300ms ease; pointer-events: none; }
   .save-toast.visible { transform: translateY(0); opacity: 1; }
+
+  /* Field auditor */
+  .input.field-error, .select.field-error, .textarea.field-error { border-color: #C53030 !important; background: #FFF5F5 !important; }
+  .field-error-msg { font-size: 11px; color: #C53030; margin-top: 2px; font-weight: 500; }
+  .audit-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 300; display: flex; align-items: center; justify-content: center; }
+  .audit-panel { background: var(--bg-surface); border-radius: 12px; max-width: 520px; width: 92%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .audit-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .audit-header-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .audit-body { padding: 16px 24px; }
+  .audit-step-group { margin-bottom: 14px; }
+  .audit-step-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 6px; }
+  .audit-item { font-size: 13px; color: #C53030; padding: 4px 0; padding-left: 16px; position: relative; }
+  .audit-item::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: #C53030; }
+  .audit-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  .audit-pass .audit-header-icon { background: #F0FFF4; color: #2F855A; }
+  .audit-fail .audit-header-icon { background: #FFF5F5; color: #C53030; }
 </style>
 </head>
 <body class="relative">
 
 <!-- Save confirmation toast -->
 <div class="save-toast" id="saveToast">Progress saved successfully.</div>
+
+<!-- Audit overlay -->
+<div class="audit-overlay" id="auditOverlay" style="display:none;" onclick="if(event.target===this)closeAudit()">
+  <div class="audit-panel" id="auditPanel"></div>
+</div>
 
 <!-- Top bar with progress -->
 <header class="sticky top-0 z-50" style="background: rgba(250,247,241,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);">
@@ -992,9 +1013,168 @@
   // =========================================================================
   // Final step — Continue to Document Review
   // =========================================================================
-  function goToReview() {
+  // =========================================================================
+  // Input sanitizer — strip emojis and non-printable chars on every keystroke
+  // =========================================================================
+  const EMOJI_RE = /[\u{1F600}-\u{1F9FF}\u{1FA00}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}\u{1F1E0}-\u{1F1FF}\u{2702}-\u{27B0}\u{231A}-\u{23F3}\u{2934}-\u{2935}\u{25AA}-\u{25FE}\u{2B05}-\u{2B07}\u{2B1B}-\u{2B1C}\u{3030}\u{303D}\u{3297}\u{3299}\u{00A9}\u{00AE}\u{2122}\u{23CF}\u{23E9}-\u{23EF}\u{23F0}\u{23F3}\u{2764}]/gu;
+  document.addEventListener('input', function(e) {
+    const el = e.target;
+    if (!el.matches || !el.matches('input[type="text"], input:not([type]), textarea')) return;
+    const cleaned = el.value.replace(EMOJI_RE, '');
+    if (cleaned !== el.value) { const pos = el.selectionStart - (el.value.length - cleaned.length); el.value = cleaned; el.setSelectionRange(pos, pos); }
+  });
+
+  // =========================================================================
+  // Field Auditor
+  // =========================================================================
+  const STEP_NAMES = ['','Project & Borrower','Company Information','Principals & Officers','Background','Construction Experience','Project History','Banking References','Trade References','Supplier References'];
+
+  function getRequiredFields() {
+    const issues = [];
+    function chk(step, label, val) { if (!val || !val.trim()) issues.push({step, label}); }
+    function gf(f) { const el = document.querySelector('[data-field="'+f+'"]'); return el ? el.value : ''; }
+
+    // Step 1
+    chk(1,'Project Street Address', gf('projectAddress'));
+    chk(1,'City', gf('projectCity'));
+    chk(1,'State', gf('projectState'));
+    chk(1,'Zip', gf('projectZip'));
+    chk(1,'Borrower Full Name', gf('borrowerName'));
+    chk(1,'Estimated Duration', gf('estimatedDuration'));
+    chk(1,'Contract Amount', gf('contractAmount'));
+    const isTx = document.querySelector('.radio-pill.active[data-group="isTx"]');
+    if (!isTx) issues.push({step:1, label:'Texas question not answered'});
+    const draw = document.querySelector('.radio-pill.active[data-group="drawAtClose"]');
+    if (!draw) issues.push({step:1, label:'Draw at closing question not answered'});
+
+    // Step 2
+    chk(2,'Company Legal Name', gf('companyName'));
+    chk(2,'EIN', gf('ein'));
+    chk(2,'Street Address', gf('companyAddress'));
+    chk(2,'City', gf('companyCity'));
+    chk(2,'State', gf('companyState'));
+    chk(2,'Zip', gf('companyZip'));
+    chk(2,'Contact First Name', gf('contactFirst'));
+    chk(2,'Contact Last Name', gf('contactLast'));
+    chk(2,'Contact Phone', gf('contactPhone'));
+    chk(2,'Contact Email', gf('contactEmail'));
+    const emailVal = gf('contactEmail');
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) issues.push({step:2, label:'Contact Email is not a valid email'});
+
+    // Step 3 — principals (at least first one fully filled)
+    const p0 = document.querySelector('[data-principal-idx="0"]');
+    if (p0) {
+      const pf = (attr) => { const el = p0.querySelector('[data-principal="'+attr+'"]'); return el ? el.value : ''; };
+      chk(3,'Principal Full Name', pf('name'));
+      chk(3,'Principal Title', pf('title'));
+      chk(3,'Principal Ownership %', pf('ownership'));
+      chk(3,'Principal Years Experience', pf('years'));
+      chk(3,'Principal Email', pf('email'));
+      chk(3,'Principal Phone', pf('phone'));
+      const pEmail = pf('email');
+      if (pEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pEmail)) issues.push({step:3, label:'Principal Email is not valid'});
+    }
+
+    // Step 4 — background yes/no questions
+    ['lit','liens','bk','wc'].forEach(function(g) {
+      const sel = document.querySelector('.radio-pill.active[data-group="'+g+'"]');
+      if (!sel) issues.push({step:4, label:({lit:'Litigation',liens:'Judgments/Liens',bk:'Bankruptcy',wc:"Workers' Comp"})[g]+' question not answered'});
+    });
+
+    // Step 5
+    chk(5,'Years in Business', gf('yearsInBusiness'));
+    const projTypes = document.querySelectorAll('#projectTypesGroup input:checked');
+    if (projTypes.length === 0) issues.push({step:5, label:'Select at least one project type'});
+    chk(5,'In-House Trades', gf('inHouseTrades'));
+
+    // Step 7 — bank ref 1 required
+    const b0 = document.querySelector('[data-bank-ref="0"]');
+    if (b0) {
+      const bf = (attr) => { const el = b0.querySelector('[data-bank="'+attr+'"]'); return el ? el.value : ''; };
+      chk(7,'Lender Name', bf('lenderName'));
+      chk(7,'Loan Officer', bf('loanOfficer'));
+      chk(7,'Phone', bf('phone'));
+      chk(7,'Email', bf('email'));
+      chk(7,'Years as Client', bf('years'));
+    }
+
+    // Step 8 — trade refs (all 3 required)
+    for (let i = 0; i < 3; i++) {
+      const row = document.querySelector('[data-trade-idx="'+i+'"]');
+      if (!row) continue;
+      const tf = (attr) => { const el = row.querySelector('[data-trade="'+attr+'"]'); return el ? el.value : ''; };
+      const n = i+1;
+      chk(8,'Trade Ref '+n+' Name', tf('name'));
+      chk(8,'Trade Ref '+n+' Trade', tf('trade'));
+      chk(8,'Trade Ref '+n+' Contact', tf('contact'));
+      chk(8,'Trade Ref '+n+' Years', tf('years'));
+      chk(8,'Trade Ref '+n+' Phone', tf('phone'));
+      chk(8,'Trade Ref '+n+' Email', tf('email'));
+    }
+
+    // Step 9 — suppliers (all 3 required)
+    for (let i = 0; i < 3; i++) {
+      const row = document.querySelector('[data-supplier-idx="'+i+'"]');
+      if (!row) continue;
+      const sf = (attr) => { const el = row.querySelector('[data-supplier="'+attr+'"]'); return el ? el.value : ''; };
+      const n = i+1;
+      chk(9,'Supplier '+n+' Name', sf('name'));
+      chk(9,'Supplier '+n+' Trade/Material', sf('material'));
+      chk(9,'Supplier '+n+' Contact', sf('contact'));
+      chk(9,'Supplier '+n+' Years', sf('years'));
+      chk(9,'Supplier '+n+' Phone', sf('phone'));
+      chk(9,'Supplier '+n+' Email', sf('email'));
+    }
+
+    return issues;
+  }
+
+  function showAuditPanel(issues) {
+    const panel = document.getElementById('auditPanel');
+    const pass = issues.length === 0;
+    panel.className = 'audit-panel ' + (pass ? 'audit-pass' : 'audit-fail');
+
+    if (pass) {
+      panel.innerHTML = '<div class="audit-header"><div class="audit-header-icon">&#10003;</div><div><div style="font-weight:600;font-size:16px;">Audit Passed</div><div style="font-size:13px;color:var(--text-secondary);">All required fields are complete and validated.</div></div></div><div class="audit-footer"><button class="btn-primary" onclick="closeAudit();proceedToReview();">Continue to Document Review &#8594;</button></div>';
+    } else {
+      let body = '';
+      const grouped = {};
+      issues.forEach(function(i) { if (!grouped[i.step]) grouped[i.step] = []; grouped[i.step].push(i.label); });
+      for (const s in grouped) {
+        body += '<div class="audit-step-group"><div class="audit-step-label">Step '+s+' - '+STEP_NAMES[s]+'</div>';
+        grouped[s].forEach(function(l) { body += '<div class="audit-item">'+l+'</div>'; });
+        body += '</div>';
+      }
+      panel.innerHTML = '<div class="audit-header"><div class="audit-header-icon">!</div><div><div style="font-weight:600;font-size:16px;">Audit Found '+issues.length+' Issue'+(issues.length>1?'s':'')+'</div><div style="font-size:13px;color:var(--text-secondary);">Please fix the following before continuing.</div></div></div><div class="audit-body">'+body+'</div><div class="audit-footer"><button class="btn-secondary" onclick="closeAudit()">Close</button><button class="btn-primary" onclick="closeAudit();jumpToFirstError()">Go to First Issue</button></div>';
+    }
+    document.getElementById('auditOverlay').style.display = 'flex';
+  }
+
+  function closeAudit() { document.getElementById('auditOverlay').style.display = 'none'; }
+
+  function jumpToFirstError() {
+    const issues = getRequiredFields();
+    if (issues.length > 0) {
+      showStep(issues[0].step);
+    }
+  }
+
+  function proceedToReview() {
     saveFormData();
     window.location.href = 'review.html';
+  }
+
+  function goToReview() {
+    saveFormData();
+    // Sanitize all text fields one more time
+    document.querySelectorAll('input[type="text"], input:not([type]), textarea').forEach(function(el) {
+      if (el.closest('[data-step]') || el.closest('.repeater-row') || el.dataset.field) {
+        el.value = el.value.replace(EMOJI_RE, '').trim();
+      }
+    });
+    saveFormData();
+    const issues = getRequiredFields();
+    showAuditPanel(issues);
   }
 
   // =========================================================================
