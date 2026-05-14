@@ -1458,7 +1458,7 @@
   // ---------------------------------------------------------------------------
   // W-9: make tax classification checkboxes act as radios (one at a time)
   // ---------------------------------------------------------------------------
-  document.getElementById('paper-area').addEventListener('change', function(e) {
+  document.getElementById('paperArea').addEventListener('change', function(e) {
     if (e.target.name === 'w9taxclass') {
       var boxes = document.querySelectorAll('input[name="w9taxclass"]');
       boxes.forEach(function(cb) { if (cb !== e.target) cb.checked = false; });
