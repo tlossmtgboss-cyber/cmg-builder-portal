@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Variant 04 — Foreman</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1; --bg-surface: #FFFFFF; --bg-elevated: #F2EDE2;
+    --border: #ECE6D8; --border-strong: #D8D0BD;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E;
+    --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-tint: #EFF3EE;
+    --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); margin: 0; height: 100%; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  .showcase-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: rgba(250,247,241,.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 0;
+    height: 52px;
+    box-shadow: 0 1px 4px rgba(31,61,46,.04);
+  }
+  .nav-home {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px;
+    background: var(--bg-surface); border: 1px solid var(--border);
+    color: var(--text-secondary); text-decoration: none; font-size: 16px;
+    transition: all 150ms ease;
+  }
+  .nav-home:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); }
+  .nav-group { display: flex; align-items: center; gap: 4px; }
+  .nav-divider { width: 1px; height: 24px; background: var(--border-strong); margin: 0 12px; flex-shrink: 0; }
+  .nav-label {
+    font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-muted); margin-right: 8px; white-space: nowrap;
+  }
+  .nav-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none; padding: 6px 14px;
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 500;
+    color: var(--text-secondary); transition: all 150ms ease; white-space: nowrap;
+  }
+  .nav-link:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); }
+  .nav-link.active { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); box-shadow: 0 0 0 1px var(--brand); }
+  .nav-link .nav-num { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--gold-deep); }
+  .nav-link.ai .nav-num { color: var(--gold); }
+
+  .info-bar {
+    margin-top: 52px;
+    padding: 16px 32px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  }
+  .info-bar .variant-num {
+    font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold-deep);
+  }
+  .info-bar h1 {
+    font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 500;
+    letter-spacing: -0.025em; margin: 2px 0 0; line-height: 1.1;
+  }
+  .info-bar .tag {
+    font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 2px;
+  }
+  .info-bar .desc {
+    font-size: 13px; color: var(--text-secondary); line-height: 1.5; max-width: 60ch;
+  }
+  .ai-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--gold) 0%, #D4A853 100%); color: #fff;
+    font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 4px; font-weight: 500;
+    margin-left: 10px;
+  }
+
+  .demo-frame {
+    width: 100%; border: none; display: block; background: var(--bg-page);
+    height: calc(100vh - 52px - 82px);
+  }
+
+  @media (max-width: 900px) {
+    .showcase-nav { padding: 0 10px; overflow-x: auto; }
+    .nav-link { padding: 5px 10px; font-size: 11px; }
+    .nav-label { display: none; }
+    .info-bar { flex-direction: column; align-items: flex-start; padding: 12px 16px; }
+    .info-bar .desc { display: none; }
+  }
+</style>
+</head>
+<body>
+<nav class="showcase-nav">
+  <a href="showcase.html" class="nav-home" title="All Variants">&#9776;</a>
+  <div class="nav-divider"></div>
+  <span class="nav-label">AI-Native</span>
+  <div class="nav-group">
+    <a href="page-variant-5.html" class="nav-link ai"><span class="nav-num">05</span> Aria Concierge</a><a href="page-variant-6.html" class="nav-link ai"><span class="nav-num">06</span> AutoPilot</a><a href="page-variant-7.html" class="nav-link ai"><span class="nav-num">07</span> Print Shop</a>
+  </div>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Standard</span>
+  <div class="nav-group">
+    <a href="page-variant-1.html" class="nav-link"><span class="nav-num">01</span> Atelier</a><a href="page-variant-2.html" class="nav-link"><span class="nav-num">02</span> Drafting Table</a><a href="page-variant-3.html" class="nav-link"><span class="nav-num">03</span> Job Site</a><a href="page-variant-4.html" class="nav-link active"><span class="nav-num">04</span> Foreman</a>
+  </div>
+</nav>
+
+<div class="info-bar">
+  <div>
+    <div class="variant-num">Variant 04 </div>
+    <h1>Foreman</h1>
+    <div class="tag">Card dashboard</div>
+  </div>
+  <div class="desc">SaaS dashboard layout. Each section is a card with percentage complete; click to open and fill. Hero stats at the top show overall progress.</div>
+</div>
+
+<iframe src="variant-4-foreman.html" class="demo-frame"></iframe>
+
+</body>
+</html>

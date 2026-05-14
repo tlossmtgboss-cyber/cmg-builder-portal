@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Atelier (Variant 1)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1;
+    --bg-surface: #FFFFFF;
+    --bg-sidebar: #F6F2EA;
+    --bg-elevated: #F2EDE2;
+    --bg-soft: #FBF8F2;
+    --border: #ECE6D8;
+    --border-strong: #D8D0BD;
+    --border-active: #1F3D2E;
+    --text-primary: #1A1F1B;
+    --text-secondary: #4F554E;
+    --text-muted: #8B8A7E;
+    --text-faint: #B5B2A4;
+    --brand: #1F3D2E;
+    --brand-hover: #2A4F3D;
+    --brand-soft: #E5EDE6;
+    --brand-tint: #EFF3EE;
+    --gold: #B8924A;
+    --gold-soft: #F5EDD9;
+    --gold-deep: #6B4F1A;
+    --success: #2D7A52;
+    --success-soft: #E3EFE5;
+    --warn: #B25F18;
+    --warn-soft: #F8E8D6;
+    --danger: #9B2C2C;
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+
+  html, body {
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-feature-settings: 'ss01', 'cv01', 'cv11';
+    letter-spacing: -0.005em;
+    scroll-behavior: smooth;
+  }
+
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; letter-spacing: -0.018em; }
+  .font-mono    { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(rgba(31,61,46,.025) 1px, transparent 1px);
+    background-size: 4px 4px;
+    opacity: .6;
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+  ::-webkit-scrollbar-thumb:hover { background: #C7BFA9; }
+
+  /* Inputs */
+  .field-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; display: block; }
+  .field-label .req { color: var(--danger); margin-left: 3px; }
+  .input, .select, .textarea {
+    width: 100%; background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 11px 14px; font-size: 14px; color: var(--text-primary);
+    font-family: inherit; transition: all 150ms ease; line-height: 1.4;
+  }
+  .input:focus, .select:focus, .textarea:focus {
+    outline: none; border-color: var(--border-active);
+    box-shadow: 0 0 0 3px rgba(31,61,46,.08);
+  }
+  .input::placeholder { color: var(--text-faint); }
+  .textarea { min-height: 96px; resize: vertical; }
+  .select { appearance: none; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' viewBox='0 0 12 12'%3E%3Cpath stroke='%238B8A7E' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m3 4.5 3 3 3-3'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+  /* Radio / checkbox pills */
+  .radio-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 999px; font-size: 13px; color: var(--text-secondary);
+    cursor: pointer; transition: all 150ms ease; user-select: none;
+  }
+  .radio-pill:hover { border-color: var(--border-strong); }
+  .radio-pill.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .check-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 16px; background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 13px; color: var(--text-secondary);
+    cursor: pointer; transition: all 150ms ease; user-select: none;
+  }
+  .check-pill:hover { border-color: var(--border-strong); background: var(--bg-soft); }
+  .check-pill.active { background: var(--brand-tint); border-color: var(--brand); color: var(--brand); font-weight: 500; }
+
+  /* Section style */
+  .section {
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 40px 44px; margin-bottom: 28px;
+    scroll-margin-top: 24px;
+  }
+  .section-eyebrow { font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 12px; }
+  .section-title { font-family: 'Fraunces', Georgia, serif; font-size: 30px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.15; color: var(--text-primary); margin-bottom: 8px; }
+  .section-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; max-width: 62ch; }
+  .section-divider { height: 1px; background: var(--border); margin: 28px 0; }
+
+  /* Sub-section */
+  .subsec-title { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 500; color: var(--text-primary); margin-bottom: 18px; display: flex; align-items: center; gap: 12px; }
+  .subsec-title::before { content: ""; width: 22px; height: 1px; background: var(--gold); display: inline-block; }
+
+  /* Anchor nav */
+  .anchor-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 6px;
+    font-size: 13px; color: var(--text-secondary);
+    text-decoration: none; transition: all 150ms ease;
+    border-left: 2px solid transparent;
+  }
+  .anchor-link:hover { background: var(--bg-elevated); color: var(--text-primary); }
+  .anchor-link.active { background: var(--brand-tint); color: var(--brand); font-weight: 500; border-left-color: var(--brand); }
+  .anchor-num { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-faint); width: 18px; flex-shrink: 0; }
+  .anchor-link.active .anchor-num { color: var(--brand); }
+
+  /* Doc card */
+  .doc-card {
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px;
+    transition: all 150ms ease;
+  }
+  .doc-card:hover { border-color: var(--border-strong); }
+  .doc-required { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-family: 'Geist Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--danger); padding: 2px 6px; background: #FBEFEF; border-radius: 3px; }
+  .doc-optional { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-family: 'Geist Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); padding: 2px 6px; background: var(--bg-elevated); border-radius: 3px; }
+  .doc-conditional { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-family: 'Geist Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold-deep); padding: 2px 6px; background: var(--gold-soft); border-radius: 3px; }
+
+  .upload-zone {
+    border: 2px dashed var(--border-strong); border-radius: 8px;
+    padding: 24px 16px; text-align: center; cursor: pointer;
+    transition: all 150ms ease; background: var(--bg-soft);
+    font-size: 13px; color: var(--text-muted);
+  }
+  .upload-zone:hover { border-color: var(--brand); background: var(--brand-tint); color: var(--brand); }
+
+  /* Buttons */
+  .btn-primary { background: var(--brand); color: #fff; padding: 11px 22px; border-radius: 6px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: all 150ms ease; }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-secondary { background: var(--bg-surface); color: var(--text-primary); padding: 11px 22px; border-radius: 6px; font-size: 14px; font-weight: 500; border: 1px solid var(--border-strong); cursor: pointer; transition: all 150ms ease; }
+  .btn-secondary:hover { background: var(--bg-elevated); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); padding: 9px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; border: none; cursor: pointer; transition: all 150ms ease; }
+  .btn-ghost:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+  /* Conditional banner */
+  .cond-banner {
+    background: var(--gold-soft); border: 1px solid #E8D9B5; border-left: 3px solid var(--gold);
+    border-radius: 6px; padding: 14px 18px; font-size: 13px; color: var(--gold-deep);
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  .cond-hidden { display: none; }
+
+  /* Repeater */
+  .repeater-row { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 22px; margin-bottom: 14px; position: relative; }
+  .repeater-row-num { position: absolute; top: -10px; left: 20px; background: var(--brand); color: #fff; font-family: 'Geist Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 999px; letter-spacing: 0.08em; }
+
+  /* Top bar */
+  .topbar { background: rgba(250,247,241,.85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+
+  .save-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); padding: 6px 12px; background: var(--bg-elevated); border-radius: 999px; }
+  .save-pill::before { content: ""; width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+
+  /* Variant badge */
+  .variant-badge { position: fixed; bottom: 24px; right: 24px; background: var(--brand); color: #fff; padding: 10px 16px; border-radius: 999px; font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.12em; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+</style>
+</head>
+<body class="relative">
+
+<!-- Top bar -->
+<header class="topbar">
+  <div class="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="font-display text-xl font-medium" style="color: var(--brand);">CMG</div>
+      <div class="text-[11px] font-mono uppercase tracking-[0.18em]" style="color: var(--text-muted);">Builder Portal</div>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="save-pill">Auto-saved 2 min ago</span>
+      <button class="btn-ghost">Save & Exit</button>
+      <button class="btn-primary">Submit Application</button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="max-w-[1440px] mx-auto px-8 pt-12 pb-8 relative z-10">
+  <div class="font-mono text-[11px] uppercase tracking-[0.18em] mb-4" style="color: var(--gold-deep);">Construction Loan · Builder Onboarding</div>
+  <h1 class="font-display text-5xl md:text-6xl leading-[1.05] font-medium tracking-tight max-w-3xl mb-5">
+    Approval, prepared with care.
+  </h1>
+  <p class="text-base leading-relaxed max-w-2xl" style="color: var(--text-secondary);">
+    One application to onboard your company and project. We've consolidated the Builder Acknowledgment, Builder & Project Review, Texas Supplement, and Draw Request into a single guided flow. Conditional sections appear only when relevant.
+  </p>
+</section>
+
+<!-- Main grid -->
+<div class="max-w-[1440px] mx-auto px-8 pb-32 relative z-10 grid grid-cols-12 gap-8">
+
+  <!-- Sticky anchor nav -->
+  <aside class="col-span-12 lg:col-span-3">
+    <div class="sticky top-24">
+      <div class="font-mono text-[10px] uppercase tracking-[0.18em] mb-3 px-3" style="color: var(--text-muted);">Application</div>
+      <nav class="flex flex-col gap-0.5 mb-6" id="anchorNav">
+        <a href="#sec-project" class="anchor-link"><span class="anchor-num">01</span>Project & Borrower</a>
+        <a href="#sec-company" class="anchor-link"><span class="anchor-num">02</span>Company Information</a>
+        <a href="#sec-principals" class="anchor-link"><span class="anchor-num">03</span>Principals & Officers</a>
+        <a href="#sec-background" class="anchor-link"><span class="anchor-num">04</span>Background</a>
+        <a href="#sec-experience" class="anchor-link"><span class="anchor-num">05</span>Construction Experience</a>
+        <a href="#sec-history" class="anchor-link"><span class="anchor-num">06</span>Sales History</a>
+        <a href="#sec-banking" class="anchor-link"><span class="anchor-num">07</span>Banking References</a>
+        <a href="#sec-trades" class="anchor-link"><span class="anchor-num">08</span>Trade References</a>
+        <a href="#sec-suppliers" class="anchor-link"><span class="anchor-num">09</span>Supplier References</a>
+        <a href="#sec-texas" class="anchor-link" id="anchorTx" style="display:none;"><span class="anchor-num">10</span>Texas Supplement</a>
+        <a href="#sec-draw" class="anchor-link" id="anchorDraw" style="display:none;"><span class="anchor-num">11</span>Draw at Closing</a>
+        <a href="#sec-baf" class="anchor-link"><span class="anchor-num">12</span>Builder Acknowledgment</a>
+      </nav>
+      <div class="font-mono text-[10px] uppercase tracking-[0.18em] mb-3 px-3" style="color: var(--text-muted);">Documents</div>
+      <nav class="flex flex-col gap-0.5">
+        <a href="#sec-docs" class="anchor-link"><span class="anchor-num">📎</span>Smart Docs Portal</a>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- Form sections -->
+  <main class="col-span-12 lg:col-span-9">
+
+    <!-- 01 Project & Borrower -->
+    <section id="sec-project" class="section">
+      <div class="section-eyebrow">Section 01</div>
+      <h2 class="section-title">Project & Borrower</h2>
+      <p class="section-sub mb-8">The home being built, who's buying it, and a few questions that decide which extra forms you'll see.</p>
+
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12"><label class="field-label">Project Street Address<span class="req">*</span></label><input class="input" placeholder="123 Main Street" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">City<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-6 md:col-span-3"><label class="field-label">State<span class="req">*</span></label>
+          <select class="select" id="projState">
+            <option value="">Select</option>
+            <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option value="TX">TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
+          </select>
+        </div>
+        <div class="col-span-6 md:col-span-3"><label class="field-label">Zip<span class="req">*</span></label><input class="input" /></div>
+
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Borrower Full Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Co-Borrower Full Name <span class="text-[10px]">(if applicable)</span></label><input class="input" /></div>
+
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Estimated Project Duration<span class="req">*</span></label>
+          <div class="flex gap-2 items-center"><input class="input" type="number" placeholder="0" /><span class="text-sm" style="color: var(--text-muted);">months</span></div>
+        </div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Construction Contract Amount<span class="req">*</span></label>
+          <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);">$</span><input class="input pl-7" type="number" placeholder="0.00" /></div>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <div class="mb-5">
+        <label class="field-label">Is the subject property located in Texas?<span class="req">*</span></label>
+        <div class="flex gap-2 mt-1">
+          <button type="button" class="radio-pill" data-group="isTx" data-value="yes">Yes</button>
+          <button type="button" class="radio-pill" data-group="isTx" data-value="no">No</button>
+        </div>
+      </div>
+
+      <div class="mb-5">
+        <label class="field-label">Will the builder request a construction disbursement (draw) at closing?<span class="req">*</span></label>
+        <div class="flex gap-2 mt-1">
+          <button type="button" class="radio-pill" data-group="drawAtClose" data-value="yes">Yes</button>
+          <button type="button" class="radio-pill" data-group="drawAtClose" data-value="no">No</button>
+        </div>
+        <p class="text-[12px] mt-2" style="color: var(--text-muted);">If yes, the Draw Request Form (Page 16) will be added to your application. Max 10% of contract price less any borrower deposit.</p>
+      </div>
+
+      <div>
+        <label class="field-label">Is the project subject to HOA / PUD approval?</label>
+        <div class="flex gap-2 mt-1">
+          <button type="button" class="radio-pill" data-group="hasHoa" data-value="yes">Yes</button>
+          <button type="button" class="radio-pill" data-group="hasHoa" data-value="no">No</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 Company -->
+    <section id="sec-company" class="section">
+      <div class="section-eyebrow">Section 02</div>
+      <h2 class="section-title">Company Information</h2>
+      <p class="section-sub mb-8">Your legal entity, where you're based, and the person we should call with questions.</p>
+
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-8"><label class="field-label">Company Legal Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-4"><label class="field-label">EIN<span class="req">*</span></label><input class="input" placeholder="XX-XXXXXXX" /></div>
+
+        <div class="col-span-12 md:col-span-6"><label class="field-label">DBA — Doing Business As</label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Parent Company Name</label><input class="input" /></div>
+
+        <div class="col-span-12"><label class="field-label">Street Address<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">City<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-6 md:col-span-3"><label class="field-label">State<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-6 md:col-span-3"><label class="field-label">Zip<span class="req">*</span></label><input class="input" /></div>
+      </div>
+
+      <div class="section-divider"></div>
+      <h3 class="subsec-title">Point of Contact (completing this form)</h3>
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-6"><label class="field-label">First Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Last Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" placeholder="(555) 555-5555" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" /></div>
+      </div>
+    </section>
+
+    <!-- 03 Principals -->
+    <section id="sec-principals" class="section">
+      <div class="section-eyebrow">Section 03</div>
+      <h2 class="section-title">Principals, Officers & Members</h2>
+      <p class="section-sub mb-8">Anyone with ownership or executive authority over the company. Add at least one.</p>
+
+      <div id="principalsList">
+        <div class="repeater-row">
+          <span class="repeater-row-num">Principal 01</span>
+          <div class="grid grid-cols-12 gap-5 mt-2">
+            <div class="col-span-12 md:col-span-7"><label class="field-label">Full Name<span class="req">*</span></label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-5"><label class="field-label">Title<span class="req">*</span></label><input class="input" placeholder="Owner, President, etc." /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">Ownership %<span class="req">*</span></label><input class="input" type="number" max="100" placeholder="0" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">Years Experience<span class="req">*</span></label><input class="input" type="number" placeholder="0" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" /></div>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn-secondary mt-2" onclick="addPrincipal()">+ Add another principal</button>
+    </section>
+
+    <!-- 04 Background -->
+    <section id="sec-background" class="section">
+      <div class="section-eyebrow">Section 04</div>
+      <h2 class="section-title">Background Information</h2>
+      <p class="section-sub mb-8">Disclosures required by underwriting. Yes answers ask for a short explanation — that's normal and rarely a blocker.</p>
+
+      <div class="space-y-7">
+        <div>
+          <label class="field-label">Is the company or any member, officer or partner currently involved in litigation?<span class="req">*</span></label>
+          <div class="flex gap-2 mt-1 mb-3">
+            <button type="button" class="radio-pill" data-group="lit" data-value="yes">Yes</button>
+            <button type="button" class="radio-pill" data-group="lit" data-value="no">No</button>
+          </div>
+          <div class="cond-hidden" id="cond-lit"><textarea class="textarea" placeholder="Briefly explain"></textarea></div>
+        </div>
+
+        <div>
+          <label class="field-label">Does the company or any member, officer or partner have any judgments, liens, or garnishments?<span class="req">*</span></label>
+          <div class="flex gap-2 mt-1 mb-3">
+            <button type="button" class="radio-pill" data-group="liens" data-value="yes">Yes</button>
+            <button type="button" class="radio-pill" data-group="liens" data-value="no">No</button>
+          </div>
+          <div class="cond-hidden" id="cond-liens"><textarea class="textarea" placeholder="Briefly explain"></textarea></div>
+        </div>
+
+        <div>
+          <label class="field-label">Has any member, officer, principal or partner discharged a bankruptcy in the last 7 years?<span class="req">*</span></label>
+          <div class="flex gap-2 mt-1 mb-3">
+            <button type="button" class="radio-pill" data-group="bk" data-value="yes">Yes</button>
+            <button type="button" class="radio-pill" data-group="bk" data-value="no">No</button>
+          </div>
+          <div class="cond-hidden" id="cond-bk"><textarea class="textarea" placeholder="Briefly explain"></textarea></div>
+        </div>
+
+        <div>
+          <label class="field-label">Does the company carry Workers' Compensation insurance?<span class="req">*</span></label>
+          <div class="flex gap-2 mt-1 mb-3">
+            <button type="button" class="radio-pill" data-group="wc" data-value="yes">Yes</button>
+            <button type="button" class="radio-pill" data-group="wc" data-value="no">No</button>
+          </div>
+          <div class="cond-hidden" id="cond-wc">
+            <div class="text-[12px] mb-2" style="color: var(--text-muted);">If no, select the reason:</div>
+            <div class="flex flex-col gap-2">
+              <label class="check-pill"><input type="radio" name="wcReason" class="accent-current" /> The company has no employees. All work is subcontracted.</label>
+              <label class="check-pill"><input type="radio" name="wcReason" class="accent-current" /> The company has elected to be exempt and filed required documents with the State.</label>
+              <label class="check-pill"><input type="radio" name="wcReason" class="accent-current" /> Workers' Compensation is included in my State's licensing.</label>
+              <label class="check-pill"><input type="radio" name="wcReason" class="accent-current" /> Other</label>
+            </div>
+            <textarea class="textarea mt-3" placeholder="If other, explain"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 Experience -->
+    <section id="sec-experience" class="section">
+      <div class="section-eyebrow">Section 05</div>
+      <h2 class="section-title">Construction Experience</h2>
+      <p class="section-sub mb-8">How long you've been at this and what kinds of projects you take on.</p>
+
+      <div class="grid grid-cols-12 gap-5 mb-6">
+        <div class="col-span-12 md:col-span-4"><label class="field-label">Years in Business Under This Company<span class="req">*</span></label><input class="input" type="number" placeholder="0" /></div>
+      </div>
+
+      <div class="mb-7">
+        <label class="field-label">Type of Construction Projects (select all that apply)<span class="req">*</span></label>
+        <div class="flex flex-wrap gap-2 mt-1">
+          <label class="check-pill"><input type="checkbox" class="accent-current" /> Multi-Family</label>
+          <label class="check-pill"><input type="checkbox" class="accent-current" /> Factory Built</label>
+          <label class="check-pill"><input type="checkbox" class="accent-current" /> Residential New Construction 1–4 Unit</label>
+          <label class="check-pill"><input type="checkbox" class="accent-current" /> Commercial (CRE)</label>
+          <label class="check-pill"><input type="checkbox" class="accent-current" /> Residential Renovation</label>
+          <label class="check-pill"><input type="checkbox" class="accent-current" /> Other</label>
+        </div>
+      </div>
+
+      <div>
+        <label class="field-label">Trades your company performs in-house<span class="req">*</span></label>
+        <textarea class="textarea" placeholder="Framing, finish carpentry, etc."></textarea>
+      </div>
+
+      <div class="section-divider"></div>
+      <h3 class="subsec-title">Activity by Project Type — Last 5 Years</h3>
+      <div class="grid grid-cols-12 gap-5">
+        <!-- Residential New Construction -->
+        <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+          <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--gold-deep);">Residential New Construction</div>
+          <div class="space-y-3">
+            <div><label class="field-label">Houses Started (5 yr)</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Houses Completed (5 yr)</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Currently Under Construction</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Average Project Size ($)</label><input class="input" type="number" placeholder="0" /></div>
+          </div>
+        </div>
+        <!-- Residential Renovation -->
+        <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+          <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--gold-deep);">Residential Renovation</div>
+          <div class="space-y-3">
+            <div><label class="field-label">Projects Started (5 yr)</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Projects Completed (5 yr)</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Projects In Progress</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Average Project Size ($)</label><input class="input" type="number" placeholder="0" /></div>
+          </div>
+        </div>
+        <!-- Commercial -->
+        <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+          <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--gold-deep);">Commercial Construction</div>
+          <div class="space-y-3">
+            <div><label class="field-label">Projects Started (5 yr)</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Projects Completed (5 yr)</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Projects In Progress</label><input class="input" type="number" placeholder="0" /></div>
+            <div><label class="field-label">Average Project Size ($)</label><input class="input" type="number" placeholder="0" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 Sales History -->
+    <section id="sec-history" class="section">
+      <div class="section-eyebrow">Section 06</div>
+      <h2 class="section-title">Residential New Construction — Sales History</h2>
+      <p class="section-sub mb-8">Total construction sales (hard costs) and number of projects completed for the last three calendar or fiscal years.</p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b" style="border-color: var(--border-strong);">
+              <th class="text-left py-3 pr-4 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Year</th>
+              <th class="text-left py-3 pr-4 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Total Construction Sales ($)</th>
+              <th class="text-left py-3 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Projects Completed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b" style="border-color: var(--border);">
+              <td class="py-3 pr-4 font-display text-lg">2025</td>
+              <td class="py-3 pr-4"><input class="input" type="number" placeholder="0" /></td>
+              <td class="py-3"><input class="input" type="number" placeholder="0" /></td>
+            </tr>
+            <tr class="border-b" style="border-color: var(--border);">
+              <td class="py-3 pr-4 font-display text-lg">2024</td>
+              <td class="py-3 pr-4"><input class="input" type="number" placeholder="0" /></td>
+              <td class="py-3"><input class="input" type="number" placeholder="0" /></td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-display text-lg">2023</td>
+              <td class="py-3 pr-4"><input class="input" type="number" placeholder="0" /></td>
+              <td class="py-3"><input class="input" type="number" placeholder="0" /></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 07 Banking -->
+    <section id="sec-banking" class="section">
+      <div class="section-eyebrow">Section 07</div>
+      <h2 class="section-title">Banking References</h2>
+      <p class="section-sub mb-8">At least one lender you've worked with. A second reference is encouraged but optional.</p>
+
+      <div id="bankingList">
+        <div class="repeater-row">
+          <span class="repeater-row-num">Bank Reference 01 (Required)</span>
+          <div class="grid grid-cols-12 gap-5 mt-2">
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Lender Name<span class="req">*</span></label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Loan Officer<span class="req">*</span></label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" /></div>
+            <div class="col-span-12 md:col-span-3"><label class="field-label">Years as Client<span class="req">*</span></label><input class="input" type="number" placeholder="0" /></div>
+            <div class="col-span-12 md:col-span-9"><label class="field-label">Street Address</label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" /></div>
+          </div>
+        </div>
+        <div class="repeater-row">
+          <span class="repeater-row-num" style="background: var(--text-muted);">Bank Reference 02 (Optional)</span>
+          <div class="grid grid-cols-12 gap-5 mt-2">
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Lender Name</label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Loan Officer</label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Phone</label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">Email</label><input class="input" type="email" /></div>
+            <div class="col-span-12 md:col-span-3"><label class="field-label">Years as Client</label><input class="input" type="number" placeholder="0" /></div>
+            <div class="col-span-12 md:col-span-9"><label class="field-label">Street Address</label><input class="input" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 Trade refs -->
+    <section id="sec-trades" class="section">
+      <div class="section-eyebrow">Section 08</div>
+      <h2 class="section-title">Trade References (Sub-Contractors)</h2>
+      <p class="section-sub mb-8">Three sub-contractors you've done business with in the past 12 months.</p>
+
+      <div id="tradesList">
+        ${[1,2,3].map(i => '').join('')}
+      </div>
+    </section>
+
+    <!-- 09 Suppliers -->
+    <section id="sec-suppliers" class="section">
+      <div class="section-eyebrow">Section 09</div>
+      <h2 class="section-title">Supplier References</h2>
+      <p class="section-sub mb-8">Three suppliers you've done business with in the past 12 months. <strong style="color: var(--gold-deep);">At least one must be your primary lumber supplier.</strong></p>
+
+      <div id="suppliersList"></div>
+
+      <div class="mt-8">
+        <label class="field-label">Additional Comments</label>
+        <textarea class="textarea" placeholder="Anything else underwriting should know..."></textarea>
+      </div>
+    </section>
+
+    <!-- 10 TEXAS (conditional) -->
+    <section id="sec-texas" class="section cond-hidden" style="border-color: var(--gold); border-width: 1.5px;">
+      <div class="cond-banner">
+        <span class="font-mono text-[10px] tracking-[0.14em] uppercase">Conditional · Texas Property</span>
+        <span>This section appears because you indicated the property is in Texas.</span>
+      </div>
+      <div class="section-eyebrow">Section 10</div>
+      <h2 class="section-title">Texas Loan Supplement</h2>
+      <p class="section-sub mb-8">Required for all Texas construction loans. Used to draft the Mechanic's Lien Contract.</p>
+
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Contract Amount<span class="req">*</span></label>
+          <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);">$</span><input class="input pl-7" type="number" placeholder="0.00" /></div>
+        </div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Completion Date<span class="req">*</span></label><input class="input" type="date" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Builder Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12"><label class="field-label">Builder Address<span class="req">*</span></label><input class="input" /></div>
+
+        <div class="col-span-12 mt-4">
+          <h3 class="subsec-title">Builder's Authorized Agent</h3>
+          <p class="text-[12px] mb-4" style="color: var(--text-muted);">Person who will sign the Mechanic's Lien Contract at closing.</p>
+        </div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Agent Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Agent Title<span class="req">*</span></label><input class="input" /></div>
+
+        <div class="col-span-12 mt-4">
+          <label class="check-pill block w-full">
+            <input type="checkbox" class="accent-current" />
+            <span>I confirm that work has not commenced on the subject property, and the property is vacant with no existing structures. <span class="req">*</span></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 DRAW REQUEST (conditional) -->
+    <section id="sec-draw" class="section cond-hidden" style="border-color: var(--gold); border-width: 1.5px;">
+      <div class="cond-banner">
+        <span class="font-mono text-[10px] tracking-[0.14em] uppercase">Conditional · Draw at Closing</span>
+        <span>This section appears because you indicated a construction disbursement is requested at closing.</span>
+      </div>
+      <div class="section-eyebrow">Section 11</div>
+      <h2 class="section-title">Initial Construction Disbursement</h2>
+      <p class="section-sub mb-8">Specify which budget line-items will be funded at closing. Max 10% of contract price less any borrower deposit. Soft costs only — no structural work.</p>
+
+      <div class="grid grid-cols-12 gap-5 mb-6">
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Loan Number</label><input class="input" placeholder="Provided by CMG" /></div>
+        <div class="col-span-12 md:col-span-3"><label class="field-label">Date</label><input class="input" type="date" /></div>
+        <div class="col-span-12 md:col-span-3"><label class="field-label">Draw Number</label><input class="input" value="Initial" /></div>
+      </div>
+
+      <h3 class="subsec-title">Line Items at Closing</h3>
+      <div id="drawLines">
+        <div class="grid grid-cols-12 gap-3 mb-3 px-1">
+          <div class="col-span-3 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Budget Line Item</div>
+          <div class="col-span-3 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Description</div>
+          <div class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Amount</div>
+          <div class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Payee Name</div>
+          <div class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Payee Address</div>
+        </div>
+        <div class="grid grid-cols-12 gap-3 mb-2"><div class="col-span-3"><input class="input" /></div><div class="col-span-3"><input class="input" /></div><div class="col-span-2"><input class="input" type="number" placeholder="0.00" /></div><div class="col-span-2"><input class="input" /></div><div class="col-span-2"><input class="input" /></div></div>
+        <div class="grid grid-cols-12 gap-3 mb-2"><div class="col-span-3"><input class="input" /></div><div class="col-span-3"><input class="input" /></div><div class="col-span-2"><input class="input" type="number" placeholder="0.00" /></div><div class="col-span-2"><input class="input" /></div><div class="col-span-2"><input class="input" /></div></div>
+        <div class="grid grid-cols-12 gap-3 mb-2"><div class="col-span-3"><input class="input" /></div><div class="col-span-3"><input class="input" /></div><div class="col-span-2"><input class="input" type="number" placeholder="0.00" /></div><div class="col-span-2"><input class="input" /></div><div class="col-span-2"><input class="input" /></div></div>
+      </div>
+      <button type="button" class="btn-secondary mt-2">+ Add line item</button>
+
+      <div class="section-divider"></div>
+      <div class="flex justify-end items-center gap-4 py-3 px-4 rounded-lg" style="background: var(--brand-tint);">
+        <div class="font-mono text-[11px] uppercase tracking-[0.14em]" style="color: var(--brand);">Total Requested</div>
+        <div class="font-display text-2xl" style="color: var(--brand);">$0.00</div>
+      </div>
+
+      <div class="section-divider"></div>
+      <h3 class="subsec-title">Signatures</h3>
+      <p class="text-[12px] mb-5" style="color: var(--text-muted);">Borrower, Co-Borrower (if applicable), and Builder/Contractor must all sign.</p>
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-8"><label class="field-label">Borrower Signature<span class="req">*</span></label><input class="input" placeholder="Type full name to e-sign" /></div>
+        <div class="col-span-12 md:col-span-4"><label class="field-label">Date</label><input class="input" type="date" /></div>
+        <div class="col-span-12 md:col-span-8"><label class="field-label">Co-Borrower Signature</label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-4"><label class="field-label">Date</label><input class="input" type="date" /></div>
+        <div class="col-span-12 md:col-span-8"><label class="field-label">Builder / Contractor Signature<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-4"><label class="field-label">Date</label><input class="input" type="date" /></div>
+      </div>
+    </section>
+
+    <!-- 12 BAF -->
+    <section id="sec-baf" class="section">
+      <div class="section-eyebrow">Section 12</div>
+      <h2 class="section-title">Builder Acknowledgment</h2>
+      <p class="section-sub mb-8">By signing, you acknowledge the construction loan terms — fixed price contract, 6 draws + 1 final, advances on work-in-place only, change order approval requirement, and the rest of the agreement.</p>
+
+      <div class="p-5 rounded-lg max-h-56 overflow-y-auto text-[13px] leading-relaxed mb-6" style="background: var(--bg-soft); border: 1px solid var(--border); color: var(--text-secondary);">
+        <p class="mb-3"><strong style="color: var(--text-primary);">Construction Loan & Contract.</strong> Borrower has applied to Lender for a construction loan. Borrower intends to pay the Contract price using proceeds of the Loan. Builder agrees the Contract is fixed-price and may not exceed the stated Contract price except by approved Change Order.</p>
+        <p class="mb-3"><strong style="color: var(--text-primary);">Draws.</strong> Lender does not advance funds for deposits, up-front materials, or stored materials. Draws are funded on work-in-place only. <strong>Maximum 6 post-closing inspections/draws + 1 final.</strong> Final disbursement no less than 10% of contract amount.</p>
+        <p class="mb-3"><strong style="color: var(--text-primary);">Change Orders.</strong> Any change to price, work, or contract time must be in a Change Order signed by Borrower and Builder, and approved by Lender in writing before work begins.</p>
+        <p><strong style="color: var(--text-primary);">Insurance.</strong> Builder maintains General Liability and Workers' Compensation throughout construction. Builder's Risk maintained throughout construction; borrower's responsibility unless stated otherwise in the contract.</p>
+      </div>
+
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Builder Company Name<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Printed Name of Signer<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-6"><label class="field-label">Signature (type to e-sign)<span class="req">*</span></label><input class="input" style="font-family: 'Fraunces', serif; font-style: italic;" /></div>
+        <div class="col-span-12 md:col-span-3"><label class="field-label">Job Title<span class="req">*</span></label><input class="input" /></div>
+        <div class="col-span-12 md:col-span-3"><label class="field-label">Date<span class="req">*</span></label><input class="input" type="date" /></div>
+      </div>
+    </section>
+
+    <!-- DOCS -->
+    <section id="sec-docs" class="section">
+      <div class="section-eyebrow">Smart Docs Portal</div>
+      <h2 class="section-title">Documents Needed</h2>
+      <p class="section-sub mb-8">Upload directly into Smart Docs. We'll auto-validate file types, check expirations, reject screenshots, and ping you if anything's wrong.</p>
+
+      <div class="grid grid-cols-12 gap-4" id="docsList">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Submit -->
+    <div class="flex justify-between items-center mt-10 pt-6" style="border-top: 1px solid var(--border);">
+      <button class="btn-secondary">Save Draft</button>
+      <div class="flex gap-3">
+        <button class="btn-ghost">Preview</button>
+        <button class="btn-primary">Submit to CMG</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="variant-badge">Variant 1 · Atelier</div>
+
+<script>
+  // Radio pill groups
+  document.querySelectorAll('[data-group]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const group = btn.dataset.group;
+      document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const value = btn.dataset.value;
+      // Conditional reveals
+      if (group === 'isTx') {
+        document.getElementById('sec-texas').classList.toggle('cond-hidden', value !== 'yes');
+        document.getElementById('anchorTx').style.display = value === 'yes' ? 'flex' : 'none';
+        buildDocs();
+      }
+      if (group === 'drawAtClose') {
+        document.getElementById('sec-draw').classList.toggle('cond-hidden', value !== 'yes');
+        document.getElementById('anchorDraw').style.display = value === 'yes' ? 'flex' : 'none';
+      }
+      if (group === 'hasHoa') buildDocs();
+      if (group === 'lit') document.getElementById('cond-lit').classList.toggle('cond-hidden', value !== 'yes');
+      if (group === 'liens') document.getElementById('cond-liens').classList.toggle('cond-hidden', value !== 'yes');
+      if (group === 'bk') document.getElementById('cond-bk').classList.toggle('cond-hidden', value !== 'yes');
+      if (group === 'wc') document.getElementById('cond-wc').classList.toggle('cond-hidden', value !== 'no');
+    });
+  });
+
+  // Build trade ref rows
+  const tradesList = document.getElementById('tradesList');
+  for (let i = 1; i <= 3; i++) {
+    tradesList.innerHTML += `
+      <div class="repeater-row">
+        <span class="repeater-row-num">Trade Ref 0${i}</span>
+        <div class="grid grid-cols-12 gap-5 mt-2">
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Subcontractor Name<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Trade<span class="req">*</span></label><input class="input" placeholder="Electrical, HVAC, etc." /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Contact Person<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label">Relationship (yrs)<span class="req">*</span></label><input class="input" type="number" placeholder="0" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label">Phone<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" /></div>
+        </div>
+      </div>`;
+  }
+
+  // Build supplier rows
+  const suppliersList = document.getElementById('suppliersList');
+  for (let i = 1; i <= 3; i++) {
+    const label = i === 1 ? 'Supplier 01 (Primary Lumber — Required)' : `Supplier 0${i}`;
+    const bg = i === 1 ? 'background: var(--gold);' : '';
+    suppliersList.innerHTML += `
+      <div class="repeater-row">
+        <span class="repeater-row-num" style="${bg}">${label}</span>
+        <div class="grid grid-cols-12 gap-5 mt-2">
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Supplier Name<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Trade / Material<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Contact Person<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label">Relationship (yrs)<span class="req">*</span></label><input class="input" type="number" placeholder="0" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label">Phone<span class="req">*</span></label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" /></div>
+        </div>
+      </div>`;
+  }
+
+  // Add principal
+  let principalCount = 1;
+  function addPrincipal() {
+    principalCount++;
+    const num = String(principalCount).padStart(2, '0');
+    document.getElementById('principalsList').insertAdjacentHTML('beforeend', `
+      <div class="repeater-row">
+        <span class="repeater-row-num">Principal ${num}</span>
+        <div class="grid grid-cols-12 gap-5 mt-2">
+          <div class="col-span-12 md:col-span-7"><label class="field-label">Full Name</label><input class="input" /></div>
+          <div class="col-span-12 md:col-span-5"><label class="field-label">Title</label><input class="input" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label">Ownership %</label><input class="input" type="number" max="100" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label">Years Experience</label><input class="input" type="number" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Email</label><input class="input" type="email" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Phone</label><input class="input" /></div>
+        </div>
+      </div>`);
+  }
+
+  // Build docs list
+  const DOCS = [
+    { name: 'General Liability Insurance', desc: 'Minimum $1M coverage. Current policy term.', req: 'required', tag: 'INSURANCE' },
+    { name: 'Workers\' Compensation Insurance', desc: 'Active policy or exemption documentation.', req: 'required', tag: 'INSURANCE' },
+    { name: 'Builder\'s Risk Insurance', desc: 'Dwelling coverage ≥ greater of contract price or appraised cost-new. CMG listed as Certificate Holder. Quote acceptable if builder providing.', req: 'required', tag: 'INSURANCE' },
+    { name: 'Contractor License', desc: 'Current and active through closing for each state.', req: 'required', tag: 'LICENSING' },
+    { name: 'W-9 Form (Rev. March 2024)', desc: 'Line 1 must be complete. SSN or EIN required.', req: 'required', tag: 'TAX' },
+    { name: 'Plans', desc: 'Foundation, floor plans, elevation drawings, sectional wall diagrams. Initialed on every page by borrower and builder.', req: 'required', tag: 'PROJECT' },
+    { name: 'Specifications', desc: 'Detailed spec sheet, separate from plans. Signed and dated.', req: 'required', tag: 'PROJECT' },
+    { name: 'Site / Plot Plan', desc: 'Borrower names, full address, dwelling location, property lines, setbacks, easements, septic/well.', req: 'required', tag: 'PROJECT' },
+    { name: 'Construction Contract', desc: 'Fully executed, fixed-price (no cost-plus), all addenda included, start/completion dates, total matches budget.', req: 'required', tag: 'PROJECT' },
+    { name: 'Line-Item Budget / Draw Schedule', desc: 'Signed/dated, no "Miscellaneous" or "Deposit" line items. Total = contract price.', req: 'required', tag: 'FINANCIAL' },
+    { name: 'Builder\'s Bank-Verified Wire Instructions', desc: 'Required prior to closing.', req: 'required', tag: 'FINANCIAL' },
+    { name: 'Building Permit', desc: 'Prior to closing if borrower owns land; prior to first draw if purchasing.', req: 'required', tag: 'PROJECT' },
+    { name: 'HOA Approval of Plans & Specs', desc: 'Required if subject property is in an HOA or PUD.', req: 'conditional', tag: 'CONDITIONAL', condition: 'hoa' },
+    { name: 'Texas Confirmation — Work Not Commenced', desc: 'Written confirmation that work has not started and property is vacant with no existing structures.', req: 'conditional', tag: 'TEXAS ONLY', condition: 'tx' },
+  ];
+
+  function buildDocs() {
+    const hoa = document.querySelector('[data-group="hasHoa"].active')?.dataset.value === 'yes';
+    const tx = document.querySelector('[data-group="isTx"].active')?.dataset.value === 'yes';
+    const container = document.getElementById('docsList');
+    container.innerHTML = '';
+    DOCS.forEach(doc => {
+      if (doc.condition === 'hoa' && !hoa) return;
+      if (doc.condition === 'tx' && !tx) return;
+      const badge = doc.req === 'required'
+        ? '<span class="doc-required">● Required</span>'
+        : '<span class="doc-conditional">● Conditional</span>';
+      container.insertAdjacentHTML('beforeend', `
+        <div class="col-span-12 md:col-span-6 doc-card">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">${doc.tag}</span>
+            ${badge}
+          </div>
+          <div class="font-display text-lg leading-snug mb-1">${doc.name}</div>
+          <p class="text-[12.5px] mb-4" style="color: var(--text-secondary); line-height: 1.5;">${doc.desc}</p>
+          <div class="upload-zone">
+            <div class="text-[18px] mb-1">↑</div>
+            Drop file or click to upload
+          </div>
+        </div>`);
+    });
+  }
+  buildDocs();
+
+  // Active anchor highlight
+  const sections = document.querySelectorAll('.section');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        document.querySelectorAll('.anchor-link').forEach(a => a.classList.remove('active'));
+        const id = entry.target.id;
+        const link = document.querySelector(`.anchor-link[href="#${id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

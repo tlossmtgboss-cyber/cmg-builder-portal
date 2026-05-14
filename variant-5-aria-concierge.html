@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Aria Concierge (Variant 5)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1; --bg-surface: #FFFFFF; --bg-sidebar: #F6F2EA; --bg-elevated: #F2EDE2; --bg-soft: #FBF8F2;
+    --border: #ECE6D8; --border-strong: #D8D0BD; --border-active: #1F3D2E;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E; --text-faint: #B5B2A4;
+    --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-soft: #E5EDE6; --brand-tint: #EFF3EE;
+    --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
+    --success: #2D7A52; --success-soft: #E3EFE5; --warn: #B25F18; --danger: #9B2C2C;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); font-feature-settings: 'ss01','cv01','cv11'; letter-spacing: -0.005em; height: 100vh; overflow: hidden; margin: 0; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+
+  .layout-shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+  .top-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+  .main-split { display: grid; grid-template-columns: 1.05fr 1fr; height: 100%; overflow: hidden; }
+
+  /* CHAT panel */
+  .chat-panel { display: flex; flex-direction: column; background: var(--bg-page); border-right: 1px solid var(--border); overflow: hidden; }
+  .chat-header { padding: 18px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; background: var(--bg-surface); }
+  .aria-avatar { width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--gold), var(--brand)); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; box-shadow: 0 0 0 4px rgba(184,146,74,.12); position: relative; }
+  .aria-avatar::after { content: ""; position: absolute; bottom: 0; right: 0; width: 11px; height: 11px; background: var(--success); border: 2px solid var(--bg-surface); border-radius: 50%; }
+  .chat-progress { background: var(--bg-elevated); border-radius: 999px; height: 6px; overflow: hidden; flex: 1; margin-left: 16px; max-width: 200px; }
+  .chat-progress-fill { background: var(--brand); height: 100%; transition: width 350ms ease; }
+  .chat-progress-text { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-muted); }
+
+  .chat-feed { flex: 1; overflow-y: auto; padding: 24px 28px; }
+  .msg { margin-bottom: 18px; animation: msgIn 360ms cubic-bezier(.2,.8,.3,1); }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .msg-aria { display: flex; gap: 12px; }
+  .msg-aria-bubble { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px 16px 16px 16px; padding: 14px 18px; max-width: 78%; font-size: 14px; line-height: 1.55; color: var(--text-primary); }
+  .msg-aria-bubble strong { color: var(--brand); font-weight: 500; }
+  .msg-aria-mini-avatar { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, var(--gold), var(--brand)); flex-shrink: 0; font-family: 'Fraunces', serif; font-size: 11px; color: #fff; display: flex; align-items: center; justify-content: center; }
+  .msg-user { display: flex; justify-content: flex-end; }
+  .msg-user-bubble { background: var(--brand); color: #fff; border-radius: 16px 4px 16px 16px; padding: 12px 18px; max-width: 78%; font-size: 14px; line-height: 1.5; }
+  .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-left: 38px; margin-top: 10px; }
+  .qr-pill { background: var(--bg-surface); border: 1px solid var(--border-strong); color: var(--text-primary); padding: 8px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; transition: all 120ms ease; }
+  .qr-pill:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .system-note { text-align: center; font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0; }
+  .system-note::before, .system-note::after { content: "—"; margin: 0 8px; color: var(--text-faint); }
+
+  .chat-typing { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
+  .typing-dots { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 4px 16px 16px 16px; padding: 14px 18px; display: flex; gap: 5px; }
+  .typing-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typingPulse 1.2s infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingPulse { 0%,60%,100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+  /* Chat composer */
+  .chat-composer { padding: 18px 28px 24px; background: var(--bg-page); border-top: 1px solid var(--border); }
+  .composer-row { display: flex; gap: 10px; align-items: center; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 28px; padding: 6px 8px 6px 18px; transition: all 150ms ease; }
+  .composer-row:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(31,61,46,.08); }
+  .composer-input { flex: 1; border: none; outline: none; background: transparent; font-size: 14px; font-family: inherit; padding: 10px 0; color: var(--text-primary); }
+  .composer-input::placeholder { color: var(--text-faint); }
+  .composer-btn { width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 150ms ease; }
+  .composer-btn-voice { background: var(--bg-elevated); color: var(--text-secondary); }
+  .composer-btn-voice:hover { background: var(--gold-soft); color: var(--gold-deep); }
+  .composer-btn-send { background: var(--brand); color: #fff; }
+  .composer-btn-send:hover { background: var(--brand-hover); }
+  .composer-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding: 0 8px; font-size: 11.5px; color: var(--text-muted); }
+
+  /* RIGHT panel: live preview */
+  .preview-panel { background: var(--bg-surface); overflow-y: auto; }
+  .preview-header { position: sticky; top: 0; background: var(--bg-surface); border-bottom: 1px solid var(--border); padding: 18px 28px; z-index: 2; }
+  .preview-eyebrow { font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 4px; }
+  .preview-title { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; }
+  .preview-sub { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-top: 4px; }
+  .preview-toggle { display: flex; gap: 6px; margin-top: 12px; background: var(--bg-elevated); padding: 3px; border-radius: 6px; width: max-content; }
+  .preview-toggle button { background: transparent; border: none; padding: 6px 12px; font-size: 12px; font-family: inherit; border-radius: 4px; cursor: pointer; color: var(--text-muted); transition: all 120ms ease; }
+  .preview-toggle button.active { background: var(--bg-surface); color: var(--text-primary); box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+
+  .preview-body { padding: 18px 28px 24px; }
+  .preview-section { margin-bottom: 24px; }
+  .preview-section-title { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .preview-section-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .preview-section-title .pct { font-family: 'Geist Mono', monospace; color: var(--gold-deep); }
+
+  .field-row { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 13px; gap: 16px; }
+  .field-row:last-child { border-bottom: none; }
+  .field-row-label { color: var(--text-muted); font-size: 12.5px; flex-shrink: 0; }
+  .field-row-value { color: var(--text-primary); font-weight: 500; text-align: right; line-height: 1.4; max-width: 60%; word-break: break-word; }
+  .field-row-value.empty { color: var(--text-faint); font-style: italic; font-weight: 400; }
+  .field-row.just-filled { animation: justFilled 1.2s ease; }
+  @keyframes justFilled {
+    0% { background: var(--gold-soft); }
+    100% { background: transparent; }
+  }
+  .field-row.just-filled .field-row-value { color: var(--gold-deep); }
+
+  .doc-bundle { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; transition: all 150ms ease; }
+  .doc-bundle:hover { border-color: var(--border-strong); }
+  .doc-icon { width: 32px; height: 40px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 3px; font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+  .doc-icon::before { content: ""; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 8px 8px 0; border-color: transparent var(--bg-page) transparent transparent; }
+  .doc-bundle-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .doc-bundle-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .doc-bundle-status { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .status-pending { background: var(--bg-elevated); color: var(--text-muted); }
+  .status-filling { background: var(--gold-soft); color: var(--gold-deep); }
+  .status-ready { background: var(--success-soft); color: var(--success); }
+
+  /* Submit confirmation overlay */
+  .submit-overlay { position: fixed; inset: 0; background: rgba(20,30,22,.45); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .submit-overlay.open { display: flex; }
+  .submit-card { background: var(--bg-surface); border-radius: 16px; max-width: 560px; width: 100%; padding: 40px 44px; box-shadow: 0 32px 80px rgba(0,0,0,.2); animation: submitIn 350ms ease; }
+  @keyframes submitIn { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .submit-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--brand-tint); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--brand); margin-bottom: 20px; }
+  .submit-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 8px; }
+  .submit-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 24px; }
+  .submit-pdfs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; padding: 14px; background: var(--bg-soft); border-radius: 10px; border: 1px solid var(--border); }
+  .submit-email-line { display: flex; gap: 8px; align-items: center; padding: 12px 14px; background: var(--brand-tint); border-radius: 8px; font-size: 13px; color: var(--brand); margin-bottom: 24px; }
+
+  /* Buttons */
+  .btn-primary { background: var(--brand); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: none; cursor: pointer; transition: all 150ms ease; }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-secondary { background: var(--bg-surface); color: var(--text-primary); padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: 1px solid var(--border-strong); cursor: pointer; }
+  .btn-ghost { background: transparent; color: var(--text-secondary); padding: 8px 12px; font-size: 13px; border: none; cursor: pointer; }
+
+  .save-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); padding: 5px 11px; background: var(--bg-elevated); border-radius: 999px; }
+  .save-pill::before { content: ""; width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+  .variant-badge { position: fixed; bottom: 16px; left: 16px; background: var(--brand); color: #fff; padding: 8px 14px; border-radius: 999px; font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; z-index: 90; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+</style>
+</head>
+<body>
+
+<div class="layout-shell">
+  <header class="top-bar">
+    <div class="flex items-center gap-3">
+      <div class="font-display text-lg font-medium" style="color: var(--brand);">CMG</div>
+      <div class="text-[10.5px] font-mono uppercase tracking-[0.18em]" style="color: var(--text-muted);">Builder Portal</div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="save-pill">Aria is listening</span>
+      <button class="btn-ghost">Save & Exit</button>
+      <button class="btn-primary" onclick="openSubmit()">Submit to CMG</button>
+    </div>
+  </header>
+
+  <div class="main-split">
+
+    <!-- CHAT panel -->
+    <section class="chat-panel">
+      <div class="chat-header">
+        <div class="aria-avatar">A</div>
+        <div>
+          <div class="font-display text-base font-medium">Aria</div>
+          <div class="text-[11px]" style="color: var(--text-muted);">Construction loan concierge · CMG Home Loans</div>
+        </div>
+        <div class="chat-progress"><div class="chat-progress-fill" id="chatProgress" style="width: 18%;"></div></div>
+        <div class="chat-progress-text" id="chatProgressText">18%</div>
+      </div>
+
+      <div class="chat-feed" id="chatFeed">
+        <!-- Initial Aria intro -->
+        <div class="system-note">Today at 9:14 AM</div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">
+            Hi, I'm <strong>Aria</strong>, your construction loan concierge. I'm going to ask you about your company and the project so I can fill out CMG's paperwork for you — the Builder Acknowledgment, the Builder & Project Review, the Texas Supplement if it applies, and the Draw Request if you want one at closing. <br><br>This usually takes about 12 minutes if you have your business info handy. Ready to start?
+          </div>
+        </div>
+        <div class="quick-replies">
+          <button class="qr-pill">Let's go</button>
+          <button class="qr-pill">Show me all the questions first</button>
+          <button class="qr-pill">I have my CRM connected — pull from there</button>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">Let's go</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">Great. First — <strong>what's the property address</strong> of the home being built?</div>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">412 Mockingbird Lane, Frisco TX 75034</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">Got it — <strong>412 Mockingbird Lane, Frisco, TX 75034</strong>. Two flags from that address: it's a <strong>Texas property</strong>, so I'll need the Texas Supplement at the end, and Frisco is in the <strong>Stonebriar HOA</strong> — I'll add HOA Approval to your Smart Docs list.<br><br>Now, who's <strong>the borrower</strong>?</div>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">Marcus Holloway. His wife Jenna will be co-borrower.</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">Marcus and Jenna Holloway, noted. <br><br>What's the <strong>contract price</strong> and how long is the build?</div>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">$847,500. 9 month build.</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">
+            $847,500 over 9 months — locked in.<br><br>Last routing question: <strong>do you need a draw at closing</strong>? CMG allows up to 10% of the contract price (so up to $84,750 less any borrower deposit you've already received) for soft costs — permits, design, etc. No structural work funded at closing.
+          </div>
+        </div>
+        <div class="quick-replies">
+          <button class="qr-pill">Yes — for soft costs</button>
+          <button class="qr-pill">No, we'll fund all draws post-closing</button>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">Yes — for soft costs</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">Good. I've added the Draw Request Form to the packet — we'll detail the line items after the company section.<br><br>Now, <strong>your company</strong>. What's the legal name?</div>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">Pinecrest Builders, LLC</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">
+            Pinecrest Builders, LLC. <br><br>I can see this is your second project with CMG — your <strong>company info, EIN, license, and W9</strong> are still on file from the Westlake build last March. <strong>Want me to reuse them</strong>, or have any of those changed?
+          </div>
+        </div>
+        <div class="quick-replies">
+          <button class="qr-pill">Reuse everything from last time</button>
+          <button class="qr-pill">Address changed — I'll update it</button>
+          <button class="qr-pill">License renewed — I'll re-upload</button>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">Reuse everything from last time</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">
+            Perfect — saves us about <strong>6 minutes of typing</strong>. Pulled across:
+            <ul style="margin: 10px 0 0; padding-left: 18px; color: var(--text-secondary);">
+              <li>Company address, EIN, DBA</li>
+              <li>Point of contact (you, Tim Holloway)</li>
+              <li>3 principals with ownership %</li>
+              <li>Background disclosures from last application</li>
+              <li>Banking refs (Frost Bank, Comerica)</li>
+              <li>Trade & supplier refs — though I'd like to refresh those if it's been &gt;12 months</li>
+            </ul>
+            <br>Quick check — <strong>has anything changed</strong> on the background section? Any new litigation, liens, or bankruptcies since last application?
+          </div>
+        </div>
+        <div class="quick-replies">
+          <button class="qr-pill">No changes</button>
+          <button class="qr-pill">Yes — let me explain</button>
+        </div>
+
+        <div class="msg msg-user"><div class="msg-user-bubble">No changes</div></div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">
+            Excellent. We're moving fast — application is <strong>62% complete</strong> already.<br><br>Let's refresh those trade and supplier references. Last time you listed <strong>Reyes Electrical, Hayworth HVAC,</strong> and <strong>Magnolia Plumbing</strong>. Still using all three?
+          </div>
+        </div>
+        <div class="quick-replies">
+          <button class="qr-pill">Yes, all three current</button>
+          <button class="qr-pill">Reyes only — others are new</button>
+          <button class="qr-pill">All new subs this time</button>
+        </div>
+
+        <div class="system-note">Continue the conversation to complete all sections</div>
+
+        <div class="msg msg-aria">
+          <div class="msg-aria-mini-avatar">A</div>
+          <div class="msg-aria-bubble">
+            <em style="color: var(--text-muted); font-size: 13px;">— Prototype paused here — </em><br><br>
+            From here, Aria continues through the remaining ~38% of fields: supplier refs, principals (with ownership %), construction experience by project type, 5-year project history, 3-year sales, and the Builder Acknowledgment e-signature. The right-hand pane fills in real time. Toggle <em>All Fields</em> on the right to verify every question is captured.
+          </div>
+        </div><!-- CHAT_MESSAGES_PLACEHOLDER -->
+      </div>
+
+      <div class="chat-composer">
+        <div class="composer-row">
+          <input class="composer-input" id="composerInput" placeholder="Type your reply, or tap the mic to speak..." />
+          <button class="composer-btn composer-btn-voice" title="Voice input (Avery)">🎙</button>
+          <button class="composer-btn composer-btn-send" onclick="sendMessage()">→</button>
+        </div>
+        <div class="composer-meta">
+          <span>Press <span class="font-mono">⏎</span> to send · <span class="font-mono">⌘K</span> for shortcuts</span>
+          <span>Aria can also speak — voice powered by Avery</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT preview panel -->
+    <section class="preview-panel">
+      <div class="preview-header">
+        <div class="preview-eyebrow">Live Document Preview</div>
+        <div class="preview-title">Your CMG paperwork</div>
+        <div class="preview-sub">Aria fills these in as you talk. Switch to <em>All Fields</em> to see every question, or <em>Documents</em> to track Smart Docs uploads.</div>
+        <div class="preview-toggle">
+          <button class="active" onclick="switchView('summary', this)">Summary</button>
+          <button onclick="switchView('fields', this)">All Fields</button>
+          <button onclick="switchView('docs', this)">Documents</button>
+        </div>
+      </div>
+      <div class="preview-body" id="previewBody">
+        <!-- PREVIEW_PLACEHOLDER -->
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Submit confirmation overlay -->
+<div class="submit-overlay" id="submitOverlay">
+  <div class="submit-card">
+    <div class="submit-icon">✓</div>
+    <div class="submit-title">Packet assembled. Sending to your LO.</div>
+    <p class="submit-sub">Aria built the four CMG documents from our conversation and is emailing the bundle to your loan officer right now. You'll receive a copy at the email on file.</p>
+    <div class="submit-pdfs">
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Builder Acknowledgment Form</div><div class="doc-bundle-meta">Filled · Page 1–5 · 84 KB</div></div><span class="doc-bundle-status status-ready">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Builder & Project Review</div><div class="doc-bundle-meta">Filled · Page 1–4 · 92 KB</div></div><span class="doc-bundle-status status-ready">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Texas Loan Supplement</div><div class="doc-bundle-meta">Filled · 1 page · 18 KB</div></div><span class="doc-bundle-status status-ready">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Draw Request Form</div><div class="doc-bundle-meta">Filled · 1 page · 22 KB</div></div><span class="doc-bundle-status status-ready">Ready</span></div>
+    </div>
+    <div class="submit-email-line">
+      <span>📧</span>
+      <span><strong>To:</strong> Sarah Chen, Loan Officer &lt;sarah.chen@cmgfi.com&gt; · <strong>Subject:</strong> New construction packet — Pinecrest Builders</span>
+    </div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-secondary" onclick="closeSubmit()">View Packet</button>
+      <button class="btn-primary" onclick="closeSubmit()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="variant-badge">Variant 5 · Aria Concierge</div>
+
+<script>
+  // Submit overlay
+  function openSubmit() { document.getElementById('submitOverlay').classList.add('open'); }
+  function closeSubmit() { document.getElementById('submitOverlay').classList.remove('open'); }
+
+  // Send message stub — appends user message to chat
+  function sendMessage() {
+    const input = document.getElementById('composerInput');
+    const txt = input.value.trim();
+    if (!txt) return;
+    const feed = document.getElementById('chatFeed');
+    feed.insertAdjacentHTML('beforeend', `
+      <div class="msg msg-user"><div class="msg-user-bubble">${escapeHtml(txt)}</div></div>
+    `);
+    input.value = '';
+    feed.scrollTop = feed.scrollHeight;
+  }
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  document.getElementById('composerInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+  // Preview view switching
+  let currentView = 'summary';
+  function switchView(view, btn) {
+    document.querySelectorAll('.preview-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentView = view;
+    renderPreview();
+  }
+  function renderPreview() {
+    document.getElementById('previewBody').innerHTML = VIEWS[currentView]();
+  }
+
+  // Three preview views
+  const VIEWS = {
+    summary: () => `
+      <div class="preview-section">
+        <div class="preview-section-title">Project & Borrower <span class="pct">100%</span></div>
+        <div class="field-row just-filled"><span class="field-row-label">Property Address</span><span class="field-row-value">412 Mockingbird Lane, Frisco, TX 75034</span></div>
+        <div class="field-row"><span class="field-row-label">Borrower</span><span class="field-row-value">Marcus Holloway</span></div>
+        <div class="field-row"><span class="field-row-label">Co-Borrower</span><span class="field-row-value">Jenna Holloway</span></div>
+        <div class="field-row"><span class="field-row-label">Contract Amount</span><span class="field-row-value">$847,500</span></div>
+        <div class="field-row"><span class="field-row-label">Duration</span><span class="field-row-value">9 months</span></div>
+        <div class="field-row"><span class="field-row-label">Texas Property</span><span class="field-row-value" style="color: var(--gold-deep);">Yes — TX Supplement added</span></div>
+        <div class="field-row"><span class="field-row-label">Draw at Closing</span><span class="field-row-value" style="color: var(--gold-deep);">Yes — Draw Request added</span></div>
+        <div class="field-row"><span class="field-row-label">HOA / PUD</span><span class="field-row-value">Stonebriar HOA</span></div>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-section-title">Company Information <span class="pct">100%</span></div>
+        <div class="field-row"><span class="field-row-label">Legal Name</span><span class="field-row-value">Pinecrest Builders, LLC</span></div>
+        <div class="field-row"><span class="field-row-label">EIN</span><span class="field-row-value">82-4519731</span></div>
+        <div class="field-row"><span class="field-row-label">DBA</span><span class="field-row-value">Pinecrest Custom Homes</span></div>
+        <div class="field-row"><span class="field-row-label">Parent Company</span><span class="field-row-value empty">None</span></div>
+        <div class="field-row"><span class="field-row-label">Address</span><span class="field-row-value">2820 Legacy Dr, Suite 200, Plano TX 75024</span></div>
+        <div class="field-row"><span class="field-row-label">Contact</span><span class="field-row-value">Tim Holloway · (469) 555-0134 · tim@pinecrestbuilders.com</span></div>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-section-title">Principals & Officers <span class="pct">100%</span></div>
+        <div class="field-row"><span class="field-row-label">Tim Holloway</span><span class="field-row-value">Managing Member · 60% · 14 yrs</span></div>
+        <div class="field-row"><span class="field-row-label">Daniel Cruz</span><span class="field-row-value">VP Construction · 25% · 11 yrs</span></div>
+        <div class="field-row"><span class="field-row-label">Rebecca Mei</span><span class="field-row-value">CFO · 15% · 8 yrs</span></div>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-section-title">Background Disclosures <span class="pct">100%</span></div>
+        <div class="field-row"><span class="field-row-label">Litigation</span><span class="field-row-value" style="color: var(--success);">No</span></div>
+        <div class="field-row"><span class="field-row-label">Judgments / Liens</span><span class="field-row-value" style="color: var(--success);">No</span></div>
+        <div class="field-row"><span class="field-row-label">Bankruptcy (7yr)</span><span class="field-row-value" style="color: var(--success);">No</span></div>
+        <div class="field-row"><span class="field-row-label">Workers' Comp</span><span class="field-row-value">Yes — Texas Mutual</span></div>
+      </div>
+
+      <div class="preview-section">
+        <div class="preview-section-title">Remaining Sections <span class="pct" style="color: var(--text-muted);">38%</span></div>
+        <div class="field-row"><span class="field-row-label">Construction Experience</span><span class="field-row-value empty">Aria will ask next</span></div>
+        <div class="field-row"><span class="field-row-label">Project History (5 yr)</span><span class="field-row-value empty">Aria will ask next</span></div>
+        <div class="field-row"><span class="field-row-label">Sales History (3 yr)</span><span class="field-row-value empty">Aria will ask next</span></div>
+        <div class="field-row"><span class="field-row-label">Banking Refs</span><span class="field-row-value" style="color: var(--success);">Reused from prior application</span></div>
+        <div class="field-row"><span class="field-row-label">Trade Refs (3)</span><span class="field-row-value empty">Refreshing now</span></div>
+        <div class="field-row"><span class="field-row-label">Supplier Refs (3)</span><span class="field-row-value empty">Refreshing now</span></div>
+        <div class="field-row"><span class="field-row-label">Draw Line Items</span><span class="field-row-value empty">Coming up after company</span></div>
+        <div class="field-row"><span class="field-row-label">TX Supplement</span><span class="field-row-value empty">Coming up at end</span></div>
+        <div class="field-row"><span class="field-row-label">Builder Acknowledgment Signature</span><span class="field-row-value empty">Final step</span></div>
+      </div>
+    `,
+
+    fields: () => `
+      <div class="preview-section">
+        <div class="preview-section-title">Every Question — Master List</div>
+        <p class="text-[12.5px] mb-3" style="color: var(--text-muted); line-height: 1.5;">All 90+ fields from the Builder Packet, grouped by source document. Items in <strong style="color: var(--brand);">green</strong> are answered; <span style="color: var(--text-faint);">italic</span> are pending.</p>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">01 · Project & Borrower</div>
+        <div class="field-row"><span class="field-row-label">Project Address (street/city/state/zip)</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">Borrower Full Name</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">Co-Borrower Full Name</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">Estimated Project Duration (months)</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">Construction Contract Amount</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">Property in Texas? (routing)</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">Draw at Closing? (routing)</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+        <div class="field-row"><span class="field-row-label">HOA / PUD? (routing)</span><span class="field-row-value" style="color: var(--success);">Answered</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">02 · Company Information (BPR)</div>
+        <div class="field-row"><span class="field-row-label">Company Legal Name</span><span class="field-row-value" style="color: var(--success);">Reused</span></div>
+        <div class="field-row"><span class="field-row-label">EIN</span><span class="field-row-value" style="color: var(--success);">Reused</span></div>
+        <div class="field-row"><span class="field-row-label">DBA</span><span class="field-row-value" style="color: var(--success);">Reused</span></div>
+        <div class="field-row"><span class="field-row-label">Parent Company</span><span class="field-row-value" style="color: var(--success);">Reused</span></div>
+        <div class="field-row"><span class="field-row-label">Company Street Address / City / State / Zip</span><span class="field-row-value" style="color: var(--success);">Reused</span></div>
+        <div class="field-row"><span class="field-row-label">Point of Contact (first/last/phone/email)</span><span class="field-row-value" style="color: var(--success);">Reused</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">03 · Principals / Officers (1+ rows)</div>
+        <div class="field-row"><span class="field-row-label">Full Name · Title · Ownership % · Years Exp · Email · Phone · Address</span><span class="field-row-value" style="color: var(--success);">3 principals carried over</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">04 · Background</div>
+        <div class="field-row"><span class="field-row-label">Litigation? (Y/N + explanation)</span><span class="field-row-value" style="color: var(--success);">Confirmed unchanged</span></div>
+        <div class="field-row"><span class="field-row-label">Judgments / Liens / Garnishments? (Y/N + explanation)</span><span class="field-row-value" style="color: var(--success);">Confirmed unchanged</span></div>
+        <div class="field-row"><span class="field-row-label">Bankruptcy in last 7 years? (Y/N + explanation)</span><span class="field-row-value" style="color: var(--success);">Confirmed unchanged</span></div>
+        <div class="field-row"><span class="field-row-label">Workers' Comp? (Y/N + 4 exemption reasons)</span><span class="field-row-value" style="color: var(--success);">Yes — Texas Mutual</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">05 · Construction Experience</div>
+        <div class="field-row"><span class="field-row-label">Years in Business</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Project Types (6 multi-select)</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">In-house Trades</span><span class="field-row-value empty">Pending</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">06 · Project History — Last 5 Years</div>
+        <div class="field-row"><span class="field-row-label">Residential New Construction (started / completed / in-progress / avg size)</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Residential Renovation (same 4 metrics)</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Commercial (same 4 metrics)</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Sales: 2025 / 2024 / 2023 (sales $ + projects each year)</span><span class="field-row-value empty">Pending</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">07 · Banking References (1 required + 1 optional)</div>
+        <div class="field-row"><span class="field-row-label">Lender · LO · Phone · Email · Years · Address × 2</span><span class="field-row-value" style="color: var(--success);">Frost Bank · Comerica</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">08 · Trade References × 3</div>
+        <div class="field-row"><span class="field-row-label">Name · Trade · Yrs · Contact · Phone · Email · Address</span><span class="field-row-value empty">Refreshing now</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">09 · Supplier References × 3 (one MUST be primary lumber)</div>
+        <div class="field-row"><span class="field-row-label">Name · Material · Yrs · Contact · Phone · Email · Address</span><span class="field-row-value empty">Refreshing now</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">10 · Texas Supplement (conditional — TX property)</div>
+        <div class="field-row"><span class="field-row-label">Contract Amount · Completion Date</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Builder Name · Builder Address</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Authorized Agent Name · Title</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Confirm work not commenced (checkbox)</span><span class="field-row-value empty">Pending</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">11 · Draw Request (conditional — draw at closing)</div>
+        <div class="field-row"><span class="field-row-label">Loan # · Date · Draw #</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Line Items (line · desc · amount · payee · address)</span><span class="field-row-value empty">Pending</span></div>
+        <div class="field-row"><span class="field-row-label">Signatures (Borrower / Co-Borrower / Builder)</span><span class="field-row-value empty">Pending</span></div>
+      </div>
+      <div class="preview-section">
+        <div class="preview-section-title">12 · Builder Acknowledgment (BAF)</div>
+        <div class="field-row"><span class="field-row-label">Company Name · Printed Name · Signature · Title · Date</span><span class="field-row-value empty">Final step</span></div>
+      </div>
+    `,
+
+    docs: () => `
+      <div class="preview-section">
+        <div class="preview-section-title">Smart Docs · 1 of 14 uploaded</div>
+        <p class="text-[12.5px] mb-3" style="color: var(--text-muted); line-height: 1.5;">Drag-drop anywhere on this panel. Smart Docs auto-validates type, age, and quality. Screenshots and expired documents are auto-rejected.</p>
+      </div>
+
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">General Liability Insurance</div><div class="doc-bundle-meta">$1M min · Current term</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Workers' Comp Insurance</div><div class="doc-bundle-meta">Or exemption documentation</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Builder's Risk Insurance</div><div class="doc-bundle-meta">CMG as Certificate Holder</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Contractor License</div><div class="doc-bundle-meta">Current & active through closing</div></div><span class="doc-bundle-status status-ready">✓ On File</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">W-9 (Rev. March 2024)</div><div class="doc-bundle-meta">Line 1 complete · SSN/EIN</div></div><span class="doc-bundle-status status-filling">Aria filling</span></div>
+      <div class="doc-bundle"><div class="doc-icon">DWG</div><div><div class="doc-bundle-name">Plans</div><div class="doc-bundle-meta">Foundation · Floors · Elevations · Wall sections</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">DOC</div><div><div class="doc-bundle-name">Specifications</div><div class="doc-bundle-meta">Detailed spec sheet · Signed</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Site / Plot Plan</div><div class="doc-bundle-meta">Dwelling · setbacks · septic/well</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Construction Contract</div><div class="doc-bundle-meta">Fixed price · all addenda</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">XLS</div><div><div class="doc-bundle-name">Line-Item Budget / Draw Schedule</div><div class="doc-bundle-meta">Total = contract</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Bank-Verified Wire Instructions</div><div class="doc-bundle-meta">Required prior to closing</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Building Permit</div><div class="doc-bundle-meta">Pre-closing or pre-first-draw</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+
+      <div class="preview-section-title mt-6">Conditional · Added by Aria</div>
+      <div class="doc-bundle" style="border-left: 3px solid var(--gold);"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">HOA Approval of Plans</div><div class="doc-bundle-meta">Stonebriar HOA · Frisco</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+      <div class="doc-bundle" style="border-left: 3px solid var(--gold);"><div class="doc-icon">DOC</div><div><div class="doc-bundle-name">Texas — Work Not Commenced</div><div class="doc-bundle-meta">Property vacant confirmation</div></div><span class="doc-bundle-status status-pending">Pending</span></div>
+    `
+  };
+
+  renderPreview();
+</script>
+
+</body>
+</html>

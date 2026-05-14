@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — AutoPilot (Variant 6)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1; --bg-surface: #FFFFFF; --bg-sidebar: #F6F2EA; --bg-elevated: #F2EDE2; --bg-soft: #FBF8F2;
+    --border: #ECE6D8; --border-strong: #D8D0BD; --border-active: #1F3D2E;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E; --text-faint: #B5B2A4;
+    --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-soft: #E5EDE6; --brand-tint: #EFF3EE;
+    --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
+    --success: #2D7A52; --success-soft: #E3EFE5; --warn: #B25F18; --warn-soft: #F8E8D6; --danger: #9B2C2C;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); font-feature-settings: 'ss01','cv01','cv11'; letter-spacing: -0.005em; margin: 0; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(31,61,46,.025) 1px, transparent 1px); background-size: 4px 4px; opacity: .6; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+
+  /* Top bar */
+  .topbar { background: rgba(250,247,241,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+
+  /* Hero upload */
+  .hero-drop {
+    background: var(--bg-surface);
+    border: 2px dashed var(--border-strong);
+    border-radius: 16px;
+    padding: 48px 40px;
+    text-align: center;
+    transition: all 250ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-drop::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(184,146,74,.06) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(31,61,46,.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-drop:hover { border-color: var(--brand); transform: scale(1.005); }
+  .hero-drop.has-files { background: var(--brand-tint); border-color: var(--brand); border-style: solid; }
+  .hero-drop-content { position: relative; z-index: 1; }
+  .hero-cloud { font-size: 44px; margin-bottom: 14px; color: var(--gold); }
+
+  /* File chip */
+  .file-chip {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-size: 13px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.03);
+  }
+  .file-chip .doc-icon { width: 24px; height: 30px; }
+
+  /* Extracted card */
+  .extract-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    transition: all 150ms ease;
+  }
+  .extract-card.confirmed { background: var(--brand-tint); border-color: var(--brand); }
+  .extract-card.partial { background: var(--gold-soft); border-color: #E8D9B5; }
+
+  .extract-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); gap: 16px; }
+  .extract-card.confirmed .extract-header { border-bottom-color: rgba(31,61,46,.15); }
+  .extract-card.partial .extract-header { border-bottom-color: rgba(184,146,74,.25); }
+
+  .extract-source { display: flex; align-items: center; gap: 12px; }
+  .doc-icon { width: 32px; height: 40px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 3px; font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+  .doc-icon::before { content: ""; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 8px 8px 0; border-color: transparent var(--bg-page) transparent transparent; }
+  .extract-source-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; line-height: 1.2; }
+  .extract-source-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; font-family: 'Geist Mono', monospace; }
+
+  .confidence-pill {
+    font-family: 'Geist Mono', monospace; font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .conf-high { background: var(--success-soft); color: var(--success); }
+  .conf-mid { background: var(--gold-soft); color: var(--gold-deep); }
+  .conf-low { background: #FBEFEF; color: var(--danger); }
+  .conf-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .extract-row {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .extract-row:last-child { border-bottom: none; }
+  .extract-row-label { font-size: 12px; color: var(--text-muted); font-family: 'Geist Mono', monospace; letter-spacing: 0.04em; text-transform: uppercase; }
+  .extract-row-input { background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 6px 10px; font-size: 14px; color: var(--text-primary); font-family: inherit; transition: all 120ms ease; width: 100%; font-weight: 500; }
+  .extract-row-input:hover { background: var(--bg-soft); }
+  .extract-row-input:focus { background: var(--bg-soft); border-color: var(--border-strong); outline: none; }
+  .extract-row-action { display: flex; gap: 4px; flex-shrink: 0; }
+
+  .ai-status-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; padding: 6px 12px; border-radius: 999px;
+    background: var(--brand-tint); color: var(--brand);
+    font-weight: 500;
+  }
+  .ai-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); animation: aiPulse 1.6s infinite; }
+  @keyframes aiPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.3); } }
+
+  .needs-input-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 12px;
+  }
+
+  /* Field input — generic */
+  .field-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; margin-bottom: 6px; display: block; }
+  .field-label .req { color: var(--danger); margin-left: 3px; }
+  .input { width: 100%; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; font-size: 14px; color: var(--text-primary); font-family: inherit; transition: all 150ms ease; }
+  .input:focus { outline: none; border-color: var(--border-active); box-shadow: 0 0 0 3px rgba(31,61,46,.08); }
+  .radio-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: 999px; font-size: 12.5px; color: var(--text-secondary); cursor: pointer; transition: all 150ms ease; }
+  .radio-pill:hover { border-color: var(--border-strong); }
+  .radio-pill.active { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+  /* Section nav */
+  .stage-nav { display: flex; gap: 4px; padding: 4px; background: var(--bg-elevated); border-radius: 8px; overflow-x: auto; }
+  .stage-nav button { padding: 8px 16px; border: none; background: transparent; font-family: inherit; font-size: 13px; color: var(--text-muted); border-radius: 6px; cursor: pointer; white-space: nowrap; transition: all 150ms ease; }
+  .stage-nav button:hover { color: var(--text-primary); }
+  .stage-nav button.active { background: var(--bg-surface); color: var(--text-primary); font-weight: 500; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .stage-nav button .pct { font-family: 'Geist Mono', monospace; font-size: 10.5px; margin-left: 6px; color: var(--text-faint); }
+  .stage-nav button.active .pct { color: var(--success); }
+
+  /* Buttons */
+  .btn-primary { background: var(--brand); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: none; cursor: pointer; transition: all 150ms ease; }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-secondary { background: var(--bg-surface); color: var(--text-primary); padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: 1px solid var(--border-strong); cursor: pointer; }
+  .btn-secondary:hover { background: var(--bg-elevated); }
+  .btn-tiny { background: var(--bg-elevated); color: var(--text-secondary); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 500; border: none; cursor: pointer; transition: all 120ms ease; }
+  .btn-tiny:hover { background: var(--brand); color: #fff; }
+  .btn-tiny.confirm { background: var(--brand); color: #fff; }
+  .btn-tiny.edit { background: var(--gold-soft); color: var(--gold-deep); }
+
+  /* Submit overlay (shared pattern) */
+  .submit-overlay { position: fixed; inset: 0; background: rgba(20,30,22,.45); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .submit-overlay.open { display: flex; }
+  .submit-card { background: var(--bg-surface); border-radius: 16px; max-width: 560px; width: 100%; padding: 40px 44px; box-shadow: 0 32px 80px rgba(0,0,0,.2); animation: submitIn 350ms ease; }
+  @keyframes submitIn { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .submit-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--brand-tint); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--brand); margin-bottom: 20px; }
+  .submit-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 8px; }
+  .submit-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 24px; }
+  .doc-bundle { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .doc-bundle-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .doc-bundle-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .doc-bundle-status { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.1em; text-transform: uppercase; background: var(--success-soft); color: var(--success); }
+  .submit-email-line { display: flex; gap: 8px; align-items: center; padding: 12px 14px; background: var(--brand-tint); border-radius: 8px; font-size: 13px; color: var(--brand); margin: 16px 0 24px; }
+
+  .save-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); padding: 5px 11px; background: var(--bg-elevated); border-radius: 999px; }
+  .save-pill::before { content: ""; width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+
+  .variant-badge { position: fixed; bottom: 24px; right: 24px; background: var(--brand); color: #fff; padding: 10px 16px; border-radius: 999px; font-family: 'Geist Mono', monospace; font-size: 11px; letter-spacing: 0.12em; z-index: 90; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+</style>
+</head>
+<body class="relative">
+
+<header class="topbar">
+  <div class="max-w-[1340px] mx-auto px-8 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="font-display text-xl font-medium" style="color: var(--brand);">CMG</div>
+      <div class="text-[11px] font-mono uppercase tracking-[0.18em]" style="color: var(--text-muted);">Builder Portal</div>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="ai-status-pill"><span class="ai-status-dot"></span>AutoPilot extracting · 4 docs parsed</span>
+      <button class="btn-secondary">Save & Exit</button>
+      <button class="btn-primary" onclick="openSubmit()">Submit to CMG</button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-[1340px] mx-auto px-8 py-10 relative z-10">
+
+  <!-- Hero -->
+  <div class="mb-8">
+    <div class="font-mono text-[11px] uppercase tracking-[0.18em] mb-4" style="color: var(--gold-deep);">CMG AutoPilot · Builder Onboarding</div>
+    <h1 class="font-display text-5xl font-medium tracking-tight leading-[1.05] mb-4 max-w-3xl">Stop filling forms.<br>Drop the docs.</h1>
+    <p class="text-base max-w-2xl" style="color: var(--text-secondary); line-height: 1.6;">Upload your W9, license, insurance certs, and the borrower's construction contract. AutoPilot reads them, extracts every field, and pre-fills <strong>78% of the application</strong>. You confirm what's right. We ask only what we can't read.</p>
+  </div>
+
+  <!-- Drop zone -->
+  <div class="hero-drop has-files mb-10">
+    <div class="hero-drop-content">
+      <div class="hero-cloud">⬇</div>
+      <div class="font-display text-2xl font-medium mb-2">4 documents parsed · 47 fields extracted</div>
+      <p class="text-[13.5px] mb-5 max-w-xl mx-auto" style="color: var(--text-secondary);">Drop more documents anytime. AutoPilot supports W9, contractor licenses, COIs, construction contracts, line-item budgets, plans (DWG/PDF), site plans, building permits, and prior loan packets.</p>
+      <div class="flex flex-wrap gap-2 justify-center mb-4">
+        <div class="file-chip"><div class="doc-icon">PDF</div><span>W9_PinecrestBuilders_2024.pdf</span></div>
+        <div class="file-chip"><div class="doc-icon">PDF</div><span>TX_License_RBC_2024-2026.pdf</span></div>
+        <div class="file-chip"><div class="doc-icon">PDF</div><span>COI_GL_TXMutual_2024.pdf</span></div>
+        <div class="file-chip"><div class="doc-icon">PDF</div><span>HollowayConstructionContract.pdf</span></div>
+      </div>
+      <button class="btn-secondary">+ Add more documents</button>
+    </div>
+  </div>
+
+  <!-- Stage nav -->
+  <div class="stage-nav mb-8">
+    <button class="active">Auto-filled by AI <span class="pct">78%</span></button>
+    <button>Needs your confirmation <span class="pct">12 items</span></button>
+    <button>Needs manual input <span class="pct">22%</span></button>
+    <button>All fields <span class="pct">90</span></button>
+  </div>
+
+  <!-- Auto-filled section header -->
+  <div class="mb-6">
+    <h2 class="font-display text-2xl font-medium mb-1">Auto-filled by AutoPilot</h2>
+    <p class="text-sm" style="color: var(--text-muted);">Tap any field to edit. Click <strong>Confirm</strong> when a card looks right.</p>
+  </div>
+
+  <!-- W9 EXTRACTION -->
+  <div class="extract-card">
+    <div class="extract-header">
+      <div class="extract-source">
+        <div class="doc-icon">PDF</div>
+        <div>
+          <div class="extract-source-name">W-9 Form (Rev. March 2024)</div>
+          <div class="extract-source-meta">W9_PinecrestBuilders_2024.pdf · Page 1 · OCR'd in 0.8s</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="confidence-pill conf-high"><span class="conf-dot"></span>97% Confidence</span>
+        <button class="btn-tiny confirm" data-confirm-card>Confirm All</button>
+      </div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Line 1 · Entity Name</div>
+      <input class="extract-row-input" value="Pinecrest Builders, LLC" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Line 2 · Business / DBA</div>
+      <input class="extract-row-input" value="Pinecrest Custom Homes" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Tax Classification</div>
+      <input class="extract-row-input" value="LLC — P (Partnership)" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">EIN</div>
+      <input class="extract-row-input" value="82-4519731" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Address</div>
+      <input class="extract-row-input" value="2820 Legacy Dr, Suite 200, Plano TX 75024" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Signature Date</div>
+      <input class="extract-row-input" value="March 14, 2024" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+  </div>
+
+  <!-- CONTRACTOR LICENSE EXTRACTION -->
+  <div class="extract-card">
+    <div class="extract-header">
+      <div class="extract-source">
+        <div class="doc-icon">PDF</div>
+        <div>
+          <div class="extract-source-name">Contractor License — Texas (RBC)</div>
+          <div class="extract-source-meta">TX_License_RBC_2024-2026.pdf · TDLR-issued · OCR'd in 1.2s</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="confidence-pill conf-high"><span class="conf-dot"></span>99% Confidence</span>
+        <button class="btn-tiny confirm" data-confirm-card>Confirm All</button>
+      </div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">License Holder</div>
+      <input class="extract-row-input" value="Pinecrest Builders, LLC" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">License Number</div>
+      <input class="extract-row-input" value="RBC-1145632" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Issue Date</div>
+      <input class="extract-row-input" value="April 02, 2024" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Expiration</div>
+      <input class="extract-row-input" value="April 01, 2026" style="color: var(--success);" />
+      <div class="extract-row-action"><span class="text-[11px]" style="color: var(--success);">Valid through closing</span></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Authorized States</div>
+      <input class="extract-row-input" value="Texas" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+  </div>
+
+  <!-- GL INSURANCE EXTRACTION -->
+  <div class="extract-card partial">
+    <div class="extract-header">
+      <div class="extract-source">
+        <div class="doc-icon">PDF</div>
+        <div>
+          <div class="extract-source-name">General Liability COI</div>
+          <div class="extract-source-meta">COI_GL_TXMutual_2024.pdf · ACORD 25 · OCR'd in 1.4s</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="confidence-pill conf-mid"><span class="conf-dot"></span>84% Confidence</span>
+        <button class="btn-tiny confirm" data-confirm-card>Confirm All</button>
+      </div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Carrier</div>
+      <input class="extract-row-input" value="Texas Mutual Insurance Co." />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Policy Number</div>
+      <input class="extract-row-input" value="TXM-GL-2024-88420" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Each Occurrence Limit</div>
+      <input class="extract-row-input" value="$1,000,000" style="color: var(--success);" />
+      <div class="extract-row-action"><span class="text-[11px]" style="color: var(--success);">Meets $1M minimum</span></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">General Aggregate</div>
+      <input class="extract-row-input" value="$2,000,000" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Effective / Expires</div>
+      <input class="extract-row-input" value="01/15/2024 — 01/15/2026" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Workers' Comp Included?</div>
+      <input class="extract-row-input" value="Yes — endorsement attached" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row" style="background: var(--warn-soft); margin: 6px -10px 0; padding: 10px; border-radius: 6px; border: none;">
+      <div class="extract-row-label" style="color: var(--warn);">⚠ AutoPilot Note</div>
+      <div style="font-size: 12.5px; color: var(--warn); grid-column: 2 / -1;">CMG not listed as Certificate Holder. Please contact your broker to add: <strong>CMG Mortgage, Inc. · ISAOA/ATIMA · P.O. Box 2803 · Daytona Beach, FL 32120-2803</strong></div>
+    </div>
+  </div>
+
+  <!-- CONSTRUCTION CONTRACT EXTRACTION -->
+  <div class="extract-card">
+    <div class="extract-header">
+      <div class="extract-source">
+        <div class="doc-icon">PDF</div>
+        <div>
+          <div class="extract-source-name">Construction Contract</div>
+          <div class="extract-source-meta">HollowayConstructionContract.pdf · 22 pages · OCR'd in 2.8s</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="confidence-pill conf-high"><span class="conf-dot"></span>94% Confidence</span>
+        <button class="btn-tiny confirm" data-confirm-card>Confirm All</button>
+      </div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Property Address</div>
+      <input class="extract-row-input" value="412 Mockingbird Lane, Frisco TX 75034" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Borrower(s)</div>
+      <input class="extract-row-input" value="Marcus Holloway, Jenna Holloway" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Builder</div>
+      <input class="extract-row-input" value="Pinecrest Builders, LLC" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Contract Price</div>
+      <input class="extract-row-input" value="$847,500.00" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Contract Type</div>
+      <input class="extract-row-input" value="Fixed Price (Lump Sum)" style="color: var(--success);" />
+      <div class="extract-row-action"><span class="text-[11px]" style="color: var(--success);">CMG-compliant · not cost-plus</span></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Start Date</div>
+      <input class="extract-row-input" value="March 15, 2026" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Completion Date</div>
+      <input class="extract-row-input" value="December 15, 2026" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Build Duration</div>
+      <input class="extract-row-input" value="9 months" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Allowances / Exclusions</div>
+      <input class="extract-row-input" value="Landscaping (Section 4.3), Pool ($85K excluded — separate contract)" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+    <div class="extract-row">
+      <div class="extract-row-label">Borrower Deposit Received</div>
+      <input class="extract-row-input" value="$25,000" />
+      <div class="extract-row-action"><button class="btn-tiny edit">Edit</button></div>
+    </div>
+  </div>
+
+  <!-- STILL NEEDS INPUT SECTION -->
+  <div class="mt-12 mb-6">
+    <h2 class="font-display text-2xl font-medium mb-1">Still needs your input</h2>
+    <p class="text-sm" style="color: var(--text-muted);">AutoPilot couldn't extract these from the documents you uploaded. They're CMG-specific or about <em>your business</em>, not the project.</p>
+  </div>
+
+  <!-- Routing questions -->
+  <div class="needs-input-card">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">Routing · Required</div>
+        <div class="font-display text-lg font-medium">Will you request a draw at closing?</div>
+        <p class="text-[12.5px] mt-1" style="color: var(--text-muted);">Max 10% of contract price less any borrower deposit. Soft costs only.</p>
+      </div>
+    </div>
+    <div class="flex gap-2"><button class="radio-pill active" data-group="drawAtClose" data-value="yes">Yes — $57,250 max</button><button class="radio-pill" data-group="drawAtClose" data-value="no">No</button></div>
+  </div>
+
+  <div class="needs-input-card">
+    <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">BPR Required · Background Disclosures</div>
+    <div class="font-display text-lg font-medium mb-4">Background — any changes since last application?</div>
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 md:col-span-6">
+        <label class="field-label">Currently involved in litigation?<span class="req">*</span></label>
+        <div class="flex gap-2"><button class="radio-pill" data-group="lit" data-value="yes">Yes</button><button class="radio-pill active" data-group="lit" data-value="no">No</button></div>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <label class="field-label">Judgments, liens, or garnishments?<span class="req">*</span></label>
+        <div class="flex gap-2"><button class="radio-pill" data-group="liens" data-value="yes">Yes</button><button class="radio-pill active" data-group="liens" data-value="no">No</button></div>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <label class="field-label">Bankruptcy discharged in last 7 years?<span class="req">*</span></label>
+        <div class="flex gap-2"><button class="radio-pill" data-group="bk" data-value="yes">Yes</button><button class="radio-pill active" data-group="bk" data-value="no">No</button></div>
+      </div>
+      <div class="col-span-12 md:col-span-6">
+        <label class="field-label">HOA / PUD?</label>
+        <div class="flex gap-2"><button class="radio-pill active" data-group="hasHoa" data-value="yes">Yes — Stonebriar HOA</button><button class="radio-pill" data-group="hasHoa" data-value="no">No</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Principals, Refs needed -->
+  <div class="needs-input-card">
+    <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">BPR · Construction Experience & History</div>
+    <div class="font-display text-lg font-medium mb-2">3 sections AutoPilot cannot extract from documents</div>
+    <p class="text-[13px] mb-4" style="color: var(--text-secondary);">These come from your business records. We've pulled what we could from your <strong>prior CMG application (Westlake build, March 2024)</strong>. Confirm or update.</p>
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-12 md:col-span-4 p-3 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--brand);">Principals & Officers</div>
+        <p class="text-[12.5px]" style="color: var(--text-secondary); line-height: 1.5;">3 carried over: <strong>Tim Holloway</strong> (60%), <strong>Daniel Cruz</strong> (25%), <strong>Rebecca Mei</strong> (15%). Years experience updated +2 from last filing.</p>
+        <button class="btn-tiny mt-3">Review →</button>
+      </div>
+      <div class="col-span-12 md:col-span-4 p-3 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--brand);">5-Year Project History</div>
+        <p class="text-[12.5px]" style="color: var(--text-secondary); line-height: 1.5;">Reused: <strong>Residential New Construction</strong> 23 started, 19 completed, 4 in-progress. Avg $620K. Renovation: 8/8/0, $185K. Commercial: 0.</p>
+        <button class="btn-tiny mt-3">Review →</button>
+      </div>
+      <div class="col-span-12 md:col-span-4 p-3 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--brand);">3-Year Sales History</div>
+        <p class="text-[12.5px]" style="color: var(--text-secondary); line-height: 1.5;">2025: $14.2M (23 projects). 2024: $11.8M (18). 2023: $9.4M (14). <span style="color: var(--warn);">2025 numbers need confirmation.</span></p>
+        <button class="btn-tiny mt-3">Review →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="needs-input-card">
+    <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">BPR · Reference List</div>
+    <div class="font-display text-lg font-medium mb-2">Refresh references (over 12 months old)</div>
+    <p class="text-[13px] mb-4" style="color: var(--text-secondary);">Your last application listed these. AutoPilot suggests refreshing them since CMG requires "past 12 months". Quick-confirm or replace.</p>
+    <div class="grid grid-cols-12 gap-3">
+      <div class="col-span-12 md:col-span-4 p-3 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-2" style="color: var(--brand);">Banking Refs (1 required)</div>
+        <p class="text-[12.5px]" style="color: var(--text-secondary); line-height: 1.45;">Frost Bank — Eric Tan · 8 yrs<br>Comerica — Priya Shah · 4 yrs</p>
+        <button class="btn-tiny mt-2">Keep both →</button>
+      </div>
+      <div class="col-span-12 md:col-span-4 p-3 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-2" style="color: var(--brand);">Trade Refs (3 required)</div>
+        <p class="text-[12.5px]" style="color: var(--text-secondary); line-height: 1.45;">Reyes Electrical · Hayworth HVAC · Magnolia Plumbing</p>
+        <button class="btn-tiny mt-2">Confirm 3 →</button>
+      </div>
+      <div class="col-span-12 md:col-span-4 p-3 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
+        <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-2" style="color: var(--brand);">Supplier Refs (3 required)</div>
+        <p class="text-[12.5px]" style="color: var(--text-secondary); line-height: 1.45;"><strong>BMC Lumber (primary)</strong> · Ferguson Plumbing Supply · Hajoca Corp</p>
+        <button class="btn-tiny mt-2">Confirm 3 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Texas + Draw conditional sections -->
+  <div class="needs-input-card" style="border-left-color: var(--gold);">
+    <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">Conditional · Texas Property Detected</div>
+    <div class="font-display text-lg font-medium mb-2">Texas Loan Supplement</div>
+    <p class="text-[13px] mb-4" style="color: var(--text-secondary);">Property in Frisco, TX triggers the Mechanic's Lien Contract requirement. AutoPilot pre-filled what it could from the construction contract.</p>
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-6"><label class="field-label">Contract Amount</label><input class="input" value="$847,500" /></div>
+      <div class="col-span-6"><label class="field-label">Completion Date</label><input class="input" value="2026-12-15" type="date" /></div>
+      <div class="col-span-6"><label class="field-label">Builder Name</label><input class="input" value="Pinecrest Builders, LLC" /></div>
+      <div class="col-span-12"><label class="field-label">Builder Address</label><input class="input" value="2820 Legacy Dr, Suite 200, Plano TX 75024" /></div>
+      <div class="col-span-6"><label class="field-label">Authorized Agent — Name<span class="req">*</span></label><input class="input" placeholder="Person who will sign Mechanic's Lien Contract" /></div>
+      <div class="col-span-6"><label class="field-label">Authorized Agent — Title<span class="req">*</span></label><input class="input" /></div>
+      <div class="col-span-12 mt-2">
+        <label class="check-pill flex items-center gap-2"><input type="checkbox" /> <span>I confirm that work has not commenced on the subject property, and the property is vacant with no existing structures.<span class="req">*</span></span></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="needs-input-card" style="border-left-color: var(--gold);">
+    <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">Conditional · Draw at Closing</div>
+    <div class="font-display text-lg font-medium mb-2">Draw Request — Initial Disbursement</div>
+    <p class="text-[13px] mb-4" style="color: var(--text-secondary);">Max allowed: <strong>$57,250</strong> ($82,250 calculated as 10% of $847,500, minus $25,000 borrower deposit detected in contract). Soft costs only.</p>
+    <div class="grid grid-cols-12 gap-3 mb-2 px-1">
+      <div class="col-span-3 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Budget Line Item</div>
+      <div class="col-span-3 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Description</div>
+      <div class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Amount</div>
+      <div class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Payee</div>
+      <div class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted);">Payee Address</div>
+    </div>
+    <div class="grid grid-cols-12 gap-3 mb-2"><div class="col-span-3"><input class="input" placeholder="Architectural" /></div><div class="col-span-3"><input class="input" placeholder="Final blueprints" /></div><div class="col-span-2"><input class="input" type="number" placeholder="0.00" /></div><div class="col-span-2"><input class="input" /></div><div class="col-span-2"><input class="input" /></div></div>
+    <div class="grid grid-cols-12 gap-3 mb-2"><div class="col-span-3"><input class="input" /></div><div class="col-span-3"><input class="input" /></div><div class="col-span-2"><input class="input" type="number" placeholder="0.00" /></div><div class="col-span-2"><input class="input" /></div><div class="col-span-2"><input class="input" /></div></div>
+    <button class="btn-tiny mt-2">+ Add line item</button>
+    <div class="flex justify-end items-center gap-4 py-3 px-4 rounded-lg mt-5" style="background: var(--brand-tint);">
+      <div class="font-mono text-[11px] uppercase tracking-[0.14em]" style="color: var(--brand);">Total Requested</div>
+      <div class="font-display text-2xl" style="color: var(--brand);">$0.00</div>
+      <div class="font-mono text-[11px]" style="color: var(--text-muted);">of $57,250 allowed</div>
+    </div>
+  </div>
+
+  <!-- Builder Acknowledgment signature -->
+  <div class="needs-input-card">
+    <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-1" style="color: var(--gold-deep);">BAF · E-Signature</div>
+    <div class="font-display text-lg font-medium mb-3">Builder Acknowledgment — sign to submit</div>
+    <p class="text-[13px] mb-4" style="color: var(--text-secondary);">By signing, you acknowledge the CMG construction loan terms — fixed-price contract, 6 draws + 1 final, advances on work-in-place only, change orders require written CMG approval.</p>
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-6"><label class="field-label">Builder Company Name<span class="req">*</span></label><input class="input" value="Pinecrest Builders, LLC" /></div>
+      <div class="col-span-6"><label class="field-label">Printed Name of Signer<span class="req">*</span></label><input class="input" value="Tim Holloway" /></div>
+      <div class="col-span-6"><label class="field-label">Signature (type to e-sign)<span class="req">*</span></label><input class="input" style="font-family: 'Fraunces', serif; font-style: italic;" placeholder="Tim Holloway" /></div>
+      <div class="col-span-3"><label class="field-label">Job Title<span class="req">*</span></label><input class="input" value="Managing Member" /></div>
+      <div class="col-span-3"><label class="field-label">Date<span class="req">*</span></label><input class="input" type="date" /></div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="flex justify-end gap-3 mt-10 pt-6" style="border-top: 1px solid var(--border);">
+    <button class="btn-secondary">Save Draft</button>
+    <button class="btn-primary" onclick="openSubmit()">Submit to CMG · Email Packet to LO</button>
+  </div>
+
+</div>
+
+<!-- Submit confirmation overlay -->
+<div class="submit-overlay" id="submitOverlay">
+  <div class="submit-card">
+    <div class="submit-icon">✓</div>
+    <div class="submit-title">Packet assembled. Sending to your LO.</div>
+    <p class="submit-sub">AutoPilot built the four CMG documents from the data it extracted and is emailing them to your loan officer right now. You'll receive a copy at the email on file.</p>
+    <div class="space-y-2 mb-2">
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Builder Acknowledgment Form</div><div class="doc-bundle-meta">Filled · Page 1–5 · 84 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Builder & Project Review</div><div class="doc-bundle-meta">Filled · Page 1–4 · 92 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Texas Loan Supplement</div><div class="doc-bundle-meta">Filled · 1 page · 18 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-icon">PDF</div><div><div class="doc-bundle-name">Draw Request Form</div><div class="doc-bundle-meta">Filled · 1 page · 22 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+    </div>
+    <div class="submit-email-line">
+      <span>📧</span>
+      <span><strong>To:</strong> Sarah Chen, LO &lt;sarah.chen@cmgfi.com&gt; · <strong>Subject:</strong> Pinecrest Builders construction packet</span>
+    </div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-secondary" onclick="closeSubmit()">View Packet</button>
+      <button class="btn-primary" onclick="closeSubmit()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="variant-badge">Variant 6 · AutoPilot</div>
+
+<script>
+  function openSubmit() { document.getElementById('submitOverlay').classList.add('open'); }
+  function closeSubmit() { document.getElementById('submitOverlay').classList.remove('open'); }
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-group]');
+    if (!btn) return;
+    const g = btn.dataset.group;
+    document.querySelectorAll(`[data-group="${g}"]`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
+  // Confirm card
+  document.addEventListener('click', e => {
+    if (e.target.matches('[data-confirm-card]')) {
+      const card = e.target.closest('.extract-card');
+      card.classList.add('confirmed');
+      e.target.textContent = '✓ Confirmed';
+      e.target.disabled = true;
+    }
+  });
+</script>
+
+</body>
+</html>

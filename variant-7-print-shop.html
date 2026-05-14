@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — Print Shop (Variant 7)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #EFEAE0; --bg-surface: #FFFFFF; --bg-sidebar: #F6F2EA; --bg-elevated: #F2EDE2; --bg-soft: #FBF8F2;
+    --border: #ECE6D8; --border-strong: #D8D0BD; --border-active: #1F3D2E;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E; --text-faint: #B5B2A4;
+    --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-soft: #E5EDE6; --brand-tint: #EFF3EE;
+    --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
+    --success: #2D7A52; --danger: #9B2C2C;
+    --paper: #FCFAF6; --paper-shadow: rgba(80,60,30,.12);
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); font-feature-settings: 'ss01','cv01','cv11'; letter-spacing: -0.005em; margin: 0; height: 100vh; overflow: hidden; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  .font-serif { font-family: 'Crimson Pro', Georgia, serif; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #C9C0AB; border-radius: 8px; border: 2px solid var(--bg-page); }
+
+  .layout-shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+  .top-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 10; }
+  .main-split { display: grid; grid-template-columns: 280px 1fr; height: 100%; overflow: hidden; }
+
+  /* SIDEBAR */
+  .sidebar { background: var(--bg-sidebar); border-right: 1px solid var(--border); overflow-y: auto; padding: 22px 18px; }
+  .side-eyebrow { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); padding: 0 6px 10px; }
+  .doc-nav-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; margin-bottom: 4px; border-radius: 8px; cursor: pointer; transition: all 120ms ease; border-left: 2px solid transparent; }
+  .doc-nav-item:hover { background: var(--bg-elevated); }
+  .doc-nav-item.active { background: var(--bg-surface); border-left-color: var(--brand); box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .doc-nav-icon { width: 28px; height: 36px; background: var(--bg-surface); border: 1px solid var(--border-strong); border-radius: 2px; font-family: 'Geist Mono', monospace; font-size: 8.5px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; position: relative; }
+  .doc-nav-icon::before { content: ""; position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 7px 7px 0; border-color: transparent var(--bg-sidebar) transparent transparent; }
+  .doc-nav-item.active .doc-nav-icon::before { border-color: transparent var(--bg-surface) transparent transparent; }
+  .doc-nav-title { font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--text-primary); }
+  .doc-nav-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: 'Geist Mono', monospace; }
+  .doc-nav-progress { height: 3px; background: var(--bg-elevated); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .doc-nav-progress-fill { height: 100%; background: var(--brand); transition: width 250ms ease; }
+
+  /* PAPER (document) */
+  .paper-area { background: var(--bg-page); overflow-y: auto; padding: 36px 36px 80px; }
+  .paper {
+    background: var(--paper);
+    max-width: 820px;
+    margin: 0 auto;
+    box-shadow:
+      0 1px 2px var(--paper-shadow),
+      0 8px 24px var(--paper-shadow),
+      0 24px 48px rgba(80,60,30,.08);
+    padding: 80px 90px 100px;
+    position: relative;
+    border-radius: 2px;
+    color: var(--text-primary);
+    line-height: 1.55;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 14.5px;
+  }
+  .paper::before { content: ""; position: absolute; top: 12px; right: 18px; font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--text-faint); letter-spacing: 0.1em; }
+  .paper-page-num { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--text-faint); letter-spacing: 0.1em; }
+  .paper-header-logo { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500; color: var(--brand); margin-bottom: 4px; letter-spacing: -0.02em; }
+  .paper-doc-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; color: var(--text-primary); margin-bottom: 14px; }
+  .paper-doc-sub { font-size: 13px; color: var(--text-muted); border-bottom: 1px solid var(--border-strong); padding-bottom: 18px; margin-bottom: 24px; font-family: 'Geist', sans-serif; }
+
+  .paper-section-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 28px 0 12px; letter-spacing: -0.005em; }
+  .paper-body p { margin-bottom: 12px; }
+  .paper-body strong { color: var(--text-primary); font-weight: 600; }
+
+  /* Inline editable field — looks like a fill-in-the-blank line */
+  .paper-fld {
+    display: inline-block;
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px dotted var(--gold);
+    padding: 1px 6px 2px;
+    font: inherit;
+    color: var(--brand);
+    font-weight: 500;
+    min-width: 120px;
+    transition: all 150ms ease;
+    text-align: left;
+  }
+  .paper-fld:focus { outline: none; background: var(--gold-soft); border-bottom-color: var(--brand); border-bottom-style: solid; }
+  .paper-fld:hover:not(:focus) { background: rgba(184,146,74,.07); }
+  .paper-fld.wide { min-width: 260px; }
+  .paper-fld.wider { min-width: 380px; }
+  .paper-fld.short { min-width: 80px; }
+  .paper-fld.tiny { min-width: 50px; }
+  .paper-fld[data-empty="true"] { color: var(--text-faint); font-style: italic; }
+
+  /* Inline radio buttons (Y/N) styled like document */
+  .paper-radio {
+    display: inline-flex; gap: 0;
+    margin-left: 6px; border-radius: 4px;
+    background: var(--bg-elevated); padding: 2px;
+  }
+  .paper-radio button {
+    background: transparent; border: none; padding: 3px 10px;
+    font: inherit; font-size: 12.5px; color: var(--text-muted);
+    border-radius: 3px; cursor: pointer; transition: all 120ms ease;
+  }
+  .paper-radio button.active { background: var(--brand); color: #fff; }
+
+  /* Paper table */
+  .paper-table { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 13px; font-family: 'Geist', sans-serif; }
+  .paper-table th { text-align: left; border-bottom: 1.5px solid var(--text-primary); padding: 6px 8px; font-weight: 600; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-secondary); }
+  .paper-table td { border-bottom: 1px dotted var(--border-strong); padding: 8px 8px; vertical-align: top; }
+  .paper-table .paper-fld { min-width: 0; width: 100%; }
+
+  /* Sign block */
+  .sign-block { margin: 28px 0 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; padding-top: 20px; border-top: 1px solid var(--border-strong); }
+  .sign-row { display: flex; flex-direction: column; }
+  .sign-line { border-bottom: 1.5px solid var(--text-primary); height: 36px; position: relative; padding: 6px 0 0; }
+  .sign-line input { width: 100%; border: none; background: transparent; font: inherit; font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: var(--brand); padding: 0; }
+  .sign-line input:focus { outline: none; }
+  .sign-label { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; }
+
+  /* Doc tab pages */
+  .doc-page { display: none; }
+  .doc-page.active { display: block; animation: pageIn 280ms ease; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Conditional banner */
+  .cond-banner { background: var(--gold-soft); border: 1px solid #E8D9B5; border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px 16px; font-size: 12.5px; color: var(--gold-deep); display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-family: 'Geist', sans-serif; }
+  .cond-hidden { display: none; }
+
+  /* Bullets paper-style */
+  .paper-bullets { padding-left: 22px; margin: 8px 0 12px; }
+  .paper-bullets li { margin-bottom: 6px; }
+
+  /* Buttons */
+  .btn-primary { background: var(--brand); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: none; cursor: pointer; }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-secondary { background: var(--bg-surface); color: var(--text-primary); padding: 10px 20px; border-radius: 6px; font-size: 13.5px; font-weight: 500; border: 1px solid var(--border-strong); cursor: pointer; }
+  .btn-ghost { background: transparent; color: var(--text-secondary); padding: 8px 12px; font-size: 13px; border: none; cursor: pointer; }
+
+  .save-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-muted); padding: 5px 11px; background: var(--bg-elevated); border-radius: 999px; }
+  .save-pill::before { content: ""; width: 6px; height: 6px; background: var(--success); border-radius: 50%; }
+
+  /* Submit overlay */
+  .submit-overlay { position: fixed; inset: 0; background: rgba(20,30,22,.45); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .submit-overlay.open { display: flex; }
+  .submit-card { background: var(--bg-surface); border-radius: 16px; max-width: 560px; width: 100%; padding: 40px 44px; box-shadow: 0 32px 80px rgba(0,0,0,.2); animation: submitIn 350ms ease; }
+  @keyframes submitIn { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .submit-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--brand-tint); display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--brand); margin-bottom: 20px; }
+  .submit-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 8px; }
+  .submit-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 24px; }
+  .doc-bundle { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .doc-bundle-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+  .doc-bundle-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .doc-bundle-status { margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.1em; text-transform: uppercase; background: #E3EFE5; color: var(--success); }
+  .submit-email-line { display: flex; gap: 8px; align-items: center; padding: 12px 14px; background: var(--brand-tint); border-radius: 8px; font-size: 13px; color: var(--brand); margin: 16px 0 24px; }
+
+  .variant-badge { position: fixed; bottom: 16px; left: 16px; background: var(--brand); color: #fff; padding: 8px 14px; border-radius: 999px; font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; z-index: 90; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+</style>
+</head>
+<body>
+
+<div class="layout-shell">
+  <header class="top-bar">
+    <div class="flex items-center gap-3">
+      <div class="font-display text-lg font-medium" style="color: var(--brand);">CMG</div>
+      <div class="text-[10.5px] font-mono uppercase tracking-[0.18em]" style="color: var(--text-muted);">Builder Portal · Print Shop</div>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="save-pill">Auto-saved 1 min ago</span>
+      <button class="btn-ghost">Save & Exit</button>
+      <button class="btn-primary" onclick="openSubmit()">Submit · Email Packet to LO</button>
+    </div>
+  </header>
+
+  <div class="main-split">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="side-eyebrow">Document Packet</div>
+      <div id="docNav">
+        <div class="doc-nav-item active" data-doc="baf"><div class="doc-nav-icon">PDF</div><div class="flex-1"><div class="doc-nav-title">Builder Acknowledgment Form</div><div class="doc-nav-meta">5 pages · BAF</div><div class="doc-nav-progress"><div class="doc-nav-progress-fill" style="width: 62%;"></div></div></div></div>
+        <div class="doc-nav-item" data-doc="bpr"><div class="doc-nav-icon">PDF</div><div class="flex-1"><div class="doc-nav-title">Builder & Project Review</div><div class="doc-nav-meta">4 pages · BPR</div><div class="doc-nav-progress"><div class="doc-nav-progress-fill" style="width: 38%;"></div></div></div></div>
+        <div class="doc-nav-item" data-doc="texas" id="docNav-texas"><div class="doc-nav-icon">PDF</div><div class="flex-1"><div class="doc-nav-title">Texas Loan Supplement</div><div class="doc-nav-meta">1 page · Conditional</div><div class="doc-nav-progress"><div class="doc-nav-progress-fill" style="width: 0%;"></div></div></div></div>
+        <div class="doc-nav-item" data-doc="draw" id="docNav-draw"><div class="doc-nav-icon">PDF</div><div class="flex-1"><div class="doc-nav-title">Draw Request — Initial</div><div class="doc-nav-meta">1 page · Conditional</div><div class="doc-nav-progress"><div class="doc-nav-progress-fill" style="width: 0%;"></div></div></div></div>
+        <div class="doc-nav-item" data-doc="w9"><div class="doc-nav-icon">PDF</div><div class="flex-1"><div class="doc-nav-title">W-9 Form</div><div class="doc-nav-meta">1 page · Rev. March 2024</div><div class="doc-nav-progress"><div class="doc-nav-progress-fill" style="width: 100%; background: var(--success);"></div></div></div></div>
+      </div>
+
+      <div class="side-eyebrow mt-7">Smart Docs Portal</div>
+      <div class="text-[12px] px-2 mb-3" style="color: var(--text-secondary); line-height: 1.5;">12 supporting documents to upload. Status sync'd with main portal.</div>
+      <div id="smartDocsMini">
+        <div class="flex justify-between items-center text-[12px] px-2 py-1.5 rounded" style="color: var(--text-secondary);"><span>Plans · Specs · Site Plan</span><span class="font-mono text-[10px]" style="color: var(--text-muted);">0/3</span></div>
+        <div class="flex justify-between items-center text-[12px] px-2 py-1.5 rounded" style="color: var(--text-secondary);"><span>Insurance certs</span><span class="font-mono text-[10px]" style="color: var(--success);">2/3</span></div>
+        <div class="flex justify-between items-center text-[12px] px-2 py-1.5 rounded" style="color: var(--text-secondary);"><span>License + W9</span><span class="font-mono text-[10px]" style="color: var(--success);">2/2</span></div>
+        <div class="flex justify-between items-center text-[12px] px-2 py-1.5 rounded" style="color: var(--text-secondary);"><span>Contract + Budget</span><span class="font-mono text-[10px]" style="color: var(--text-muted);">1/2</span></div>
+        <div class="flex justify-between items-center text-[12px] px-2 py-1.5 rounded" style="color: var(--text-secondary);"><span>Permit + Wire Instr</span><span class="font-mono text-[10px]" style="color: var(--text-muted);">0/2</span></div>
+        <button class="btn-secondary text-[11px] py-2 px-3 mt-3 w-full">Open Smart Docs →</button>
+      </div>
+    </aside>
+
+    <!-- Paper area -->
+    <main class="paper-area">
+      <!-- BAF -->
+      <div class="doc-page active" data-doc="baf">
+        <div class="paper">
+          <div class="paper-page-num">Page 1 of 5</div>
+          <div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>
+          <h1 class="paper-doc-title">Builder Acknowledgment Form</h1>
+          <div class="paper-doc-sub">CMG Home Loans · 3160 Crow Canyon Rd Ste 400, San Ramon, CA 94583</div>
+
+          <div class="paper-body">
+            <p><strong>Project Address:</strong> <input class="paper-fld wider" value="412 Mockingbird Lane, Frisco, TX 75034" /></p>
+            <p><strong>Borrower:</strong> <input class="paper-fld wide" value="Marcus Holloway" /></p>
+            <p><strong>Co-Borrower:</strong> <input class="paper-fld wide" value="Jenna Holloway" /></p>
+            <p><strong>Builder:</strong> <input class="paper-fld wide" value="Pinecrest Builders, LLC" /></p>
+            <p><strong>Builder Address:</strong> <input class="paper-fld wider" value="2820 Legacy Dr Ste 200, Plano TX 75024" /></p>
+
+            <p style="margin-top: 20px; font-style: italic; color: var(--text-secondary);">This agreement ("Builder Acknowledgment") is made by the above-named builder ("Builder"). The Builder in consideration of the above-named borrower(s) ("Borrower") agree with the intent to be legally bound, agrees as follows:</p>
+
+            <h2 class="paper-section-title">Construction Loan</h2>
+            <p>Borrower has applied to Lender for a construction loan ("Loan"). Borrower intends to pay the Contract price, using proceeds of the Loan from Lender. Lender will make the Loan in accordance with the terms of the Construction Contract.</p>
+
+            <h2 class="paper-section-title">Construction Contract</h2>
+            <p>Borrower and Builder have entered into a construction contract ("Contract") for a price of <input class="paper-fld" value="$847,500" />. Builder agrees that the Contract is a <strong>fixed price</strong> Contract and may not exceed the Contract price stated above except by approved Change Order. Build duration: <input class="paper-fld short" value="9" /> months. Completion Date: <input class="paper-fld short" value="2026-12-15" type="date" />.</p>
+
+            <h2 class="paper-section-title">Loan Administration</h2>
+            <p>Lender will provide construction loan administration services. To facilitate loan administration, Lender has provided Builder with the Builder Packet which includes a document checklist and accompanying checklist guide.</p>
+
+            <h2 class="paper-section-title">Construction Budget and Advancements</h2>
+            <p>The Work shall proceed in accordance with: the blueprints, shop drawings, plans and specifications for the Work; the written itemization of the Work and the Contract Price; and the itemized description of each segment of the Work that sets the corresponding payment advancements as specified in the Construction Budget accepted by the Lender.</p>
+          </div>
+        </div>
+
+        <div class="paper" style="margin-top: 32px;">
+          <div class="paper-page-num">Page 2 of 5</div>
+          <div class="paper-body">
+            <h2 class="paper-section-title">Change Orders</h2>
+            <p>Any change in the Contract Price, change in the Work or change in the contract time must be set forth in a Change Order signed by Borrower and Builder. Builder will provide to Lender copies of all change orders, including cost overruns, for approval. Builder agrees to not complete any work not included in the Construction Contract and Approved Construction Budget until a written change order has been signed by Builder and the Borrower <em>and Lender has approved it in writing</em>.</p>
+
+            <h2 class="paper-section-title">Insurance During the Construction Period</h2>
+            <p>Builder shall keep in place an active policy for Builder's General Liability Insurance (minimum $1M) and Workers' Compensation Insurance. Builder's Risk Insurance must be maintained throughout the course of construction.</p>
+
+            <h2 class="paper-section-title">Construction Loan Disbursement Request</h2>
+            <p style="color: var(--danger); font-weight: 500;">The Lender does not advance funds for deposits on materials, up front purchase of materials, or stored materials. These are the Builder's responsibility. The Lender advances construction draws for work completed.</p>
+            <p><strong>Maximum 6 post-closing inspections/draws + 1 final</strong> is CMG's policy and industry standard. Final disbursement no less than 10% of contract amount. Each draw request must be accompanied by a lien waiver or lien release.</p>
+
+            <h2 class="paper-section-title">Limits on Construction Loan Draw Requests</h2>
+            <ul class="paper-bullets">
+              <li>Initial deposit / soft cost draw at closing: max <strong>10% of contract price</strong> ($84,750 in this case).</li>
+              <li>Lender shall have final approval on amount funded/approved for each Draw Request.</li>
+              <li>After each Draw, the Loan Commitment Amount remaining will be sufficient to complete all Improvements.</li>
+              <li>Final Disbursement will not be less than 10% of the Contract amount.</li>
+            </ul>
+
+            <h2 class="paper-section-title">Right of Lender to Inspect</h2>
+            <p>Lender shall have the right to inspect the Property and the Improvements at any time.</p>
+          </div>
+        </div>
+
+        <div class="paper" style="margin-top: 32px;">
+          <div class="paper-page-num">Page 5 of 5 · Signature</div>
+          <div class="paper-body">
+            <h2 class="paper-section-title">Entire Agreement</h2>
+            <p>This Builder Acknowledgment and the Construction contract represent the final agreement between the Borrower and Builder. Builder acknowledges that the execution and delivery of this Builder Acknowledgment is its free and voluntary act and deed.</p>
+
+            <h2 class="paper-section-title">Signature</h2>
+            <p style="margin-bottom: 28px;">Builder acknowledges that they have read and fully understand all terms and conditions of this Builder Acknowledgment.</p>
+
+            <div class="sign-block">
+              <div class="sign-row">
+                <div class="sign-line"><input value="Pinecrest Builders, LLC" /></div>
+                <div class="sign-label">Builder Company Name</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-line"><input value="Tim Holloway" /></div>
+                <div class="sign-label">Printed Name of Signer</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-line"><input placeholder="Tim Holloway" /></div>
+                <div class="sign-label">Signature (type to e-sign)</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-line"><input value="Managing Member" /></div>
+                <div class="sign-label">Job Title</div>
+              </div>
+              <div class="sign-row" style="grid-column: 1 / -1; max-width: 280px;">
+                <div class="sign-line"><input type="date" value="2026-05-14" /></div>
+                <div class="sign-label">Date</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BPR -->
+      <div class="doc-page" data-doc="bpr">
+        <div class="paper">
+          <div class="paper-page-num">Page 1 of 4</div>
+          <div style="font-family: 'Geist', sans-serif; font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">New Construction</div>
+          <h1 class="paper-doc-title">Builder & Project Review</h1>
+          <div class="paper-doc-sub">Pre-close project and builder review</div>
+
+          <div class="paper-body">
+            <h2 class="paper-section-title">Contractor Company Information</h2>
+            <p><strong>Company Name:</strong> <input class="paper-fld wider" value="Pinecrest Builders, LLC" /></p>
+            <p><strong>DBA:</strong> <input class="paper-fld wide" value="Pinecrest Custom Homes" />  <strong>Parent Company:</strong> <input class="paper-fld wide" value="—" /></p>
+            <p><strong>Address:</strong> <input class="paper-fld wider" value="2820 Legacy Dr Ste 200" /></p>
+            <p><strong>City:</strong> <input class="paper-fld" value="Plano" />  <strong>State:</strong> <input class="paper-fld tiny" value="TX" />  <strong>Zip:</strong> <input class="paper-fld short" value="75024" />  <strong>EIN:</strong> <input class="paper-fld" value="82-4519731" /></p>
+
+            <p style="margin-top: 14px;"><em style="color: var(--text-secondary);">Point of contact completing this questionnaire:</em></p>
+            <p>First <input class="paper-fld" value="Tim" />  Last <input class="paper-fld" value="Holloway" />  Phone <input class="paper-fld" value="(469) 555-0134" />  Email <input class="paper-fld wide" value="tim@pinecrestbuilders.com" /></p>
+
+            <h2 class="paper-section-title">Principals / Officers / Members</h2>
+            <div style="background: var(--bg-soft); padding: 14px 18px; border-radius: 4px; margin-bottom: 10px; border-left: 2px solid var(--gold);">
+              <p><strong>1.</strong> <input class="paper-fld" value="Tim Holloway" /> · Title <input class="paper-fld" value="Managing Member" /> · Ownership <input class="paper-fld tiny" value="60" />% · <input class="paper-fld tiny" value="14" /> yrs</p>
+              <p style="margin-top: 4px; padding-left: 14px;">Email <input class="paper-fld wide" value="tim@pinecrestbuilders.com" /> · Phone <input class="paper-fld" value="(469) 555-0134" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 14px 18px; border-radius: 4px; margin-bottom: 10px; border-left: 2px solid var(--gold);">
+              <p><strong>2.</strong> <input class="paper-fld" value="Daniel Cruz" /> · Title <input class="paper-fld" value="VP Construction" /> · Ownership <input class="paper-fld tiny" value="25" />% · <input class="paper-fld tiny" value="11" /> yrs</p>
+              <p style="margin-top: 4px; padding-left: 14px;">Email <input class="paper-fld wide" value="dcruz@pinecrestbuilders.com" /> · Phone <input class="paper-fld" value="(469) 555-0142" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 14px 18px; border-radius: 4px; margin-bottom: 10px; border-left: 2px solid var(--gold);">
+              <p><strong>3.</strong> <input class="paper-fld" value="Rebecca Mei" /> · Title <input class="paper-fld" value="CFO" /> · Ownership <input class="paper-fld tiny" value="15" />% · <input class="paper-fld tiny" value="8" /> yrs</p>
+              <p style="margin-top: 4px; padding-left: 14px;">Email <input class="paper-fld wide" value="rmei@pinecrestbuilders.com" /> · Phone <input class="paper-fld" value="(469) 555-0156" /></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper" style="margin-top: 32px;">
+          <div class="paper-page-num">Page 2 of 4</div>
+          <div class="paper-body">
+            <h2 class="paper-section-title">Background Information</h2>
+            <p>Currently involved in litigation? <span class="paper-radio"><button>Yes</button><button class="active">No</button></span></p>
+            <p>Any judgments, liens, or garnishments? <span class="paper-radio"><button>Yes</button><button class="active">No</button></span></p>
+            <p>Bankruptcy discharged in last 7 years? <span class="paper-radio"><button>Yes</button><button class="active">No</button></span></p>
+            <p>Workers' Compensation insurance? <span class="paper-radio"><button class="active">Yes</button><button>No</button></span></p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"><em>If no, reason: ☐ No employees / all subbed out · ☐ Exempt with State · ☐ Included in State licensing · ☐ Other ____________</em></p>
+
+            <h2 class="paper-section-title">Construction Experience</h2>
+            <p>Years in Business: <input class="paper-fld tiny" value="14" /></p>
+            <p>Project Types: <span class="paper-radio"><button class="active">Residential New 1–4</button><button>Multi-Family</button><button>Factory Built</button><button>Renovation</button><button>Commercial</button><button>Other</button></span></p>
+            <p>In-house trades: <input class="paper-fld wider" value="Framing, finish carpentry, interior trim, project management" /></p>
+
+            <h2 class="paper-section-title">Construction History (Last 5 Years)</h2>
+            <p><strong>Residential New Construction:</strong> Started <input class="paper-fld tiny" value="23" /> · Completed <input class="paper-fld tiny" value="19" /> · In Progress <input class="paper-fld tiny" value="4" /> · Avg Size $<input class="paper-fld short" value="620,000" /></p>
+            <p><strong>Residential Renovation:</strong> Started <input class="paper-fld tiny" value="8" /> · Completed <input class="paper-fld tiny" value="8" /> · In Progress <input class="paper-fld tiny" value="0" /> · Avg Size $<input class="paper-fld short" value="185,000" /></p>
+            <p><strong>Commercial:</strong> Started <input class="paper-fld tiny" value="0" /> · Completed <input class="paper-fld tiny" value="0" /> · In Progress <input class="paper-fld tiny" value="0" /> · Avg Size $<input class="paper-fld short" value="—" /></p>
+
+            <h2 class="paper-section-title">Residential New Construction Sales — Last 3 Years</h2>
+            <table class="paper-table">
+              <thead><tr><th>Year</th><th>Total Sales ($)</th><th>Projects Completed</th></tr></thead>
+              <tbody>
+                <tr><td><strong>2025</strong></td><td><input class="paper-fld" value="$14,200,000" /></td><td><input class="paper-fld" value="23" /></td></tr>
+                <tr><td><strong>2024</strong></td><td><input class="paper-fld" value="$11,800,000" /></td><td><input class="paper-fld" value="18" /></td></tr>
+                <tr><td><strong>2023</strong></td><td><input class="paper-fld" value="$9,400,000" /></td><td><input class="paper-fld" value="14" /></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="paper" style="margin-top: 32px;">
+          <div class="paper-page-num">Page 3 of 4</div>
+          <div class="paper-body">
+            <h2 class="paper-section-title">Banking References</h2>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>1.</strong> Lender <input class="paper-fld" value="Frost Bank" /> · LO <input class="paper-fld" value="Eric Tan" /> · <input class="paper-fld tiny" value="8" /> yrs</p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(214) 555-1180" /> · Email <input class="paper-fld wide" value="etan@frostbank.com" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>2.</strong> Lender <input class="paper-fld" value="Comerica" /> · LO <input class="paper-fld" value="Priya Shah" /> · <input class="paper-fld tiny" value="4" /> yrs</p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(972) 555-7720" /> · Email <input class="paper-fld wide" value="pshah@comerica.com" /></p>
+            </div>
+
+            <h2 class="paper-section-title">Trade References (3 Sub-Contractors, past 12 months)</h2>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>1.</strong> <input class="paper-fld" value="Reyes Electrical" /> · Trade <input class="paper-fld" value="Electrical" /> · <input class="paper-fld tiny" value="6" /> yrs · Contact <input class="paper-fld" value="Manny Reyes" /></p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(214) 555-3344" /> · Email <input class="paper-fld wide" value="manny@reyeselectric.tx" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>2.</strong> <input class="paper-fld" value="Hayworth HVAC" /> · Trade <input class="paper-fld" value="HVAC" /> · <input class="paper-fld tiny" value="9" /> yrs · Contact <input class="paper-fld" value="Sam Hayworth" /></p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(469) 555-9012" /> · Email <input class="paper-fld wide" value="sam@hayworthhvac.com" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>3.</strong> <input class="paper-fld" value="Magnolia Plumbing" /> · Trade <input class="paper-fld" value="Plumbing" /> · <input class="paper-fld tiny" value="4" /> yrs · Contact <input class="paper-fld" value="Jorge Pena" /></p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(972) 555-4515" /> · Email <input class="paper-fld wide" value="jorge@magnoliaplumbing.tx" /></p>
+            </div>
+
+            <h2 class="paper-section-title">Supplier References (3 — one MUST be primary lumber)</h2>
+            <div style="background: var(--gold-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px; border-left: 2px solid var(--gold);">
+              <p><strong>1.</strong> <input class="paper-fld" value="BMC Lumber" /> · <span style="font-size: 11px; color: var(--gold-deep); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">★ Primary Lumber</span> · <input class="paper-fld tiny" value="11" /> yrs</p>
+              <p style="padding-left: 14px;">Contact <input class="paper-fld" value="Kayla Brennan" /> · Phone <input class="paper-fld" value="(972) 555-2200" /> · Email <input class="paper-fld wide" value="kbrennan@bmclumber.com" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>2.</strong> <input class="paper-fld" value="Ferguson Plumbing Supply" /> · Material <input class="paper-fld" value="Plumbing" /> · <input class="paper-fld tiny" value="7" /> yrs · Contact <input class="paper-fld" value="Mike O'Reilly" /></p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(214) 555-6633" /> · Email <input class="paper-fld wide" value="moreilly@ferguson.com" /></p>
+            </div>
+            <div style="background: var(--bg-soft); padding: 12px 16px; border-radius: 4px; margin-bottom: 10px;">
+              <p><strong>3.</strong> <input class="paper-fld" value="Hajoca Corp" /> · Material <input class="paper-fld" value="Plumbing & HVAC" /> · <input class="paper-fld tiny" value="5" /> yrs · Contact <input class="paper-fld" value="Angela Knox" /></p>
+              <p style="padding-left: 14px;">Phone <input class="paper-fld" value="(469) 555-7841" /> · Email <input class="paper-fld wide" value="aknox@hajoca.com" /></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper" style="margin-top: 32px;">
+          <div class="paper-page-num">Page 4 of 4 · Project & Authorization</div>
+          <div class="paper-body">
+            <h2 class="paper-section-title">Project Information</h2>
+            <p><strong>Subject Property:</strong> <input class="paper-fld wider" value="412 Mockingbird Lane, Frisco TX 75034" /></p>
+            <p><strong>Borrower(s):</strong> <input class="paper-fld wide" value="Marcus & Jenna Holloway" /></p>
+            <p><strong>Contract Amount:</strong> $<input class="paper-fld" value="847,500" />  ·  <strong>Duration:</strong> <input class="paper-fld tiny" value="9" /> months</p>
+
+            <h2 class="paper-section-title">Additional Comments</h2>
+            <p><input class="paper-fld wider" placeholder="Optional — anything else underwriting should know" style="border-bottom-style: dotted;" /></p>
+
+            <div class="sign-block">
+              <div class="sign-row">
+                <div class="sign-line"><input placeholder="Tim Holloway" /></div>
+                <div class="sign-label">Authorized Signature</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-line"><input type="date" value="2026-05-14" /></div>
+                <div class="sign-label">Date Signed</div>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: var(--text-muted); font-style: italic; margin-top: 14px;">By signing, I certify all information provided is true and accurate to the best of my knowledge. I authorize CMG Home Loans to verify the references and information provided herein.</p>
+          </div>
+        </div>
+      </div>      <!-- TEXAS SUPPLEMENT -->
+      <div class="doc-page" data-doc="texas">
+        <div class="cond-banner" style="max-width: 820px; margin: 0 auto 18px;">
+          <span class="font-mono text-[10px] tracking-[0.14em] uppercase">Conditional · Texas Property</span>
+          <span>This document is in the packet because the subject property is in Texas.</span>
+        </div>
+        <div class="paper" style="border-top: 4px solid var(--gold);">
+          <div class="paper-page-num">Page 1 of 1</div>
+          <div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>
+          <h1 class="paper-doc-title">Texas Loan Supplement</h1>
+          <div class="paper-doc-sub">Mechanic's Lien Contract — Builder & Borrower data</div>
+
+          <div class="paper-body">
+            <p style="margin-bottom: 18px; font-style: italic; color: var(--text-secondary);">This supplement provides the information CMG needs to draft the Mechanic's Lien Contract required for all Texas construction loans. Please confirm or correct every field below.</p>
+
+            <h2 class="paper-section-title">Project</h2>
+            <p><strong>Property Address:</strong> <input class="paper-fld wider" value="412 Mockingbird Lane, Frisco, TX 75034" /></p>
+            <p><strong>Contract Amount:</strong> $<input class="paper-fld" value="847,500" />  ·  <strong>Completion Date:</strong> <input class="paper-fld" type="date" value="2026-12-15" /></p>
+
+            <h2 class="paper-section-title">Builder</h2>
+            <p><strong>Builder Name:</strong> <input class="paper-fld wide" value="Pinecrest Builders, LLC" /></p>
+            <p><strong>Builder Address:</strong> <input class="paper-fld wider" value="2820 Legacy Dr Ste 200, Plano TX 75024" /></p>
+
+            <h2 class="paper-section-title">Builder's Authorized Agent</h2>
+            <p style="margin-bottom: 12px;"><em style="color: var(--text-secondary); font-size: 13px;">Person who will sign the Mechanic's Lien Contract at closing on behalf of the Builder.</em></p>
+            <p><strong>Agent Name:</strong> <input class="paper-fld wide" value="Tim Holloway" /></p>
+            <p><strong>Agent Title:</strong> <input class="paper-fld" value="Managing Member" /></p>
+
+            <h2 class="paper-section-title">Property Status Certification</h2>
+            <div style="background: var(--gold-soft); border: 1px solid #E8D9B5; padding: 14px 18px; border-radius: 4px; margin-top: 8px;">
+              <p style="margin: 0; display: flex; gap: 10px; align-items: flex-start;">
+                <input type="checkbox" style="margin-top: 4px; accent-color: var(--brand);" />
+                <span style="font-family: 'Geist', sans-serif; font-size: 13px; line-height: 1.5;"><strong>I certify</strong> that work has not commenced on the subject property and the property is vacant with no existing structures, in accordance with Texas Property Code requirements for the Mechanic's Lien Contract.</span>
+              </p>
+            </div>
+
+            <div class="sign-block">
+              <div class="sign-row">
+                <div class="sign-line"><input placeholder="Tim Holloway" /></div>
+                <div class="sign-label">Builder's Authorized Agent — Signature</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-line"><input type="date" value="2026-05-14" /></div>
+                <div class="sign-label">Date</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRAW REQUEST -->
+      <div class="doc-page" data-doc="draw">
+        <div class="cond-banner" style="max-width: 820px; margin: 0 auto 18px;">
+          <span class="font-mono text-[10px] tracking-[0.14em] uppercase">Conditional · Draw at Closing</span>
+          <span>This document is in the packet because the builder requested a disbursement at closing.</span>
+        </div>
+        <div class="paper" style="border-top: 4px solid var(--gold);">
+          <div class="paper-page-num">Page 1 of 1</div>
+          <div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>
+          <h1 class="paper-doc-title">Construction Loan Draw Request</h1>
+          <div class="paper-doc-sub">Initial disbursement at closing — soft costs only · Max 10% of contract less borrower deposit</div>
+
+          <div class="paper-body">
+            <p>Loan Number: <input class="paper-fld" value="CMG-2026-014523" /> · Date: <input class="paper-fld" type="date" value="2026-05-14" /> · Draw # <input class="paper-fld tiny" value="Initial" /></p>
+            <p>Property: <input class="paper-fld wider" value="412 Mockingbird Lane, Frisco TX 75034" /></p>
+            <p>Borrower: <input class="paper-fld wide" value="Marcus & Jenna Holloway" /></p>
+
+            <p style="background: var(--brand-tint); padding: 10px 14px; border-radius: 4px; font-family: 'Geist', sans-serif; font-size: 12.5px; color: var(--brand); margin: 14px 0;">
+              <strong>Max allowed:</strong> $57,250  ·  <strong>Calculation:</strong> 10% of $847,500 contract = $84,750, less $25,000 borrower deposit = $57,250 ceiling. Soft costs only — no structural work.
+            </p>
+
+            <h2 class="paper-section-title">Line Items at Closing</h2>
+            <table class="paper-table">
+              <thead><tr><th>Budget Line Item</th><th>Description</th><th>Amount</th><th>Payee Name</th><th>Payee Address</th></tr></thead>
+              <tbody>
+                <tr><td><input class="paper-fld" value="Architectural" /></td><td><input class="paper-fld" value="Final blueprints + revisions" /></td><td><input class="paper-fld" value="$8,500" /></td><td><input class="paper-fld" value="Caldwell Arch Studio" /></td><td><input class="paper-fld" value="2200 Ross Ave, Dallas TX" /></td></tr>
+                <tr><td><input class="paper-fld" value="Engineering" /></td><td><input class="paper-fld" value="Structural + soils report" /></td><td><input class="paper-fld" value="$6,200" /></td><td><input class="paper-fld" value="Texas Geo Engineering" /></td><td><input class="paper-fld" value="1500 Plano Pkwy, Plano TX" /></td></tr>
+                <tr><td><input class="paper-fld" value="Permits" /></td><td><input class="paper-fld" value="Frisco building + HOA fees" /></td><td><input class="paper-fld" value="$4,800" /></td><td><input class="paper-fld" value="City of Frisco" /></td><td><input class="paper-fld" value="6101 Frisco Sq Blvd, Frisco TX" /></td></tr>
+                <tr><td><input class="paper-fld" value="Site Survey" /></td><td><input class="paper-fld" value="Plot/site survey + staking" /></td><td><input class="paper-fld" value="$2,400" /></td><td><input class="paper-fld" value="Larkin Land Surveying" /></td><td><input class="paper-fld" value="809 Coit Rd, Plano TX" /></td></tr>
+                <tr><td><input class="paper-fld" placeholder="—" /></td><td><input class="paper-fld" placeholder="—" /></td><td><input class="paper-fld" placeholder="—" /></td><td><input class="paper-fld" placeholder="—" /></td><td><input class="paper-fld" placeholder="—" /></td></tr>
+              </tbody>
+            </table>
+
+            <p style="display: flex; justify-content: flex-end; align-items: baseline; gap: 16px; margin-top: 12px;">
+              <span class="font-mono text-[10px] uppercase tracking-[0.14em]" style="color: var(--text-muted); font-family: 'Geist Mono', monospace;">Total Requested at Closing</span>
+              <span style="font-family: 'Fraunces', serif; font-size: 24px; font-weight: 500; color: var(--brand);">$21,900</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--text-muted);">of $57,250 max</span>
+            </p>
+
+            <h2 class="paper-section-title">Signatures</h2>
+            <div class="sign-block" style="grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+              <div class="sign-row"><div class="sign-line"><input placeholder="Marcus Holloway" /></div><div class="sign-label">Borrower</div></div>
+              <div class="sign-row"><div class="sign-line"><input placeholder="Jenna Holloway" /></div><div class="sign-label">Co-Borrower</div></div>
+              <div class="sign-row"><div class="sign-line"><input placeholder="Tim Holloway" /></div><div class="sign-label">Builder</div></div>
+              <div class="sign-row"><div class="sign-line"><input type="date" /></div><div class="sign-label">Date</div></div>
+              <div class="sign-row"><div class="sign-line"><input type="date" /></div><div class="sign-label">Date</div></div>
+              <div class="sign-row"><div class="sign-line"><input type="date" value="2026-05-14" /></div><div class="sign-label">Date</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- W-9 -->
+      <div class="doc-page" data-doc="w9">
+        <div class="paper">
+          <div class="paper-page-num">Page 1 of 1 · IRS Form W-9 (Rev. March 2024)</div>
+          <h1 class="paper-doc-title" style="font-size: 28px;">Request for Taxpayer Identification Number and Certification</h1>
+          <div class="paper-doc-sub">Give Form to the requester. Do not send to the IRS.</div>
+
+          <div class="paper-body">
+            <h2 class="paper-section-title" style="margin-top: 14px;">Part I — Identification</h2>
+            <p><strong>1.</strong> Name of entity/individual: <input class="paper-fld wider" value="Pinecrest Builders, LLC" /></p>
+            <p><strong>2.</strong> Business name / DBA (if different): <input class="paper-fld wider" value="Pinecrest Custom Homes" /></p>
+            <p><strong>3a.</strong> Federal tax classification:
+              <span class="paper-radio"><button>Indiv / Sole Prop</button><button>C Corp</button><button>S Corp</button><button>Partnership</button><button>Trust</button><button class="active">LLC — P</button><button>Other</button></span>
+            </p>
+            <p><strong>3b.</strong> If LLC, tax classification (C=C Corp · S=S Corp · P=Partnership): <input class="paper-fld tiny" value="P" /></p>
+
+            <p style="margin-top: 12px;"><strong>5.</strong> Address: <input class="paper-fld wider" value="2820 Legacy Dr Ste 200" /></p>
+            <p><strong>6.</strong> City <input class="paper-fld" value="Plano" /> · State <input class="paper-fld tiny" value="TX" /> · Zip <input class="paper-fld short" value="75024" /></p>
+            <p><strong>7.</strong> List account numbers (optional): <input class="paper-fld wider" placeholder="Leave blank if not applicable" /></p>
+
+            <h2 class="paper-section-title">Part I — Taxpayer Identification Number (TIN)</h2>
+            <p>Enter your TIN. For LLCs taxed as partnership, enter EIN.</p>
+            <p><strong>Social Security Number:</strong> <input class="paper-fld" placeholder="___-__-____" /></p>
+            <p><em>or</em></p>
+            <p><strong>Employer Identification Number (EIN):</strong> <input class="paper-fld" value="82-4519731" /></p>
+
+            <h2 class="paper-section-title">Part II — Certification</h2>
+            <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">Under penalties of perjury, I certify that: (1) The number shown on this form is my correct taxpayer identification number; (2) I am not subject to backup withholding; (3) I am a U.S. citizen or other U.S. person; and (4) The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.</p>
+
+            <div class="sign-block">
+              <div class="sign-row">
+                <div class="sign-line"><input placeholder="Tim Holloway" /></div>
+                <div class="sign-label">Signature of U.S. Person</div>
+              </div>
+              <div class="sign-row">
+                <div class="sign-line"><input type="date" value="2026-05-14" /></div>
+                <div class="sign-label">Date</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- PAPERS_PLACEHOLDER -->
+    </main>
+
+  </div>
+</div>
+
+<!-- Submit overlay -->
+<div class="submit-overlay" id="submitOverlay">
+  <div class="submit-card">
+    <div class="submit-icon">✓</div>
+    <div class="submit-title">Packet assembled. Sending to your LO.</div>
+    <p class="submit-sub">The four CMG documents you just edited have been compiled into a single PDF packet and emailed to your loan officer. You'll receive a copy at the email on file.</p>
+    <div class="space-y-2">
+      <div class="doc-bundle"><div class="doc-nav-icon">PDF</div><div><div class="doc-bundle-name">Builder Acknowledgment Form</div><div class="doc-bundle-meta">Filled · Page 1–5 · 84 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-nav-icon">PDF</div><div><div class="doc-bundle-name">Builder & Project Review</div><div class="doc-bundle-meta">Filled · Page 1–4 · 92 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-nav-icon">PDF</div><div><div class="doc-bundle-name">Texas Loan Supplement</div><div class="doc-bundle-meta">Filled · 1 page · 18 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-nav-icon">PDF</div><div><div class="doc-bundle-name">Draw Request — Initial</div><div class="doc-bundle-meta">Filled · 1 page · 22 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+      <div class="doc-bundle"><div class="doc-nav-icon">PDF</div><div><div class="doc-bundle-name">W-9 Form</div><div class="doc-bundle-meta">Filled · 1 page · 16 KB</div></div><span class="doc-bundle-status">Ready</span></div>
+    </div>
+    <div class="submit-email-line">
+      <span>📧</span>
+      <span><strong>To:</strong> Sarah Chen, LO &lt;sarah.chen@cmgfi.com&gt; · 232 KB · 5 PDFs</span>
+    </div>
+    <div class="flex gap-3 justify-end">
+      <button class="btn-secondary" onclick="closeSubmit()">View Packet</button>
+      <button class="btn-primary" onclick="closeSubmit()">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="variant-badge">Variant 7 · Print Shop</div>
+
+<script>
+  // Doc nav switching
+  document.querySelectorAll('.doc-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const t = item.dataset.doc;
+      document.querySelectorAll('.doc-nav-item').forEach(n => n.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.doc-page').forEach(p => p.classList.remove('active'));
+      document.querySelector(`.doc-page[data-doc="${t}"]`).classList.add('active');
+      document.querySelector('.paper-area').scrollTo({top: 0, behavior: 'smooth'});
+    });
+  });
+
+  // Paper radio buttons
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.paper-radio button');
+    if (!btn) return;
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
+  function openSubmit() { document.getElementById('submitOverlay').classList.add('open'); }
+  function closeSubmit() { document.getElementById('submitOverlay').classList.remove('open'); }
+</script>
+
+</body>
+</html>

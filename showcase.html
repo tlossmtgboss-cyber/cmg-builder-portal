@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CMG Builder Portal — All 7 Design Options</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1; --bg-surface: #FFFFFF; --bg-elevated: #F2EDE2;
+    --border: #ECE6D8; --border-strong: #D8D0BD;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E;
+    --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-tint: #EFF3EE;
+    --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
+    --success: #2D7A52;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); letter-spacing: -0.005em; margin: 0; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: radial-gradient(rgba(31,61,46,.025) 1px, transparent 1px); background-size: 4px 4px; opacity: .6; }
+
+  /* Nav bar */
+  .showcase-nav {
+    position: sticky; top: 0; z-index: 200;
+    background: rgba(250,247,241,.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 0;
+    height: 52px;
+    box-shadow: 0 1px 4px rgba(31,61,46,.04);
+  }
+  .nav-home {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 6px;
+    background: var(--brand); border: 1px solid var(--brand);
+    color: #fff; text-decoration: none; font-size: 16px;
+  }
+  .nav-group { display: flex; align-items: center; gap: 4px; }
+  .nav-divider { width: 1px; height: 24px; background: var(--border-strong); margin: 0 12px; flex-shrink: 0; }
+  .nav-label {
+    font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-muted); margin-right: 8px; white-space: nowrap;
+  }
+  .nav-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    text-decoration: none; padding: 6px 14px;
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px;
+    font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 500;
+    color: var(--text-secondary); transition: all 150ms ease; white-space: nowrap;
+  }
+  .nav-link:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-tint); }
+  .nav-link .nav-num { font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--gold-deep); }
+  .nav-link.ai .nav-num { color: var(--gold); }
+
+  .ai-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, var(--gold) 0%, #D4A853 100%); color: #fff; font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; font-weight: 500; }
+  .feature-note { background: var(--brand-tint); border: 1px solid #D6E0D9; border-left: 3px solid var(--brand); border-radius: 8px; padding: 18px 22px; }
+  .section-divider { display: flex; align-items: center; gap: 16px; margin: 48px 0 28px; }
+  .section-divider::before, .section-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  .section-divider-text { font-family: 'Geist Mono', monospace; font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); white-space: nowrap; }
+  .variant-bullets { font-size: 13px; color: var(--text-secondary); line-height: 1.6; padding-left: 0; list-style: none; margin: 12px 0 0; }
+  .variant-bullets li { padding-left: 18px; position: relative; margin-bottom: 4px; }
+  .variant-bullets li::before { content: "\00b7"; position: absolute; left: 6px; top: -2px; color: var(--gold); font-weight: 700; font-size: 18px; }
+
+  /* Cards */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+  .variant-card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 28px 28px 24px; transition: all 200ms ease; position: relative;
+  }
+  .variant-card:hover { border-color: var(--brand); box-shadow: 0 12px 36px rgba(31,61,46,.08); transform: translateY(-2px); }
+  .variant-card.ai-native { border-color: var(--gold); }
+  .variant-card.ai-native:hover { border-color: var(--brand); }
+  .variant-card .num { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 8px; }
+  .variant-card h3 { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 4px; }
+  .variant-card .tag { font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: block; }
+  .variant-card .desc { font-size: 13.5px; color: var(--text-secondary); line-height: 1.55; }
+  .variant-card .arrow { position: absolute; top: 28px; right: 28px; font-size: 18px; color: var(--text-muted); transition: all 150ms ease; }
+  .variant-card:hover .arrow { color: var(--brand); transform: translateX(3px); }
+
+  @media (max-width: 900px) {
+    .showcase-nav { padding: 0 10px; overflow-x: auto; }
+    .nav-link { padding: 5px 10px; font-size: 11px; }
+    .nav-label { display: none; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body class="relative">
+
+<!-- NAV BAR -->
+<nav class="showcase-nav">
+  <span class="nav-home" title="All Variants">&#9776;</span>
+  <div class="nav-divider"></div>
+  <span class="nav-label">AI-Native</span>
+  <div class="nav-group">
+    <a href="page-variant-5.html" class="nav-link ai"><span class="nav-num">05</span> Aria Concierge</a>
+    <a href="page-variant-6.html" class="nav-link ai"><span class="nav-num">06</span> AutoPilot</a>
+    <a href="page-variant-7.html" class="nav-link ai"><span class="nav-num">07</span> Print Shop</a>
+  </div>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Standard</span>
+  <div class="nav-group">
+    <a href="page-variant-1.html" class="nav-link"><span class="nav-num">01</span> Atelier</a>
+    <a href="page-variant-2.html" class="nav-link"><span class="nav-num">02</span> Drafting Table</a>
+    <a href="page-variant-3.html" class="nav-link"><span class="nav-num">03</span> Job Site</a>
+    <a href="page-variant-4.html" class="nav-link"><span class="nav-num">04</span> Foreman</a>
+  </div>
+</nav>
+
+<div class="max-w-[1200px] mx-auto px-8 py-14 relative z-10">
+
+  <!-- HEADER -->
+  <header class="mb-10 max-w-3xl">
+    <div class="font-mono text-[11px] uppercase tracking-[0.18em] mb-4" style="color: var(--gold-deep);">CMG Home Loans · Builder Portal · Design Review</div>
+    <h1 class="font-display text-5xl font-medium tracking-tight leading-[1.05] mb-5">Seven design options.<br/>One builder packet.</h1>
+    <p class="text-base leading-relaxed" style="color: var(--text-secondary);">
+      Same 90+ fields across 12 sections (BAF, BPR, Texas Supplement, Draw Request, W9). Same conditional logic. Same Smart Docs portal. Seven completely different UX approaches for the builder to complete the packet.
+    </p>
+  </header>
+
+  <div class="feature-note mb-10">
+    <div class="font-mono text-[10.5px] uppercase tracking-[0.18em] mb-2" style="color: var(--brand);">Shared across all variants</div>
+    <ul class="variant-bullets text-[13.5px]" style="margin: 8px 0 0;">
+      <li>Every PDF field from the Builder Packet — 90+ fields across 12 sections</li>
+      <li>Conditional logic: Texas property unlocks Section 10. Draw at closing unlocks Section 11. HOA/PUD adds HOA Approval doc.</li>
+      <li>Smart Docs portal: 12 standing documents + 2 conditional (HOA, TX confirmation)</li>
+      <li>Theme: #FAF7F1 cream, #1F3D2E forest green, #B8924A gold, Fraunces + Geist typography</li>
+      <li>Repeater groups: 1+ Principals, 3 Trade refs, 3 Suppliers, 1 required + 1 optional Banking ref</li>
+    </ul>
+  </div>
+
+  <!-- AI-NATIVE -->
+  <div class="section-divider">
+    <span class="section-divider-text">AI-Native Paradigms · The system does the work</span>
+  </div>
+
+  <div class="card-grid">
+    <a href="page-variant-5.html" class="variant-card ai-native">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 05 <span class="ai-badge" style="margin-left: 8px;">AI-Native</span></div>
+      <h3>Aria Concierge</h3>
+      <span class="tag">Conversational AI · Live form-fill</span>
+      <p class="desc">Aria interviews the builder in natural language. The CMG paperwork fills itself in on the right pane in real time. Voice input supported. Reuses data from prior CMG applications to skip 6+ minutes of typing.</p>
+    </a>
+    <a href="page-variant-6.html" class="variant-card ai-native">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 06 <span class="ai-badge" style="margin-left: 8px;">AI-Native</span></div>
+      <h3>AutoPilot</h3>
+      <span class="tag">Drop docs · AI extracts</span>
+      <p class="desc">Builder drops W9, license, COI, construction contract. AutoPilot OCR's everything and pre-fills 78% of the application. Confidence scores per field. Builder just confirms.</p>
+    </a>
+    <a href="page-variant-7.html" class="variant-card ai-native">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 07 <span class="ai-badge" style="margin-left: 8px;">AI-Native</span></div>
+      <h3>Print Shop</h3>
+      <span class="tag">Edit the paperwork directly</span>
+      <p class="desc">The CMG forms are the UI. Builder edits BAF, BPR, Texas Supplement, Draw Request, and W9 as PDF-styled documents with dotted-underline fields. What the builder sees is exactly what the LO receives.</p>
+    </a>
+  </div>
+
+  <!-- STANDARD -->
+  <div class="section-divider">
+    <span class="section-divider-text">Standard Form Patterns · The builder does the work</span>
+  </div>
+
+  <div class="card-grid">
+    <a href="page-variant-1.html" class="variant-card">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 01</div>
+      <h3>Atelier</h3>
+      <span class="tag">Editorial scroll</span>
+      <p class="desc">All twelve sections on one long page with a sticky anchor rail. Magazine-style hierarchy with section numbers and gold accents. The builder scrolls through the entire form in a single continuous flow.</p>
+    </a>
+    <a href="page-variant-2.html" class="variant-card">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 02</div>
+      <h3>Drafting Table</h3>
+      <span class="tag">13-step wizard</span>
+      <p class="desc">Linear step-by-step flow with a sidebar stepper and top progress bar. One focused screen per section with Previous/Next navigation. Each step shows a completion check when done.</p>
+    </a>
+    <a href="page-variant-3.html" class="variant-card">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 03</div>
+      <h3>Job Site</h3>
+      <span class="tag">Split-pane</span>
+      <p class="desc">Three-column layout: section nav on the left, form in the middle, Smart Docs panel always visible on the right. Documents highlight as you navigate through sections.</p>
+    </a>
+    <a href="page-variant-4.html" class="variant-card">
+      <span class="arrow">&rarr;</span>
+      <div class="num">Variant 04</div>
+      <h3>Foreman</h3>
+      <span class="tag">Card dashboard</span>
+      <p class="desc">SaaS dashboard layout. Each section is a card with percentage complete; click to open and fill. Hero stats at the top show overall progress. Builder sees the full picture and can jump to any section.</p>
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="text-align: center; padding: 48px 0 24px; color: var(--text-muted); font-size: 13px;">
+    <div class="font-mono text-[10px] uppercase tracking-[0.18em] mb-2" style="color: var(--gold-deep);">CMG Home Loans · Builder Portal</div>
+    <p>7 design variants · Same builder packet · Same conditional logic · Same Smart Docs</p>
+  </div>
+
+</div>
+</body>
+</html>
