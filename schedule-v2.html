@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
+<title>CMG Builder Portal &mdash; Schedule Consultation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #FAF7F1;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F2EDE2;
+    --bg-soft: #FBF8F2;
+    --border: #ECE6D8;
+    --border-strong: #D8D0BD;
+    --border-active: #1F3D2E;
+    --text-primary: #1A1F1B;
+    --text-secondary: #4F554E;
+    --text-muted: #8B8A7E;
+    --text-faint: #B5B2A4;
+    --brand: #1F3D2E;
+    --brand-hover: #2A4F3D;
+    --brand-soft: #E5EDE6;
+    --brand-tint: #EFF3EE;
+    --gold: #B8924A;
+    --gold-soft: #F5EDD9;
+    --gold-deep: #6B4F1A;
+    --success: #2D7A52;
+    --success-soft: #E3EFE5;
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  html, body {
+    font-family: 'Geist', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-feature-settings: 'ss01', 'cv01', 'cv11';
+    letter-spacing: -0.005em;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  /* Paper grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    opacity: 0.7;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+  ::-webkit-scrollbar-thumb:hover { background: #C9C1AE; }
+
+  /* Card */
+  .sched-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(26,31,27,.04), 0 8px 32px rgba(26,31,27,.03);
+    max-width: 600px;
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Breadcrumb bar */
+  .sched-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-soft);
+  }
+  .sched-breadcrumb a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 150ms;
+  }
+  .sched-breadcrumb a:hover { color: var(--brand); }
+  .sched-breadcrumb .sep { color: var(--text-faint); font-size: 11px; }
+  .sched-breadcrumb .current { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 20px 28px 4px;
+  }
+  .step-dot-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .step-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 250ms ease;
+    position: relative;
+  }
+  .step-dot.active {
+    background: var(--brand);
+    box-shadow: 0 0 0 3px rgba(31,61,46,.12);
+  }
+  .step-dot.completed {
+    background: var(--success);
+  }
+  .step-connector {
+    width: 48px;
+    height: 2px;
+    background: var(--border);
+    transition: background 250ms ease;
+  }
+  .step-connector.completed {
+    background: var(--success);
+  }
+  .step-labels {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    padding: 8px 28px 0;
+  }
+  .step-label-item {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    transition: color 250ms ease;
+    text-align: center;
+    min-width: 72px;
+  }
+  .step-label-item.active { color: var(--brand); font-weight: 500; }
+  .step-label-item.completed { color: var(--success); }
+
+  /* Card header */
+  .sched-header {
+    padding: 28px 32px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .sched-header h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+  .sched-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Step panels */
+  .sched-step { display: none; }
+  .sched-step.active { display: block; animation: stepIn 300ms ease; }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Calendar */
+  .cal-wrap { padding: 24px 28px 28px; }
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .cal-nav-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 150ms ease;
+  }
+  .cal-nav-btn:hover { background: var(--bg-elevated); border-color: var(--border-strong); }
+  .cal-month-label {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.015em;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+  .cal-weekday {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-align: center;
+    padding: 0 0 10px;
+    font-weight: 500;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+    position: relative;
+    cursor: default;
+    transition: all 150ms ease;
+    gap: 3px;
+  }
+  .cal-day.other-month { color: var(--text-faint); opacity: 0.4; }
+  .cal-day.today { font-weight: 600; color: var(--text-primary); }
+  .cal-day.available {
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .cal-day.available:hover {
+    background: var(--brand-tint);
+  }
+  .cal-day.available .avail-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--success);
+    opacity: 0.6;
+  }
+  .cal-day.selected {
+    background: var(--brand);
+    color: #fff;
+    font-weight: 600;
+  }
+  .cal-day.selected .avail-dot {
+    background: rgba(255,255,255,0.6);
+  }
+  .cal-day.past { opacity: 0.3; }
+
+  /* Time slots */
+  .time-wrap { padding: 24px 28px 28px; }
+  .time-section-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .time-section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .time-slot {
+    padding: 12px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .time-slot:hover {
+    border-color: var(--brand);
+    background: var(--brand-tint);
+    color: var(--brand);
+  }
+  .time-slot.selected {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+  }
+  .time-selected-date {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .time-selected-date strong { color: var(--text-primary); font-weight: 600; }
+
+  /* Confirm panel */
+  .confirm-wrap { padding: 28px 32px; }
+  .confirm-block {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .confirm-block-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .confirm-block-value {
+    font-size: 16px;
+    color: var(--text-primary);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .confirm-block-value .change-link {
+    font-size: 12px;
+    color: var(--gold);
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 150ms;
+  }
+  .confirm-block-value .change-link:hover { color: var(--gold-deep); }
+  .confirm-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+    margin-top: 8px;
+  }
+  .confirm-detail-item {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .confirm-detail-item span { color: var(--text-muted); font-size: 12px; }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--brand);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .btn-primary:hover { background: var(--brand-hover); }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+    transition: all 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .btn-secondary:hover { background: var(--bg-elevated); }
+
+  .sched-footer {
+    padding: 20px 28px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-soft);
+    display: flex;
+    gap: 12px;
+    border-radius: 0 0 14px 14px;
+  }
+  .sched-footer .btn-back {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms;
+  }
+  .sched-footer .btn-back:hover { background: var(--bg-elevated); border-color: var(--border-strong); }
+  .sched-footer .btn-next {
+    flex: 1;
+    background: var(--brand);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 150ms;
+  }
+  .sched-footer .btn-next:hover { background: var(--brand-hover); }
+  .sched-footer .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Success state */
+  .success-wrap {
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .success-checkmark {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--success-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .success-checkmark svg {
+    width: 32px;
+    height: 32px;
+    color: var(--success);
+  }
+  @keyframes checkDraw {
+    from { stroke-dashoffset: 24; }
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes scaleIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .success-checkmark.animate {
+    animation: scaleIn 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .success-checkmark.animate svg path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: checkDraw 350ms 300ms ease forwards;
+  }
+  .success-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+  .success-sub {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 380px;
+    margin: 0 auto 8px;
+  }
+  .success-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin: 16px auto 28px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .success-detail .detail-icon {
+    color: var(--success);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .sched-card { border-radius: 0; border-left: none; border-right: none; }
+    .sched-header h1 { font-size: 24px; }
+    .cal-wrap, .time-wrap, .confirm-wrap { padding: 20px 20px 24px; }
+    .sched-breadcrumb, .sched-footer { padding: 14px 20px; }
+    .sched-header { padding: 24px 20px 20px; }
+    .confirm-details { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px 16px;position:relative;z-index:1;">
+  <div class="sched-card" id="schedCard">
+
+    <!-- Breadcrumb -->
+    <div class="sched-breadcrumb">
+      <a href="portal.html">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Portal
+      </a>
+      <span class="sep">/</span>
+      <span class="current">Schedule Consultation</span>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="step-indicator">
+      <div class="step-dot-group">
+        <div class="step-dot active" id="dot1"></div>
+        <div class="step-connector" id="conn1"></div>
+        <div class="step-dot" id="dot2"></div>
+        <div class="step-connector" id="conn2"></div>
+        <div class="step-dot" id="dot3"></div>
+      </div>
+    </div>
+    <div class="step-labels">
+      <span class="step-label-item active" id="label1">Select Date</span>
+      <span class="step-label-item" id="label2">Select Time</span>
+      <span class="step-label-item" id="label3">Confirm</span>
+    </div>
+
+    <!-- Header -->
+    <div class="sched-header" id="schedHeader">
+      <h1 class="font-display" id="headerTitle">Book Your Consultation</h1>
+      <p id="headerSub">Choose a date and time that works for you.</p>
+    </div>
+
+    <!-- Step 1: Calendar -->
+    <div class="sched-step active" id="step1">
+      <div class="cal-wrap">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="calPrev" aria-label="Previous month">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <span class="cal-month-label font-display" id="calMonthLabel"></span>
+          <button class="cal-nav-btn" id="calNext" aria-label="Next month">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="sched-footer">
+        <button class="btn-next" id="step1Next" disabled>
+          Continue
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Time Slots -->
+    <div class="sched-step" id="step2">
+      <div class="time-wrap">
+        <div class="time-selected-date" id="timeSelectedDate"></div>
+
+        <div class="time-section-label">Morning</div>
+        <div class="time-grid" id="morningSlots"></div>
+
+        <div class="time-section-label">Afternoon</div>
+        <div class="time-grid" id="afternoonSlots"></div>
+      </div>
+      <div class="sched-footer">
+        <button class="btn-back" id="step2Back">Back</button>
+        <button class="btn-next" id="step2Next" disabled>
+          Continue
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirm -->
+    <div class="sched-step" id="step3">
+      <div class="confirm-wrap">
+        <div class="confirm-block">
+          <div class="confirm-block-label">Appointment</div>
+          <div class="confirm-block-value">
+            <span id="confirmDate"></span>
+            <a class="change-link" id="changeDate">Change</a>
+          </div>
+        </div>
+
+        <div class="confirm-block">
+          <div class="confirm-block-label">Time</div>
+          <div class="confirm-block-value">
+            <span id="confirmTime"></span>
+            <a class="change-link" id="changeTime">Change</a>
+          </div>
+        </div>
+
+        <div class="confirm-block">
+          <div class="confirm-block-label">Your Details</div>
+          <div class="confirm-details" id="confirmDetails"></div>
+        </div>
+
+        <button class="btn-primary" id="confirmBtn" style="margin-top:8px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.3 4L6 11.3 2.7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Confirm Consultation
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Success -->
+    <div class="sched-step" id="step4">
+      <div class="success-wrap">
+        <div class="success-checkmark" id="successCheck">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M8 16.5l5.5 5.5L24 11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="success-title font-display">You're all set!</div>
+        <p class="success-sub">Your consultation has been scheduled. We'll send a confirmation email with meeting details shortly.</p>
+        <div class="success-detail" id="successDetail">
+          <span class="detail-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 6.5h12M5.5 2v2.5M10.5 2v2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </span>
+          <span id="successDateTime"></span>
+        </div>
+        <a href="portal.html" class="btn-secondary" style="text-decoration:none;display:inline-flex;width:auto;padding:12px 28px;">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Portal
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  // --- State ---
+  let currentStep = 1;
+  let viewYear, viewMonth;
+  let selectedDate = null; // Date object
+  let selectedTime = null; // string like "9:00 AM"
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  viewYear = today.getFullYear();
+  viewMonth = today.getMonth();
+
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const WEEKDAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  const MORNING_SLOTS = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM'];
+  const AFTERNOON_SLOTS = ['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
+
+  // Generate available dates: weekdays in next 60 days (skip weekends, skip some random days for realism)
+  const availableDates = new Set();
+  const skipOffsets = new Set([3, 7, 12, 18, 25, 33, 40, 48]); // skip a few days for realism
+  for (let i = 1; i <= 60; i++) {
+    if (skipOffsets.has(i)) continue;
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    const dow = d.getDay();
+    if (dow === 0 || dow === 6) continue; // skip weekends
+    availableDates.add(d.toISOString().split('T')[0]);
+  }
+
+  function dateKey(y, m, d) {
+    return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+  }
+
+  // --- DOM refs ---
+  const $ = id => document.getElementById(id);
+
+  // --- Calendar rendering ---
+  function renderCalendar() {
+    $('calMonthLabel').textContent = MONTHS[viewMonth] + ' ' + viewYear;
+
+    const grid = $('calGrid');
+    grid.innerHTML = '';
+
+    // Weekday headers
+    WEEKDAYS.forEach(w => {
+      const el = document.createElement('div');
+      el.className = 'cal-weekday';
+      el.textContent = w;
+      grid.appendChild(el);
+    });
+
+    const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrev = new Date(viewYear, viewMonth, 0).getDate();
+
+    // Previous month filler
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const el = document.createElement('div');
+      el.className = 'cal-day other-month';
+      el.innerHTML = '<span>' + (daysInPrev - i) + '</span>';
+      grid.appendChild(el);
+    }
+
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el = document.createElement('div');
+      const dt = new Date(viewYear, viewMonth, d);
+      dt.setHours(0,0,0,0);
+      const key = dateKey(viewYear, viewMonth, d);
+      const isPast = dt < today;
+      const isToday = dt.getTime() === today.getTime();
+      const isAvail = availableDates.has(key) && !isPast;
+      const isSel = selectedDate && selectedDate.getTime() === dt.getTime();
+
+      let cls = 'cal-day';
+      if (isPast) cls += ' past';
+      if (isToday) cls += ' today';
+      if (isAvail) cls += ' available';
+      if (isSel) cls += ' selected';
+
+      el.className = cls;
+      el.innerHTML = '<span>' + d + '</span>' + (isAvail ? '<span class="avail-dot"></span>' : '');
+
+      if (isAvail) {
+        el.addEventListener('click', () => selectDate(dt));
+      }
+
+      grid.appendChild(el);
+    }
+
+    // Next month filler
+    const totalCells = firstDay + daysInMonth;
+    const remaining = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) {
+      const el = document.createElement('div');
+      el.className = 'cal-day other-month';
+      el.innerHTML = '<span>' + i + '</span>';
+      grid.appendChild(el);
+    }
+  }
+
+  function selectDate(dt) {
+    selectedDate = dt;
+    selectedTime = null;
+    $('step1Next').disabled = false;
+    renderCalendar();
+  }
+
+  $('calPrev').addEventListener('click', () => {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+  $('calNext').addEventListener('click', () => {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+
+  // --- Time slots ---
+  function renderTimeSlots() {
+    const opts = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+    $('timeSelectedDate').innerHTML = 'Showing times for <strong>' + selectedDate.toLocaleDateString('en-US', opts) + '</strong>';
+
+    function renderSlots(container, slots) {
+      const grid = $(container);
+      grid.innerHTML = '';
+      slots.forEach(slot => {
+        const el = document.createElement('button');
+        el.className = 'time-slot' + (selectedTime === slot ? ' selected' : '');
+        el.textContent = slot;
+        el.addEventListener('click', () => {
+          selectedTime = slot;
+          renderTimeSlots();
+          $('step2Next').disabled = false;
+        });
+        grid.appendChild(el);
+      });
+    }
+
+    renderSlots('morningSlots', MORNING_SLOTS);
+    renderSlots('afternoonSlots', AFTERNOON_SLOTS);
+  }
+
+  // --- Confirm panel ---
+  function renderConfirm() {
+    const dateOpts = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+    $('confirmDate').textContent = selectedDate.toLocaleDateString('en-US', dateOpts);
+    $('confirmTime').textContent = selectedTime;
+
+    // Load user details from localStorage
+    let account = {};
+    try { account = JSON.parse(localStorage.getItem('builderAccount') || '{}'); } catch(e) {}
+
+    const details = $('confirmDetails');
+    details.innerHTML = '';
+
+    const fields = [
+      { label: 'Name', value: [account.firstName, account.lastName].filter(Boolean).join(' ') || account.name || 'Not provided' },
+      { label: 'Email', value: account.email || 'Not provided' },
+      { label: 'Phone', value: account.phone || 'Not provided' },
+      { label: 'Company', value: account.company || account.builderName || 'Not provided' },
+    ];
+
+    fields.forEach(f => {
+      const el = document.createElement('div');
+      el.className = 'confirm-detail-item';
+      el.innerHTML = '<span>' + f.label + '</span><br>' + f.value;
+      details.appendChild(el);
+    });
+  }
+
+  // --- Step navigation ---
+  function goToStep(step) {
+    currentStep = step;
+
+    // Hide all steps
+    document.querySelectorAll('.sched-step').forEach(s => s.classList.remove('active'));
+    $('step' + step).classList.add('active');
+
+    // Update dots
+    for (let i = 1; i <= 3; i++) {
+      const dot = $('dot' + i);
+      const label = $('label' + i);
+      dot.className = 'step-dot';
+      label.className = 'step-label-item';
+      if (i < step) {
+        dot.classList.add('completed');
+        label.classList.add('completed');
+      } else if (i === step) {
+        dot.classList.add('active');
+        label.classList.add('active');
+      }
+    }
+    // Connectors
+    $('conn1').className = 'step-connector' + (step > 1 ? ' completed' : '');
+    $('conn2').className = 'step-connector' + (step > 2 ? ' completed' : '');
+
+    // Update header
+    if (step === 1) {
+      $('headerTitle').textContent = 'Book Your Consultation';
+      $('headerSub').textContent = 'Choose a date and time that works for you.';
+      $('schedHeader').style.display = '';
+    } else if (step === 2) {
+      $('headerTitle').textContent = 'Select a Time';
+      $('headerSub').textContent = 'Pick a time slot that fits your schedule.';
+      $('schedHeader').style.display = '';
+      renderTimeSlots();
+    } else if (step === 3) {
+      $('headerTitle').textContent = 'Confirm Details';
+      $('headerSub').textContent = 'Review your consultation details below.';
+      $('schedHeader').style.display = '';
+      renderConfirm();
+    } else if (step === 4) {
+      $('schedHeader').style.display = 'none';
+      // Trigger animations
+      const check = $('successCheck');
+      check.classList.remove('animate');
+      void check.offsetWidth; // force reflow
+      check.classList.add('animate');
+
+      const dateOpts = { weekday: 'short', month: 'short', day: 'numeric' };
+      $('successDateTime').textContent = selectedDate.toLocaleDateString('en-US', dateOpts) + ' at ' + selectedTime;
+
+      // Hide step indicator
+      document.querySelector('.step-indicator').style.display = 'none';
+      document.querySelector('.step-labels').style.display = 'none';
+    }
+  }
+
+  // Button wiring
+  $('step1Next').addEventListener('click', () => {
+    if (selectedDate) goToStep(2);
+  });
+  $('step2Back').addEventListener('click', () => goToStep(1));
+  $('step2Next').addEventListener('click', () => {
+    if (selectedTime) goToStep(3);
+  });
+  $('changeDate').addEventListener('click', (e) => { e.preventDefault(); goToStep(1); });
+  $('changeTime').addEventListener('click', (e) => { e.preventDefault(); goToStep(2); });
+  $('confirmBtn').addEventListener('click', () => {
+    // Simulate confirming
+    $('confirmBtn').disabled = true;
+    $('confirmBtn').innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="animation:spin 0.8s linear infinite"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="28" stroke-dashoffset="8" stroke-linecap="round"/></svg> Scheduling...';
+
+    setTimeout(() => {
+      // Save to localStorage
+      try {
+        const dateOpts = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+        localStorage.setItem('scheduledConsultation', JSON.stringify({
+          date: selectedDate.toISOString(),
+          dateFormatted: selectedDate.toLocaleDateString('en-US', dateOpts),
+          time: selectedTime,
+          scheduledAt: new Date().toISOString()
+        }));
+      } catch(e) {}
+
+      goToStep(4);
+    }, 1200);
+  });
+
+  // Spinner keyframe
+  const styleEl = document.createElement('style');
+  styleEl.textContent = '@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
+  document.head.appendChild(styleEl);
+
+  // --- Init ---
+  renderCalendar();
+})();
+</script>
+
+</body>
+</html>

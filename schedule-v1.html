@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
+<title>CMG Builder Portal — Schedule Consultation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: { 50: '#FAF7F1', 100: '#F6F2EA', 200: '#F2EDE2', 300: '#ECE6D8', 400: '#D8D0BD' },
+        forest: { DEFAULT: '#1F3D2E', light: '#2A4F3D', tint: '#EFF3EE', soft: '#E5EDE6', muted: '#3A6B50' },
+        gold: { DEFAULT: '#B8924A', soft: '#F5EDD9', deep: '#6B4F1A', border: '#E8D9B5' },
+        ink: { DEFAULT: '#1A1F1B', secondary: '#4F554E', muted: '#8B8A7E', faint: '#B5B2A4' },
+      },
+      fontFamily: {
+        display: ['Fraunces', 'Georgia', 'serif'],
+        body: ['Geist', 'system-ui', 'sans-serif'],
+        mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+      },
+    },
+  },
+}
+</script>
+<style>
+  :root {
+    --bg-page: #FAF7F1;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F2EDE2;
+    --border: #ECE6D8;
+    --border-strong: #D8D0BD;
+    --text-primary: #1A1F1B;
+    --text-secondary: #4F554E;
+    --text-muted: #8B8A7E;
+    --text-faint: #B5B2A4;
+    --brand: #1F3D2E;
+    --brand-hover: #2A4F3D;
+    --brand-tint: #EFF3EE;
+    --brand-soft: #E5EDE6;
+    --gold: #B8924A;
+    --gold-soft: #F5EDD9;
+    --success: #2D7A52;
+  }
+
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body {
+    font-family: 'Geist', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-feature-settings: 'ss01', 'cv01', 'cv11';
+    letter-spacing: -0.005em;
+    margin: 0;
+    min-height: 100vh;
+  }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; letter-spacing: -0.018em; }
+  .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+
+  /* Paper grain overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    opacity: 0.7;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #DDD6C5; border-radius: 8px; border: 2px solid var(--bg-page); }
+  ::-webkit-scrollbar-thumb:hover { background: #C9C1AE; }
+
+  /* ===== Layout ===== */
+  .split-layout {
+    display: grid;
+    grid-template-columns: 40fr 60fr;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== Left Panel ===== */
+  .left-panel {
+    background: var(--brand);
+    color: #FFFFFF;
+    padding: 48px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .left-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(0,0,0,0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .left-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .left-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    margin-bottom: 48px;
+    transition: color 150ms ease;
+  }
+  .back-link:hover {
+    color: rgba(255,255,255,0.85);
+  }
+  .back-link svg {
+    transition: transform 150ms ease;
+  }
+  .back-link:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .logo-text {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 40px;
+    color: rgba(255,255,255,0.9);
+  }
+  .logo-text span {
+    font-weight: 400;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .left-heading {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    margin-bottom: 36px;
+    color: #FFFFFF;
+  }
+
+  .bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .bullet-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.8);
+  }
+  .bullet-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .bullet-icon svg {
+    width: 18px;
+    height: 18px;
+    color: var(--gold);
+  }
+
+  .duration-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 44px;
+  }
+  .duration-badge svg {
+    width: 14px;
+    height: 14px;
+    color: var(--gold);
+  }
+
+  .advisor-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .advisor-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3A6B50, #2A4F3D);
+    border: 2px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    flex-shrink: 0;
+  }
+  .advisor-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 2px;
+  }
+  .advisor-title {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* ===== Right Panel ===== */
+  .right-panel {
+    background: var(--bg-page);
+    padding: 40px 48px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .calendar-month {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+  .calendar-nav {
+    display: flex;
+    gap: 6px;
+  }
+  .calendar-nav button {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 120ms ease;
+    color: var(--text-secondary);
+  }
+  .calendar-nav button:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-strong);
+  }
+
+  /* Calendar grid */
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 32px;
+  }
+  .calendar-dow {
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    padding: 8px 0 12px;
+  }
+  .calendar-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 12px;
+    cursor: default;
+    color: var(--text-faint);
+    transition: all 120ms ease;
+    position: relative;
+    max-width: 54px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .calendar-cell.empty {
+    cursor: default;
+  }
+  .calendar-cell.available {
+    color: var(--text-primary);
+    background: var(--brand-tint);
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .calendar-cell.available:hover {
+    background: var(--brand-soft);
+    border-color: rgba(31,61,46,0.15);
+    transform: scale(1.05);
+  }
+  .calendar-cell.selected {
+    background: var(--brand);
+    color: #FFFFFF;
+    font-weight: 600;
+    border: 1px solid var(--brand);
+    box-shadow: 0 2px 8px rgba(31,61,46,0.25);
+    transform: scale(1.08);
+  }
+  .calendar-cell.today::after {
+    content: "";
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+  .calendar-cell.past {
+    color: var(--text-faint);
+    opacity: 0.4;
+  }
+
+  /* Time slots */
+  .time-slots-container {
+    display: none;
+    animation: slideUp 280ms ease-out;
+  }
+  .time-slots-container.visible {
+    display: block;
+  }
+
+  .time-slots-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .time-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .time-slot {
+    padding: 12px 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg-surface);
+    text-align: center;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 120ms ease;
+  }
+  .time-slot:hover {
+    border-color: var(--brand);
+    background: var(--brand-tint);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(31,61,46,0.08);
+  }
+  .time-slot.selected {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #FFFFFF;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(31,61,46,0.2);
+  }
+
+  .confirm-btn {
+    width: 100%;
+    padding: 15px 24px;
+    background: var(--brand);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: all 150ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .confirm-btn.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .confirm-btn.active:hover {
+    background: var(--brand-hover);
+    box-shadow: 0 4px 16px rgba(31,61,46,0.25);
+    transform: translateY(-1px);
+  }
+
+  /* ===== Success overlay ===== */
+  .success-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(250,247,241,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .success-overlay.visible {
+    display: flex;
+  }
+  .success-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 52px 56px;
+    text-align: center;
+    max-width: 440px;
+    box-shadow: 0 8px 32px rgba(31,61,46,0.1), 0 1px 3px rgba(0,0,0,0.04);
+    animation: scaleIn 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 2;
+  }
+  .success-check {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--brand-tint);
+    border: 2px solid var(--brand-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: popIn 400ms cubic-bezier(0.34, 1.56, 0.64, 1) 200ms both;
+  }
+  .success-check svg {
+    width: 28px;
+    height: 28px;
+    color: var(--success);
+  }
+  .success-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+  .success-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .success-detail {
+    font-family: 'Geist Mono', monospace;
+    font-size: 13px;
+    color: var(--brand);
+    background: var(--brand-tint);
+    border: 1px solid var(--brand-soft);
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin: 20px 0 28px;
+    font-weight: 500;
+  }
+  .success-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: var(--brand);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 150ms ease;
+  }
+  .success-back:hover {
+    background: var(--brand-hover);
+    box-shadow: 0 4px 12px rgba(31,61,46,0.2);
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    z-index: 101;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    .split-layout {
+      grid-template-columns: 1fr;
+    }
+    .left-panel {
+      padding: 32px 28px;
+    }
+    .left-heading {
+      font-size: 24px;
+    }
+    .right-panel {
+      padding: 28px 20px;
+    }
+    .time-slots-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 600px) {
+    .time-slots-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .calendar-cell {
+      max-width: 44px;
+      font-size: 13px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================================================================== -->
+<!-- Split Layout                                                          -->
+<!-- ===================================================================== -->
+<div class="split-layout">
+
+  <!-- ================================================================= -->
+  <!-- LEFT PANEL                                                        -->
+  <!-- ================================================================= -->
+  <div class="left-panel">
+    <div class="left-content">
+
+      <!-- Back Arrow -->
+      <a href="portal.html" class="back-link">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to portal
+      </a>
+
+      <!-- Logo -->
+      <div class="logo-text">CMG <span>Home Loans</span></div>
+
+      <!-- Heading -->
+      <h1 class="left-heading">Schedule Your<br/>Builder Consultation</h1>
+
+      <!-- Bullet Points -->
+      <ul class="bullet-list">
+        <li class="bullet-item">
+          <div class="bullet-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+          </div>
+          <div>
+            <strong style="color:#fff;font-weight:600;">Review your application</strong><br/>
+            <span style="font-size:13px;opacity:0.65;">Walk through your submitted details together</span>
+          </div>
+        </li>
+        <li class="bullet-item">
+          <div class="bullet-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+          <div>
+            <strong style="color:#fff;font-weight:600;">Discuss next steps</strong><br/>
+            <span style="font-size:13px;opacity:0.65;">Outline the path from application to closing</span>
+          </div>
+        </li>
+        <li class="bullet-item">
+          <div class="bullet-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+            </svg>
+          </div>
+          <div>
+            <strong style="color:#fff;font-weight:600;">Answer any questions</strong><br/>
+            <span style="font-size:13px;opacity:0.65;">Get clarity on rates, timelines, and requirements</span>
+          </div>
+        </li>
+      </ul>
+
+      <!-- Duration Badge -->
+      <div class="duration-badge">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        30 min
+      </div>
+
+      <!-- Advisor -->
+      <div class="advisor-card">
+        <div class="advisor-avatar">TL</div>
+        <div>
+          <div class="advisor-name">Tim Loss</div>
+          <div class="advisor-title">Construction Lending</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- RIGHT PANEL                                                       -->
+  <!-- ================================================================= -->
+  <div class="right-panel">
+
+    <!-- Calendar Header -->
+    <div class="calendar-header">
+      <div class="calendar-month" id="calendarMonth">June 2026</div>
+      <div class="calendar-nav">
+        <button onclick="changeMonth(-1)" id="prevBtn" title="Previous month">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+        <button onclick="changeMonth(1)" id="nextBtn" title="Next month">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid" id="calendarGrid"></div>
+
+    <!-- Time Slots -->
+    <div class="time-slots-container" id="timeSlotsContainer">
+      <div class="time-slots-label" id="timeSlotsLabel">Select a time</div>
+      <div class="time-slots-grid" id="timeSlotsGrid"></div>
+      <button class="confirm-btn" id="confirmBtn" onclick="confirmBooking()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+        </svg>
+        Confirm Booking
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- Success Overlay                                                       -->
+<!-- ===================================================================== -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-card">
+    <div class="success-check">
+      <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      </svg>
+    </div>
+    <div class="success-title">You're All Set</div>
+    <div class="success-desc">
+      Your builder consultation has been scheduled.<br/>
+      <span id="successName"></span>We'll send a confirmation to your email.
+    </div>
+    <div class="success-detail" id="successDetail"></div>
+    <a href="portal.html" class="success-back">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      Return to Portal
+    </a>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- JavaScript                                                            -->
+<!-- ===================================================================== -->
+<script>
+(function() {
+  'use strict';
+
+  // ===== State =====
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const TIME_SLOTS = [
+    '9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM',
+    '1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'
+  ];
+
+  // Start at June 2026
+  let currentYear = 2026;
+  let currentMonth = 5; // 0-indexed
+  let selectedDate = null;
+  let selectedTime = null;
+
+  // ===== Available dates (demo data: weekdays in June/July 2026) =====
+  function getAvailableDates(year, month) {
+    const available = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const dow = date.getDay();
+      // Available if weekday (Mon-Fri) and not in the past
+      if (dow >= 1 && dow <= 5 && date >= today) {
+        available.push(d);
+      }
+    }
+    return available;
+  }
+
+  // ===== Render calendar =====
+  function renderCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    const monthLabel = document.getElementById('calendarMonth');
+    monthLabel.textContent = MONTH_NAMES[currentMonth] + ' ' + currentYear;
+
+    const today = new Date();
+    const todayDate = today.getDate();
+    const todayMonth = today.getMonth();
+    const todayYear = today.getFullYear();
+
+    const available = getAvailableDates(currentYear, currentMonth);
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+    let html = '';
+
+    // Day-of-week headers
+    for (let i = 0; i < 7; i++) {
+      html += '<div class="calendar-dow">' + DOW[i] + '</div>';
+    }
+
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) {
+      html += '<div class="calendar-cell empty"></div>';
+    }
+
+    // Day cells
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isAvailable = available.includes(d);
+      const isToday = (d === todayDate && currentMonth === todayMonth && currentYear === todayYear);
+      const isSelected = (selectedDate && selectedDate.d === d && selectedDate.m === currentMonth && selectedDate.y === currentYear);
+      const isPast = new Date(currentYear, currentMonth, d) < new Date(todayYear, todayMonth, todayDate);
+
+      let cls = 'calendar-cell';
+      if (isSelected) cls += ' selected';
+      else if (isAvailable) cls += ' available';
+      else if (isPast) cls += ' past';
+      if (isToday) cls += ' today';
+
+      const clickAttr = isAvailable ? ' onclick="window._selectDate(' + d + ')"' : '';
+      html += '<div class="' + cls + '"' + clickAttr + '>' + d + '</div>';
+    }
+
+    grid.innerHTML = html;
+
+    // Update prev button state
+    const prevBtn = document.getElementById('prevBtn');
+    if (currentYear === todayYear && currentMonth <= todayMonth) {
+      prevBtn.style.opacity = '0.3';
+      prevBtn.style.pointerEvents = 'none';
+    } else {
+      prevBtn.style.opacity = '1';
+      prevBtn.style.pointerEvents = 'auto';
+    }
+  }
+
+  // ===== Select date =====
+  window._selectDate = function(day) {
+    selectedDate = { d: day, m: currentMonth, y: currentYear };
+    selectedTime = null;
+    renderCalendar();
+    renderTimeSlots();
+    updateConfirmBtn();
+  };
+
+  // ===== Change month =====
+  window.changeMonth = function(dir) {
+    currentMonth += dir;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+
+    // Don't go before current month
+    const today = new Date();
+    if (currentYear < today.getFullYear() || (currentYear === today.getFullYear() && currentMonth < today.getMonth())) {
+      currentMonth = today.getMonth();
+      currentYear = today.getFullYear();
+    }
+
+    // Clear selection if different month
+    if (selectedDate && (selectedDate.m !== currentMonth || selectedDate.y !== currentYear)) {
+      // Keep selection visible but time slots hidden on different month
+    }
+
+    renderCalendar();
+
+    // Hide time slots if selected date is on different month
+    if (selectedDate && (selectedDate.m !== currentMonth || selectedDate.y !== currentYear)) {
+      document.getElementById('timeSlotsContainer').classList.remove('visible');
+    } else if (selectedDate) {
+      document.getElementById('timeSlotsContainer').classList.add('visible');
+    }
+  };
+
+  // ===== Render time slots =====
+  function renderTimeSlots() {
+    const container = document.getElementById('timeSlotsContainer');
+    const grid = document.getElementById('timeSlotsGrid');
+    const label = document.getElementById('timeSlotsLabel');
+
+    if (!selectedDate) {
+      container.classList.remove('visible');
+      return;
+    }
+
+    container.classList.add('visible');
+
+    const dateObj = new Date(selectedDate.y, selectedDate.m, selectedDate.d);
+    const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()];
+    const monthName = MONTH_NAMES[selectedDate.m];
+    label.textContent = dayName + ', ' + monthName + ' ' + selectedDate.d;
+
+    let html = '';
+    for (let i = 0; i < TIME_SLOTS.length; i++) {
+      const t = TIME_SLOTS[i];
+      const isSelected = (selectedTime === t);
+      html += '<div class="time-slot' + (isSelected ? ' selected' : '') + '" onclick="window._selectTime(\'' + t + '\')">' + t + '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  // ===== Select time =====
+  window._selectTime = function(time) {
+    selectedTime = time;
+    renderTimeSlots();
+    updateConfirmBtn();
+  };
+
+  // ===== Update confirm button =====
+  function updateConfirmBtn() {
+    const btn = document.getElementById('confirmBtn');
+    if (selectedDate && selectedTime) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  }
+
+  // ===== Confirm booking =====
+  window.confirmBooking = function() {
+    if (!selectedDate || !selectedTime) return;
+
+    const dateObj = new Date(selectedDate.y, selectedDate.m, selectedDate.d);
+    const dayName = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dateObj.getDay()];
+    const monthName = MONTH_NAMES[selectedDate.m];
+
+    const detailStr = dayName + ', ' + monthName + ' ' + selectedDate.d + ', ' + selectedDate.y + ' at ' + selectedTime;
+    document.getElementById('successDetail').textContent = detailStr;
+
+    // Read applicant name from localStorage
+    let nameStr = '';
+    try {
+      const acct = JSON.parse(localStorage.getItem('builderAccount') || '{}');
+      if (acct.firstName || acct.lastName) {
+        nameStr = (acct.firstName || '') + (acct.lastName ? ' ' + acct.lastName : '');
+      } else if (acct.name) {
+        nameStr = acct.name;
+      } else if (acct.companyName) {
+        nameStr = acct.companyName;
+      }
+    } catch(e) {}
+
+    if (nameStr) {
+      document.getElementById('successName').textContent = nameStr + ', w';
+      // Adjust sentence
+      document.getElementById('successName').textContent = '';
+      document.querySelector('.success-desc').innerHTML =
+        'Your builder consultation has been scheduled.<br/>' +
+        '<strong>' + escapeHtml(nameStr) + '</strong>, we\'ll send a confirmation to your email.';
+    }
+
+    // Show success overlay
+    document.getElementById('successOverlay').classList.add('visible');
+
+    // Spawn confetti
+    spawnConfetti();
+  };
+
+  // ===== Confetti =====
+  function spawnConfetti() {
+    const colors = ['#1F3D2E','#B8924A','#2D7A52','#E5EDE6','#D8D0BD','#3A6B50','#F5EDD9'];
+    const count = 60;
+
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = (Math.random() * 100) + 'vw';
+      piece.style.top = (-10 - Math.random() * 20) + 'px';
+      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (6 + Math.random() * 8) + 'px';
+      piece.style.height = (6 + Math.random() * 8) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+      piece.style.animationDelay = (Math.random() * 0.8) + 's';
+      piece.style.opacity = '0';
+      document.body.appendChild(piece);
+
+      // Clean up after animation
+      setTimeout(function() {
+        if (piece.parentNode) piece.parentNode.removeChild(piece);
+      }, 5000);
+    }
+  }
+
+  // ===== Escape HTML =====
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ===== Init =====
+  renderCalendar();
+})();
+</script>
+
+</body>
+</html>

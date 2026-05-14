@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule a Call | CMG Home Loans Builder Portal</title>
+<script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg-page: #FAF7F1;
+    --brand: #1F3D2E;
+    --brand-light: #2A5340;
+    --gold: #B8924A;
+    --gold-deep: #8B6F2E;
+    --gold-light: #D4B06A;
+    --border: #ECE6D8;
+    --border-light: rgba(236, 230, 216, 0.6);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-bg-hover: rgba(255, 255, 255, 0.85);
+    --glass-border: 1px solid rgba(236, 230, 216, 0.6);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    --glass-blur: blur(16px);
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5a5a;
+    --text-muted: #8a8a8a;
+    --success: #1F3D2E;
+    --success-light: #e8f0ec;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Top Bar ── */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(250, 247, 241, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .top-bar-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+    flex: 1;
+  }
+  .top-bar-back:hover { color: var(--brand); }
+
+  .top-bar-back svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s;
+  }
+  .top-bar-back:hover svg { transform: translateX(-2px); }
+
+  .top-bar-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--brand);
+    letter-spacing: -0.01em;
+    text-align: center;
+    flex: 2;
+  }
+
+  .top-bar-badge-wrap {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .top-bar-badge {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gold-deep);
+    background: rgba(184, 146, 74, 0.1);
+    border: 1px solid rgba(184, 146, 74, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── Main Layout ── */
+  .main-container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .page-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--brand);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .page-header p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .two-col {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .main-container { padding: 24px 16px 60px; }
+    .page-header h1 { font-size: 24px; }
+  }
+
+  /* ── Glass Card ── */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--glass-shadow);
+    padding: 28px;
+    transition: box-shadow 0.3s;
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .card-heading {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--brand);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Calendar ── */
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .cal-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+  }
+  .cal-nav-btn:hover {
+    background: rgba(255,255,255,0.9);
+    border-color: var(--gold);
+    color: var(--brand);
+  }
+
+  .cal-month-label {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .cal-dow {
+    text-align: center;
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .cal-day {
+    position: relative;
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    border-radius: 10px;
+    cursor: default;
+    transition: all 0.2s;
+    user-select: none;
+  }
+
+  .cal-day.empty { visibility: hidden; }
+
+  .cal-day.available {
+    cursor: pointer;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .cal-day.available::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 1px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+  }
+
+  .cal-day.available:hover {
+    background: rgba(184, 146, 74, 0.08);
+  }
+  .cal-day.available:hover::after { opacity: 1; }
+
+  .cal-day.today .day-number {
+    position: relative;
+  }
+  .cal-day.today .day-number::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  .cal-day.selected {
+    background: var(--brand);
+    color: #fff;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+  .cal-day.selected::after { display: none; }
+  .cal-day.selected .day-number::after { background: rgba(255,255,255,0.6); }
+
+  .cal-day.past {
+    color: var(--text-muted);
+    opacity: 0.45;
+  }
+
+  .cal-info {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .cal-info svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  /* ── Time Slots ── */
+  .times-card {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+
+  .times-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .times-section-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    margin-top: 4px;
+  }
+
+  .times-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.3;
+    margin: 18px 0 14px;
+  }
+
+  .time-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    margin-bottom: 6px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .time-row:hover {
+    background: rgba(255,255,255,0.6);
+    border-color: var(--border);
+  }
+
+  .time-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .time-book-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--brand);
+    background: transparent;
+    color: var(--brand);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .time-book-btn:hover {
+    background: var(--brand);
+    color: #fff;
+  }
+
+  /* ── Inline Confirmation ── */
+  .time-row.expanded {
+    flex-direction: column;
+    align-items: stretch;
+    background: rgba(255,255,255,0.85);
+    border-color: var(--border);
+    padding: 16px;
+    cursor: default;
+  }
+
+  .time-row.expanded .time-row-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .confirm-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(250, 247, 241, 0.7);
+    border-radius: 10px;
+  }
+
+  .confirm-details dt {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .confirm-details dd {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .confirm-booking-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: var(--brand);
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: -0.01em;
+  }
+
+  .confirm-booking-btn:hover {
+    background: var(--brand-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(31, 61, 46, 0.2);
+  }
+
+  /* ── Success Card ── */
+  .success-card {
+    text-align: center;
+    padding: 40px 28px;
+  }
+
+  .success-check {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--success-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes checkPop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .success-check svg {
+    width: 28px;
+    height: 28px;
+    color: var(--brand);
+  }
+
+  .success-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--brand);
+    margin-bottom: 8px;
+  }
+
+  .success-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .success-details {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    padding: 16px 24px;
+    background: rgba(250, 247, 241, 0.7);
+    border-radius: 12px;
+    margin-bottom: 28px;
+    font-size: 14px;
+  }
+
+  .success-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .success-detail-row svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .success-detail-row span {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .success-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .success-btn {
+    font-family: 'Geist', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .success-btn.primary {
+    background: var(--brand);
+    color: #fff;
+    border: none;
+  }
+  .success-btn.primary:hover {
+    background: var(--brand-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(31, 61, 46, 0.2);
+  }
+
+  .success-btn.secondary {
+    background: transparent;
+    color: var(--brand);
+    border: 1px solid var(--border);
+  }
+  .success-btn.secondary:hover {
+    background: rgba(255,255,255,0.8);
+    border-color: var(--brand);
+  }
+
+  /* ── Placeholder State ── */
+  .times-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    text-align: center;
+  }
+
+  .times-placeholder svg {
+    width: 48px;
+    height: 48px;
+    color: var(--border);
+    margin-bottom: 16px;
+  }
+
+  .times-placeholder p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ── Selected date display ── */
+  .selected-date-display {
+    font-family: 'Geist Mono', monospace;
+    font-size: 12px;
+    color: var(--gold-deep);
+    background: rgba(184, 146, 74, 0.08);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-left: 12px;
+    font-weight: 500;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    animation: fadeSlideIn 0.3s ease forwards;
+  }
+
+  /* ── Responsive fine-tuning ── */
+  @media (max-width: 480px) {
+    .top-bar { padding: 0 16px; }
+    .top-bar-title { font-size: 14px; }
+    .glass-card { padding: 20px; }
+    .cal-day { padding: 8px 2px; font-size: 13px; }
+    .success-actions { flex-direction: column; }
+    .success-btn { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Top Bar ── -->
+<header class="top-bar">
+  <a href="portal.html" class="top-bar-back">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+    </svg>
+    <span>Portal</span>
+  </a>
+  <div class="top-bar-title">CMG Home Loans</div>
+  <div class="top-bar-badge-wrap">
+    <span class="top-bar-badge">Schedule</span>
+  </div>
+</header>
+
+<!-- ── Main Content ── -->
+<main class="main-container">
+  <div class="page-header">
+    <h1>Schedule Your Consultation</h1>
+    <p>Choose a time that works best for you</p>
+  </div>
+
+  <div class="two-col">
+    <!-- LEFT: Calendar -->
+    <div class="glass-card" id="calendarCard">
+      <h2 class="card-heading">Select a Date</h2>
+
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="prevMonth" aria-label="Previous month">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+          </svg>
+        </button>
+        <span class="cal-month-label" id="monthLabel"></span>
+        <button class="cal-nav-btn" id="nextMonth" aria-label="Next month">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="cal-grid" id="calGrid">
+        <div class="cal-dow">Sun</div>
+        <div class="cal-dow">Mon</div>
+        <div class="cal-dow">Tue</div>
+        <div class="cal-dow">Wed</div>
+        <div class="cal-dow">Thu</div>
+        <div class="cal-dow">Fri</div>
+        <div class="cal-dow">Sat</div>
+      </div>
+
+      <div class="cal-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>30-minute video consultation with Tim Loss</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Time Slots / Confirmation -->
+    <div id="timesColumn">
+      <!-- Placeholder (no date selected) -->
+      <div class="glass-card" id="timesPlaceholder">
+        <div class="times-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+          </svg>
+          <p>Select a date on the calendar<br>to view available times</p>
+        </div>
+      </div>
+
+      <!-- Time slots (shown after date selected) -->
+      <div class="glass-card times-card" id="timesCard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h2 class="card-heading" style="margin-bottom:0;">Available Times</h2>
+          <span class="selected-date-display" id="selectedDateBadge"></span>
+        </div>
+        <div id="timeSlotsContainer"></div>
+      </div>
+
+      <!-- Success card (shown after booking confirmed) -->
+      <div class="glass-card times-card success-card" id="successCard">
+        <div class="success-check">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+          </svg>
+        </div>
+        <h3 class="success-title">Booking Confirmed</h3>
+        <p class="success-subtitle">You'll receive a confirmation email shortly</p>
+        <div class="success-details" id="successDetails"></div>
+        <div class="success-actions">
+          <button class="success-btn primary" id="addToCalBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"/>
+            </svg>
+            Add to Calendar
+          </button>
+          <a href="portal.html" class="success-btn secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>
+            </svg>
+            Back to Portal
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Config ──
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MORNING_SLOTS = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM'];
+  const AFTERNOON_SLOTS = ['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
+
+  // ── State ──
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let viewYear = today.getFullYear();
+  let viewMonth = today.getMonth();
+  let selectedDate = null;
+  let expandedSlot = null;
+
+  // ── DOM refs ──
+  const monthLabel = document.getElementById('monthLabel');
+  const calGrid = document.getElementById('calGrid');
+  const prevBtn = document.getElementById('prevMonth');
+  const nextBtn = document.getElementById('nextMonth');
+  const timesPlaceholder = document.getElementById('timesPlaceholder');
+  const timesCard = document.getElementById('timesCard');
+  const successCard = document.getElementById('successCard');
+  const selectedDateBadge = document.getElementById('selectedDateBadge');
+  const timeSlotsContainer = document.getElementById('timeSlotsContainer');
+  const successDetails = document.getElementById('successDetails');
+  const addToCalBtn = document.getElementById('addToCalBtn');
+
+  // ── Helpers ──
+  function isWeekday(date) {
+    const d = date.getDay();
+    return d !== 0 && d !== 6;
+  }
+
+  function isSameDay(a, b) {
+    return a && b && a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  }
+
+  function formatDateLong(date) {
+    const dow = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    return dow[date.getDay()] + ', ' + MONTH_NAMES[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+  }
+
+  function formatDateShort(date) {
+    return MONTH_NAMES[date.getMonth()].substring(0,3) + ' ' + date.getDate();
+  }
+
+  function getUserInfo() {
+    const name = localStorage.getItem('builder_name') || localStorage.getItem('applicant_name') || localStorage.getItem('name') || '';
+    const email = localStorage.getItem('builder_email') || localStorage.getItem('applicant_email') || localStorage.getItem('email') || '';
+    return { name, email };
+  }
+
+  // ── Calendar Rendering ──
+  function renderCalendar() {
+    monthLabel.textContent = MONTH_NAMES[viewMonth] + ' ' + viewYear;
+
+    // Remove existing day cells (keep dow headers)
+    const existingDays = calGrid.querySelectorAll('.cal-day');
+    existingDays.forEach(el => el.remove());
+
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    const lastDay = new Date(viewYear, viewMonth + 1, 0);
+    const startDow = firstDay.getDay();
+
+    // Empty cells before first day
+    for (let i = 0; i < startDow; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      calGrid.appendChild(empty);
+    }
+
+    // Day cells
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(viewYear, viewMonth, d);
+      date.setHours(0,0,0,0);
+      const cell = document.createElement('div');
+      cell.className = 'cal-day';
+
+      const isPast = date < today;
+      const isAvail = !isPast && isWeekday(date);
+      const isToday = isSameDay(date, today);
+      const isSelected = isSameDay(date, selectedDate);
+
+      if (isPast) cell.classList.add('past');
+      if (isAvail) cell.classList.add('available');
+      if (isToday) cell.classList.add('today');
+      if (isSelected) cell.classList.add('selected');
+
+      const numSpan = document.createElement('span');
+      numSpan.className = 'day-number';
+      numSpan.textContent = d;
+      cell.appendChild(numSpan);
+
+      if (isAvail) {
+        cell.addEventListener('click', function() {
+          selectedDate = new Date(viewYear, viewMonth, d);
+          selectedDate.setHours(0,0,0,0);
+          expandedSlot = null;
+          renderCalendar();
+          showTimeSlots();
+        });
+      }
+
+      calGrid.appendChild(cell);
+    }
+
+    // Disable prev button if viewing current month
+    if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
+      prevBtn.style.opacity = '0.3';
+      prevBtn.style.pointerEvents = 'none';
+    } else {
+      prevBtn.style.opacity = '1';
+      prevBtn.style.pointerEvents = 'auto';
+    }
+  }
+
+  // ── Time Slots Rendering ──
+  function showTimeSlots() {
+    timesPlaceholder.style.display = 'none';
+    successCard.classList.remove('visible');
+    timesCard.classList.add('visible');
+
+    selectedDateBadge.textContent = formatDateShort(selectedDate);
+    renderSlots();
+  }
+
+  function renderSlots() {
+    timeSlotsContainer.innerHTML = '';
+
+    // Morning section
+    const mornLabel = document.createElement('div');
+    mornLabel.className = 'times-section-label';
+    mornLabel.textContent = 'Morning';
+    timeSlotsContainer.appendChild(mornLabel);
+
+    MORNING_SLOTS.forEach(function(slot) {
+      timeSlotsContainer.appendChild(createSlotRow(slot));
+    });
+
+    // Divider
+    const divider = document.createElement('div');
+    divider.className = 'times-divider';
+    timeSlotsContainer.appendChild(divider);
+
+    // Afternoon section
+    const aftLabel = document.createElement('div');
+    aftLabel.className = 'times-section-label';
+    aftLabel.textContent = 'Afternoon';
+    timeSlotsContainer.appendChild(aftLabel);
+
+    AFTERNOON_SLOTS.forEach(function(slot) {
+      timeSlotsContainer.appendChild(createSlotRow(slot));
+    });
+  }
+
+  function createSlotRow(timeStr) {
+    const row = document.createElement('div');
+    row.className = 'time-row';
+
+    if (expandedSlot === timeStr) {
+      row.classList.add('expanded');
+      row.classList.add('fade-in');
+
+      // Top row with time + label
+      const topRow = document.createElement('div');
+      topRow.className = 'time-row-top';
+
+      const label = document.createElement('span');
+      label.className = 'time-label';
+      label.textContent = timeStr;
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'time-book-btn';
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.style.fontSize = '12px';
+      cancelBtn.style.padding = '4px 12px';
+      cancelBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        expandedSlot = null;
+        renderSlots();
+      });
+
+      topRow.appendChild(label);
+      topRow.appendChild(cancelBtn);
+      row.appendChild(topRow);
+
+      // Confirmation details
+      const user = getUserInfo();
+      const details = document.createElement('dl');
+      details.className = 'confirm-details';
+
+      const fields = [
+        ['Name', user.name || 'Guest'],
+        ['Email', user.email || 'Not provided'],
+        ['Date', formatDateLong(selectedDate)],
+        ['Time', timeStr]
+      ];
+
+      fields.forEach(function(pair) {
+        const dt = document.createElement('dt');
+        dt.textContent = pair[0];
+        const dd = document.createElement('dd');
+        dd.textContent = pair[1];
+        details.appendChild(dt);
+        details.appendChild(dd);
+      });
+
+      row.appendChild(details);
+
+      // Confirm button
+      const confirmBtn = document.createElement('button');
+      confirmBtn.className = 'confirm-booking-btn';
+      confirmBtn.textContent = 'Confirm Booking';
+      confirmBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        confirmBooking(timeStr);
+      });
+      row.appendChild(confirmBtn);
+
+    } else {
+      const label = document.createElement('span');
+      label.className = 'time-label';
+      label.textContent = timeStr;
+
+      const bookBtn = document.createElement('button');
+      bookBtn.className = 'time-book-btn';
+      bookBtn.textContent = 'Book';
+      bookBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        expandedSlot = timeStr;
+        renderSlots();
+      });
+
+      row.appendChild(label);
+      row.appendChild(bookBtn);
+
+      row.addEventListener('click', function() {
+        expandedSlot = timeStr;
+        renderSlots();
+      });
+    }
+
+    return row;
+  }
+
+  // ── Booking Confirmation ──
+  function confirmBooking(timeStr) {
+    const user = getUserInfo();
+
+    // Store booking in localStorage
+    const booking = {
+      date: selectedDate.toISOString(),
+      time: timeStr,
+      name: user.name,
+      email: user.email,
+      confirmedAt: new Date().toISOString()
+    };
+    localStorage.setItem('builder_booking', JSON.stringify(booking));
+
+    // Show success card
+    timesCard.classList.remove('visible');
+
+    successDetails.innerHTML = '';
+    const rows = [
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>', text: formatDateLong(selectedDate) },
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>', text: timeStr + ' (30 min)' },
+      { icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>', text: 'Tim Loss' }
+    ];
+
+    rows.forEach(function(r) {
+      const div = document.createElement('div');
+      div.className = 'success-detail-row';
+      div.innerHTML = r.icon;
+      const span = document.createElement('span');
+      span.textContent = r.text;
+      div.appendChild(span);
+      successDetails.appendChild(div);
+    });
+
+    // Small delay for transition
+    setTimeout(function() {
+      successCard.classList.add('visible');
+    }, 50);
+
+    // Store the booking data for calendar export
+    window._lastBooking = { date: selectedDate, time: timeStr };
+  }
+
+  // ── Add to Calendar (ICS) ──
+  addToCalBtn.addEventListener('click', function() {
+    if (!window._lastBooking) return;
+
+    const booking = window._lastBooking;
+    const date = booking.date;
+    const timeStr = booking.time;
+
+    // Parse time string
+    const timeParts = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+    let hours = parseInt(timeParts[1]);
+    const mins = parseInt(timeParts[2]);
+    const ampm = timeParts[3].toUpperCase();
+
+    if (ampm === 'PM' && hours !== 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+
+    const startDate = new Date(date);
+    startDate.setHours(hours, mins, 0, 0);
+
+    const endDate = new Date(startDate);
+    endDate.setMinutes(endDate.getMinutes() + 30);
+
+    function toICSDate(d) {
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    const icsContent = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//CMG Home Loans//Builder Portal//EN',
+      'BEGIN:VEVENT',
+      'DTSTART:' + toICSDate(startDate),
+      'DTEND:' + toICSDate(endDate),
+      'SUMMARY:CMG Home Loans - Builder Consultation',
+      'DESCRIPTION:30-minute video consultation with Tim Loss regarding your builder application.',
+      'LOCATION:Video Call',
+      'STATUS:CONFIRMED',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cmg-builder-consultation.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ── Navigation ──
+  prevBtn.addEventListener('click', function() {
+    if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) return;
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderCalendar();
+  });
+
+  nextBtn.addEventListener('click', function() {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderCalendar();
+  });
+
+  // ── Init ──
+  renderCalendar();
+})();
+</script>
+</body>
+</html>
