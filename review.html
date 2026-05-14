@@ -7,7 +7,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Crimson+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Crimson+Pro:wght@400;500;600&family=Dancing+Script:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg-page: #EFEAE0; --bg-surface: #FFFFFF; --bg-sidebar: #F6F2EA; --bg-elevated: #F2EDE2; --bg-soft: #FBF8F2;
@@ -119,6 +119,96 @@
   .w9-input.ein-input { font-family: 'Geist Mono', monospace; font-size: 20px; letter-spacing: 0.1em; text-align: center; }
   .w9-cb { accent-color: var(--brand); cursor: pointer; width: 15px; height: 15px; }
   .w9-cb-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+  /* E-Signature modal */
+  .esign-overlay {
+    display: none; position: fixed; inset: 0; z-index: 9000;
+    background: rgba(0,0,0,.45); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+  }
+  .esign-overlay.visible { display: flex; }
+  .esign-modal {
+    background: #fff; border-radius: 16px; width: 580px; max-width: 95vw;
+    box-shadow: 0 24px 80px rgba(0,0,0,.25); overflow: hidden;
+    animation: esignIn 250ms ease;
+  }
+  @keyframes esignIn { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
+  .esign-modal-head {
+    padding: 20px 28px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .esign-modal-head h3 {
+    font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 500;
+    color: var(--text-primary); margin: 0;
+  }
+  .esign-modal-close {
+    width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; cursor: pointer; font-size: 18px; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center; transition: all 120ms ease;
+  }
+  .esign-modal-close:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+  .esign-modal-body { padding: 24px 28px; }
+  .esign-modal-footer {
+    padding: 16px 28px; border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px; background: var(--bg-soft);
+  }
+
+  .esign-setup-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, var(--gold) 0%, #D4A853 100%);
+    color: #fff; font-family: 'Geist Mono', monospace; font-size: 10px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 5px; font-weight: 500;
+  }
+  .esign-style-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0;
+  }
+  .esign-style-option {
+    border: 2px solid var(--border); border-radius: 10px; padding: 16px;
+    cursor: pointer; text-align: center; transition: all 150ms ease;
+    background: var(--bg-surface);
+  }
+  .esign-style-option:hover { border-color: var(--brand); background: var(--brand-tint); }
+  .esign-style-option.selected { border-color: var(--brand); background: var(--brand-tint); box-shadow: 0 0 0 1px var(--brand); }
+  .esign-style-option .sig-preview {
+    font-size: 28px; color: var(--brand); line-height: 1.2; min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .esign-style-option .sig-label {
+    font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 6px;
+  }
+  .esign-preview-box {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 20px;
+    text-align: center; margin-top: 16px; background: var(--bg-soft); min-height: 80px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .esign-preview-sig {
+    font-size: 36px; color: var(--brand); min-height: 50px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .sign-here-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--gold-soft); border: 2px dashed var(--gold);
+    border-radius: 8px; padding: 8px 18px; cursor: pointer;
+    font-family: 'Geist', sans-serif; font-size: 13px; font-weight: 600;
+    color: var(--gold-deep); transition: all 150ms ease; width: 100%; height: 100%;
+    justify-content: center;
+  }
+  .sign-here-btn:hover { background: var(--gold); color: #fff; border-style: solid; }
+  .sign-here-btn svg { width: 18px; height: 18px; }
+
+  .signed-display {
+    display: flex; align-items: center; gap: 10px; width: 100%; height: 100%;
+  }
+  .signed-display .sig-text { font-size: 22px; color: var(--brand); flex: 1; }
+  .signed-seal {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: var(--success); color: #fff; font-family: 'Geist Mono', monospace;
+    font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px; font-weight: 500; white-space: nowrap;
+  }
 
   /* Paper radio (read-only indicator) */
   .paper-radio-ro {
@@ -320,6 +410,66 @@
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="closeInitialModal()">Cancel</button>
       <button class="modal-btn-confirm" id="initialConfirmBtn" onclick="confirmInitial()">Apply Initials</button>
+    </div>
+  </div>
+</div>
+
+<!-- E-Signature Adoption Modal -->
+<div class="esign-overlay" id="esignModal">
+  <div class="esign-modal">
+    <div class="esign-modal-head">
+      <h3>Adopt Your E-Signature</h3>
+      <button class="esign-modal-close" onclick="closeEsignModal()">&times;</button>
+    </div>
+    <div class="esign-modal-body">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+        <span class="esign-setup-badge"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><path d="M11.5 1.5l3 3-9 9H2.5v-3z"/><path d="M9.5 3.5l3 3"/></svg> E-Signature Setup</span>
+        <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em;">IRS FORM W-9</span>
+      </div>
+
+      <div style="font-family: 'Geist', sans-serif; font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+        Type your full legal name and select a signature style. This will be applied as your electronic signature on the W-9 form.
+      </div>
+
+      <label style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin-bottom: 6px;">Full Legal Name</label>
+      <input type="text" id="esignNameInput" placeholder="e.g. Jane Smith" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Geist', sans-serif; font-size: 15px; color: var(--text-primary); outline: none; transition: all 150ms ease; background: var(--bg-surface);" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'" />
+
+      <label style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin: 18px 0 8px;">Select Signature Style</label>
+      <div class="esign-style-grid" id="esignStyleGrid">
+        <div class="esign-style-option selected" data-font="'Fraunces', Georgia, serif" data-style="italic" onclick="selectSigStyle(this)">
+          <div class="sig-preview" style="font-family: 'Fraunces', Georgia, serif; font-style: italic;" id="sigPreview0">—</div>
+          <div class="sig-label">Classic Serif</div>
+        </div>
+        <div class="esign-style-option" data-font="'Dancing Script', cursive" data-style="normal" onclick="selectSigStyle(this)">
+          <div class="sig-preview" style="font-family: 'Dancing Script', cursive;" id="sigPreview1">—</div>
+          <div class="sig-label">Script</div>
+        </div>
+        <div class="esign-style-option" data-font="'Caveat', cursive" data-style="normal" onclick="selectSigStyle(this)">
+          <div class="sig-preview" style="font-family: 'Caveat', cursive;" id="sigPreview2">—</div>
+          <div class="sig-label">Handwritten</div>
+        </div>
+        <div class="esign-style-option" data-font="'Geist', sans-serif" data-style="italic" onclick="selectSigStyle(this)">
+          <div class="sig-preview" style="font-family: 'Geist', sans-serif; font-style: italic; font-weight: 500;" id="sigPreview3">—</div>
+          <div class="sig-label">Modern</div>
+        </div>
+      </div>
+
+      <div class="esign-preview-box">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Signature Preview</div>
+        <div class="esign-preview-sig" id="esignPreviewSig" style="font-family: 'Fraunces', Georgia, serif; font-style: italic;">—</div>
+        <div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--text-muted); margin-top: 6px;" id="esignPreviewDate"></div>
+      </div>
+
+      <div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 12px; background: var(--brand-tint); border-radius: 8px; border: 1px solid #D6E0D9;">
+        <input type="checkbox" id="esignConsent" style="accent-color: var(--brand); margin-top: 2px; width: 16px; height: 16px; cursor: pointer;" />
+        <label for="esignConsent" style="font-family: 'Geist', sans-serif; font-size: 12px; color: var(--text-secondary); line-height: 1.5; cursor: pointer;">
+          I agree that my electronic signature is the legal equivalent of my handwritten signature. I consent to be legally bound by this document's terms.
+        </label>
+      </div>
+    </div>
+    <div class="esign-modal-footer">
+      <button onclick="closeEsignModal()" style="padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-surface); font-family: 'Geist', sans-serif; font-size: 14px; color: var(--text-secondary); cursor: pointer;">Cancel</button>
+      <button id="esignApplyBtn" onclick="applyEsign()" disabled style="padding: 10px 24px; border-radius: 8px; border: none; background: var(--brand); color: #fff; font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; opacity: 0.5; transition: all 150ms ease;">Apply Signature</button>
     </div>
   </div>
 </div>
@@ -867,17 +1017,28 @@
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; font-style: italic;">Certification instructions. You must cross out item 2 above if you have been notified by the IRS that you are currently subject to backup withholding because you have failed to report all interest and dividends on your tax return. For real estate transactions, item 2 does not apply. For mortgage interest paid, acquisition or abandonment of secured property, cancellation of debt, contributions to an individual retirement arrangement (IRA), and generally, payments other than interest and dividends, you are not required to sign the certification, but you must provide your correct TIN. See the instructions for Part II, later.</div>' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10.5px; color: var(--text-muted); line-height: 1.5; padding: 8px 12px; background: var(--bg-soft); border-radius: 3px; margin-bottom: 14px;">The Internal Revenue Service does not require your consent to any provision of this document other than the certifications required to avoid backup withholding.</div>' +
 
+              // E-Signature setup banner
+              '<div style="background: linear-gradient(135deg, rgba(184,146,74,.08) 0%, rgba(31,61,46,.06) 100%); border: 1px solid var(--gold); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px;">' +
+                '<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">' +
+                  '<span class="esign-setup-badge"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><path d="M11.5 1.5l3 3-9 9H2.5v-3z"/><path d="M9.5 3.5l3 3"/></svg> E-Signature Required</span>' +
+                '</div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; color: var(--text-secondary); line-height: 1.4;">This form requires your electronic signature under penalties of perjury. Click "Sign Here" to adopt your signature.</div>' +
+              '</div>' +
+
               // Signature section
               '<div style="display: grid; grid-template-columns: 1fr 200px; gap: 24px; padding-top: 12px; border-top: 1.5px solid #000;">' +
                 '<div>' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Signature of U.S. person &#9654;</div>' +
-                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 36px; position: relative;">' +
-                    '<input type="text" data-w9="signature" placeholder="Type full legal name to e-sign" style="width: 100%; border: none; background: transparent; font-family: \'Fraunces\', Georgia, serif; font-style: italic; font-size: 20px; color: var(--brand); padding: 4px 0; outline: none; height: 100%;" />' +
+                  '<div id="w9SignArea" style="border-bottom: 1.5px solid var(--text-primary); height: 44px; position: relative;">' +
+                    '<button type="button" class="sign-here-btn" id="w9SignHereBtn" onclick="openEsignModal()">' +
+                      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 2.5l4 4-10 10H3.5v-4z"/><path d="M11.5 4.5l4 4"/><path d="M2 18h16"/></svg>' +
+                      'Sign Here' +
+                    '</button>' +
                   '</div>' +
                 '</div>' +
                 '<div>' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Date &#9654;</div>' +
-                  '<div style="border-bottom: 1.5px solid var(--text-primary); height: 36px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; padding-top: 10px; color: var(--brand);">' + todayDisplay + '</div>' +
+                  '<div id="w9SignDate" style="border-bottom: 1.5px solid var(--text-primary); height: 44px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; padding-top: 14px; color: var(--text-muted); font-style: italic;">Populated on signing</div>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -1208,6 +1369,91 @@
       this.classList.remove('open');
     }
   });
+
+  // ---------------------------------------------------------------------------
+  // W-9 E-Signature Modal
+  // ---------------------------------------------------------------------------
+  var selectedSigFont = "'Fraunces', Georgia, serif";
+  var selectedSigStyle = "italic";
+  var w9Signed = false;
+
+  window.openEsignModal = function() {
+    if (w9Signed) return;
+    var modal = document.getElementById('esignModal');
+    var nameInput = document.getElementById('esignNameInput');
+    nameInput.value = (contactFirst + ' ' + contactLast).trim();
+    modal.classList.add('visible');
+    updateSigPreviews();
+    updateEsignBtn();
+    document.getElementById('esignPreviewDate').textContent = 'Signed: ' + todayDisplay;
+    nameInput.focus();
+  };
+
+  window.closeEsignModal = function() {
+    document.getElementById('esignModal').classList.remove('visible');
+  };
+
+  window.selectSigStyle = function(el) {
+    document.querySelectorAll('.esign-style-option').forEach(function(o) { o.classList.remove('selected'); });
+    el.classList.add('selected');
+    selectedSigFont = el.dataset.font;
+    selectedSigStyle = el.dataset.style;
+    var preview = document.getElementById('esignPreviewSig');
+    preview.style.fontFamily = selectedSigFont;
+    preview.style.fontStyle = selectedSigStyle;
+    if (selectedSigFont.indexOf('Geist') > -1) { preview.style.fontWeight = '500'; } else { preview.style.fontWeight = ''; }
+  };
+
+  function updateSigPreviews() {
+    var name = document.getElementById('esignNameInput').value.trim() || '—';
+    document.getElementById('sigPreview0').textContent = name;
+    document.getElementById('sigPreview1').textContent = name;
+    document.getElementById('sigPreview2').textContent = name;
+    document.getElementById('sigPreview3').textContent = name;
+    document.getElementById('esignPreviewSig').textContent = name;
+  }
+
+  function updateEsignBtn() {
+    var name = document.getElementById('esignNameInput').value.trim();
+    var consent = document.getElementById('esignConsent').checked;
+    var btn = document.getElementById('esignApplyBtn');
+    var ok = name.length >= 2 && consent;
+    btn.disabled = !ok;
+    btn.style.opacity = ok ? '1' : '0.5';
+  }
+
+  document.getElementById('esignNameInput').addEventListener('input', function() {
+    updateSigPreviews();
+    updateEsignBtn();
+  });
+  document.getElementById('esignConsent').addEventListener('change', updateEsignBtn);
+
+  document.getElementById('esignModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEsignModal();
+  });
+
+  window.applyEsign = function() {
+    var name = document.getElementById('esignNameInput').value.trim();
+    if (name.length < 2) return;
+    w9Signed = true;
+    closeEsignModal();
+
+    var area = document.getElementById('w9SignArea');
+    if (area) {
+      area.innerHTML = '<div class="signed-display">' +
+        '<div class="sig-text" style="font-family: ' + selectedSigFont + '; font-style: ' + selectedSigStyle + ';">' + escHtml(name) + '</div>' +
+        '<span class="signed-seal">&#10003; E-Signed</span>' +
+      '</div>';
+    }
+    var dateEl = document.getElementById('w9SignDate');
+    if (dateEl) {
+      dateEl.style.color = 'var(--brand)';
+      dateEl.style.fontStyle = 'normal';
+      dateEl.textContent = todayDisplay;
+    }
+    renderSidebar();
+    updateSubmitState();
+  };
 
   // ---------------------------------------------------------------------------
   // W-9: make tax classification checkboxes act as radios (one at a time)
