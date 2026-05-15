@@ -125,7 +125,8 @@
   .audit-body { padding: 16px 24px; }
   .audit-step-group { margin-bottom: 14px; }
   .audit-step-label { font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); margin-bottom: 6px; }
-  .audit-item { font-size: 13px; color: #C53030; padding: 4px 0; padding-left: 16px; position: relative; }
+  .audit-item { font-size: 13px; color: #C53030; padding: 4px 0; padding-left: 16px; position: relative; cursor: pointer; border-radius: 4px; transition: background 120ms ease; }
+  .audit-item:hover { background: #FFF0F0; text-decoration: underline; }
   .audit-item::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: #C53030; }
   .audit-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
   .audit-pass .audit-header-icon { background: #F0FFF4; color: #2F855A; }
@@ -197,7 +198,7 @@
               <div class="flex gap-2 items-center"><input class="input" type="number" data-field="estimatedDuration" placeholder="0" /><span class="text-sm" style="color: var(--text-muted);">months</span></div>
             </div>
             <div class="col-span-12 md:col-span-6"><label class="field-label">Construction Contract Amount<span class="req">*</span></label>
-              <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);">$</span><input class="input pl-7" type="number" data-field="contractAmount" placeholder="0.00" /></div>
+              <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);">$</span><input class="input pl-7 dollar-field" data-field="contractAmount" placeholder="0" /></div>
             </div>
           </div>
           <hr class="my-7" style="border-color: var(--border);">
@@ -392,7 +393,7 @@
                 <div><label class="field-label">Houses Started (5 yr)</label><input class="input" type="number" data-field="resNewStarted" /></div>
                 <div><label class="field-label">Houses Completed (5 yr)</label><input class="input" type="number" data-field="resNewCompleted" /></div>
                 <div><label class="field-label">Currently Under Construction</label><input class="input" type="number" data-field="resNewInProgress" /></div>
-                <div><label class="field-label">Average Project Size ($)</label><input class="input" type="number" data-field="resNewAvgSize" /></div>
+                <div><label class="field-label">Average Project Size ($)</label><input class="input dollar-field" data-field="resNewAvgSize" /></div>
               </div>
             </div>
             <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
@@ -401,7 +402,7 @@
                 <div><label class="field-label">Projects Started (5 yr)</label><input class="input" type="number" data-field="resRenovStarted" /></div>
                 <div><label class="field-label">Projects Completed (5 yr)</label><input class="input" type="number" data-field="resRenovCompleted" /></div>
                 <div><label class="field-label">Projects In Progress</label><input class="input" type="number" data-field="resRenovInProgress" /></div>
-                <div><label class="field-label">Average Project Size ($)</label><input class="input" type="number" data-field="resRenovAvgSize" /></div>
+                <div><label class="field-label">Average Project Size ($)</label><input class="input dollar-field" data-field="resRenovAvgSize" /></div>
               </div>
             </div>
             <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
@@ -410,7 +411,7 @@
                 <div><label class="field-label">Projects Started (5 yr)</label><input class="input" type="number" data-field="commStarted" /></div>
                 <div><label class="field-label">Projects Completed (5 yr)</label><input class="input" type="number" data-field="commCompleted" /></div>
                 <div><label class="field-label">Projects In Progress</label><input class="input" type="number" data-field="commInProgress" /></div>
-                <div><label class="field-label">Average Project Size ($)</label><input class="input" type="number" data-field="commAvgSize" /></div>
+                <div><label class="field-label">Average Project Size ($)</label><input class="input dollar-field" data-field="commAvgSize" /></div>
               </div>
             </div>
           </div>
@@ -425,9 +426,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2025</td><td class="py-3 pr-4"><input class="input" type="number" data-field="sales2025Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2025Projects" /></td></tr>
-                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2024</td><td class="py-3 pr-4"><input class="input" type="number" data-field="sales2024Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2024Projects" /></td></tr>
-                <tr><td class="py-3 pr-4 font-display text-lg">2023</td><td class="py-3 pr-4"><input class="input" type="number" data-field="sales2023Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2023Projects" /></td></tr>
+                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2025</td><td class="py-3 pr-4"><input class="input dollar-field" data-field="sales2025Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2025Projects" /></td></tr>
+                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2024</td><td class="py-3 pr-4"><input class="input dollar-field" data-field="sales2024Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2024Projects" /></td></tr>
+                <tr><td class="py-3 pr-4 font-display text-lg">2023</td><td class="py-3 pr-4"><input class="input dollar-field" data-field="sales2023Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2023Projects" /></td></tr>
               </tbody>
             </table>
           </div>
@@ -633,7 +634,7 @@
           <div class="col-span-6 md:col-span-3"><label class="field-label">Ownership %<span class="req">*</span></label><input class="input" type="number" max="100" data-principal="ownership" /></div>
           <div class="col-span-6 md:col-span-3"><label class="field-label">Years Experience<span class="req">*</span></label><input class="input" type="number" data-principal="years" /></div>
           <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" data-principal="email" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-principal="phone" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-principal="phone" placeholder="(555) 555-5555" /></div>
           <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" data-principal="address" /></div>
           <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" data-principal="city" /></div>
           <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" data-principal="state" /></div>
@@ -803,7 +804,10 @@
 
   function getFieldVal(name) {
     const el = document.querySelector(`[data-field="${name}"]`);
-    return el ? el.value : '';
+    if (!el) return '';
+    if (el.classList.contains('dollar-field')) return el.value.replace(/[^0-9]/g, '');
+    if (name === 'contactPhone') return el.value.replace(/[^0-9]/g, '');
+    return el.value;
   }
 
   function collectRepeater(prefix) {
@@ -948,7 +952,7 @@
         if (!rows[i]) return;
         Object.entries(p).forEach(([k, v]) => {
           const inp = rows[i].querySelector(`[data-principal="${k}"]`);
-          if (inp) inp.value = v;
+          if (inp) inp.value = (k === 'phone' && v) ? formatPhone(v) : v;
         });
       });
     }
@@ -960,7 +964,7 @@
         if (!rows[i]) return;
         Object.entries(b).forEach(([k, v]) => {
           const inp = rows[i].querySelector(`[data-bank="${k}"]`);
-          if (inp) inp.value = v;
+          if (inp) inp.value = (k === 'phone' && v) ? formatPhone(v) : v;
         });
       });
     }
@@ -972,7 +976,7 @@
         if (!rows[i]) return;
         Object.entries(t).forEach(([k, v]) => {
           const inp = rows[i].querySelector(`[data-trade="${k}"]`);
-          if (inp) inp.value = v;
+          if (inp) inp.value = (k === 'phone' && v) ? formatPhone(v) : v;
         });
       });
     }
@@ -984,7 +988,7 @@
         if (!rows[i]) return;
         Object.entries(s).forEach(([k, v]) => {
           const inp = rows[i].querySelector(`[data-supplier="${k}"]`);
-          if (inp) inp.value = v;
+          if (inp) inp.value = (k === 'phone' && v) ? formatPhone(v) : v;
         });
       });
     }
@@ -997,7 +1001,15 @@
 
   function setFieldVal(name, val) {
     const el = document.querySelector(`[data-field="${name}"]`);
-    if (el) el.value = val;
+    if (!el) return;
+    if (el.classList.contains('dollar-field') && val) {
+      var digits = String(val).replace(/[^0-9]/g, '');
+      el.value = digits ? '$' + parseInt(digits,10).toLocaleString('en-US') : '';
+    } else if (name === 'contactPhone' && val) {
+      el.value = formatPhone(val);
+    } else {
+      el.value = val;
+    }
   }
 
   // =========================================================================
@@ -1025,108 +1037,187 @@
   });
 
   // =========================================================================
+  // Phone number auto-formatter — (XXX) XXX-XXXX
+  // =========================================================================
+  function formatPhone(val) {
+    var digits = val.replace(/\D/g, '').substring(0, 10);
+    if (digits.length === 0) return '';
+    if (digits.length <= 3) return '(' + digits;
+    if (digits.length <= 6) return '(' + digits.substring(0,3) + ') ' + digits.substring(3);
+    return '(' + digits.substring(0,3) + ') ' + digits.substring(3,6) + '-' + digits.substring(6);
+  }
+  function isPhoneField(el) {
+    return el.dataset.field === 'contactPhone' ||
+           el.dataset.principal === 'phone' ||
+           el.dataset.bank === 'phone' ||
+           el.dataset.trade === 'phone' ||
+           el.dataset.supplier === 'phone';
+  }
+  document.addEventListener('input', function(e) {
+    var el = e.target;
+    if (el.matches && el.matches('input') && isPhoneField(el)) {
+      var formatted = formatPhone(el.value);
+      if (formatted !== el.value) el.value = formatted;
+    }
+  });
+
+  // =========================================================================
+  // Dollar auto-formatter — $XXX,XXX
+  // =========================================================================
+  function formatDollar(val) {
+    var digits = val.replace(/[^0-9]/g, '');
+    if (digits.length === 0) return '';
+    var num = parseInt(digits, 10);
+    return '$' + num.toLocaleString('en-US');
+  }
+  function parseDollar(val) {
+    return val.replace(/[^0-9]/g, '');
+  }
+  document.addEventListener('input', function(e) {
+    var el = e.target;
+    if (el.matches && el.matches('.dollar-field')) {
+      var formatted = formatDollar(el.value);
+      if (formatted !== el.value) el.value = formatted;
+    }
+  });
+
+  // =========================================================================
   // Field Auditor
   // =========================================================================
   const STEP_NAMES = ['','Project & Borrower','Company Information','Principals & Officers','Background','Construction Experience','Project History','Banking References','Trade References','Supplier References'];
 
   function getRequiredFields() {
     const issues = [];
-    function chk(step, label, val) { if (!val || !val.trim()) issues.push({step, label}); }
+    function chk(step, label, val, sel) { if (!val || !val.trim()) issues.push({step, label, sel}); }
     function gf(f) { const el = document.querySelector('[data-field="'+f+'"]'); return el ? el.value : ''; }
+    function fs(f) { return '[data-field="'+f+'"]'; }
 
     // Step 1
-    chk(1,'Project Street Address', gf('projectAddress'));
-    chk(1,'City', gf('projectCity'));
-    chk(1,'State', gf('projectState'));
-    chk(1,'Zip', gf('projectZip'));
-    chk(1,'Borrower Full Name', gf('borrowerName'));
-    chk(1,'Estimated Duration', gf('estimatedDuration'));
-    chk(1,'Contract Amount', gf('contractAmount'));
-    const isTx = document.querySelector('.radio-pill.active[data-group="isTx"]');
-    if (!isTx) issues.push({step:1, label:'Texas question not answered'});
-    const draw = document.querySelector('.radio-pill.active[data-group="drawAtClose"]');
-    if (!draw) issues.push({step:1, label:'Draw at closing question not answered'});
+    chk(1,'Project Street Address', gf('projectAddress'), fs('projectAddress'));
+    chk(1,'City', gf('projectCity'), fs('projectCity'));
+    chk(1,'State', gf('projectState'), fs('projectState'));
+    chk(1,'Zip', gf('projectZip'), fs('projectZip'));
+    chk(1,'Borrower Full Name', gf('borrowerName'), fs('borrowerName'));
+    chk(1,'Estimated Duration', gf('estimatedDuration'), fs('estimatedDuration'));
+    chk(1,'Contract Amount', gf('contractAmount'), fs('contractAmount'));
+    if (!document.querySelector('.radio-pill.active[data-group="isTx"]'))
+      issues.push({step:1, label:'Texas question not answered', sel:'[data-group="isTx"]'});
+    if (!document.querySelector('.radio-pill.active[data-group="drawAtClose"]'))
+      issues.push({step:1, label:'Draw at closing question not answered', sel:'[data-group="drawAtClose"]'});
 
     // Step 2
-    chk(2,'Company Legal Name', gf('companyName'));
-    chk(2,'EIN', gf('ein'));
-    chk(2,'Street Address', gf('companyAddress'));
-    chk(2,'City', gf('companyCity'));
-    chk(2,'State', gf('companyState'));
-    chk(2,'Zip', gf('companyZip'));
-    chk(2,'Contact First Name', gf('contactFirst'));
-    chk(2,'Contact Last Name', gf('contactLast'));
-    chk(2,'Contact Phone', gf('contactPhone'));
-    chk(2,'Contact Email', gf('contactEmail'));
+    chk(2,'Company Legal Name', gf('companyName'), fs('companyName'));
+    chk(2,'EIN', gf('ein'), fs('ein'));
+    chk(2,'Street Address', gf('companyAddress'), fs('companyAddress'));
+    chk(2,'City', gf('companyCity'), fs('companyCity'));
+    chk(2,'State', gf('companyState'), fs('companyState'));
+    chk(2,'Zip', gf('companyZip'), fs('companyZip'));
+    chk(2,'Contact First Name', gf('contactFirst'), fs('contactFirst'));
+    chk(2,'Contact Last Name', gf('contactLast'), fs('contactLast'));
+    chk(2,'Contact Phone', gf('contactPhone'), fs('contactPhone'));
+    chk(2,'Contact Email', gf('contactEmail'), fs('contactEmail'));
     const emailVal = gf('contactEmail');
-    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) issues.push({step:2, label:'Contact Email is not a valid email'});
+    if (emailVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal))
+      issues.push({step:2, label:'Contact Email is not a valid email', sel:fs('contactEmail')});
 
-    // Step 3 — principals (at least first one fully filled)
+    // Step 3 — principals
     const p0 = document.querySelector('[data-principal-idx="0"]');
     if (p0) {
       const pf = (attr) => { const el = p0.querySelector('[data-principal="'+attr+'"]'); return el ? el.value : ''; };
-      chk(3,'Principal Full Name', pf('name'));
-      chk(3,'Principal Title', pf('title'));
-      chk(3,'Principal Ownership %', pf('ownership'));
-      chk(3,'Principal Years Experience', pf('years'));
-      chk(3,'Principal Email', pf('email'));
-      chk(3,'Principal Phone', pf('phone'));
+      const ps = (attr) => '[data-principal-idx="0"] [data-principal="'+attr+'"]';
+      chk(3,'Principal Full Name', pf('name'), ps('name'));
+      chk(3,'Principal Title', pf('title'), ps('title'));
+      chk(3,'Principal Ownership %', pf('ownership'), ps('ownership'));
+      chk(3,'Principal Years Experience', pf('years'), ps('years'));
+      chk(3,'Principal Email', pf('email'), ps('email'));
+      chk(3,'Principal Phone', pf('phone'), ps('phone'));
       const pEmail = pf('email');
-      if (pEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pEmail)) issues.push({step:3, label:'Principal Email is not valid'});
+      if (pEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pEmail))
+        issues.push({step:3, label:'Principal Email is not valid', sel:ps('email')});
     }
 
-    // Step 4 — background yes/no questions
+    // Step 4 — background
     ['lit','liens','bk','wc'].forEach(function(g) {
-      const sel = document.querySelector('.radio-pill.active[data-group="'+g+'"]');
-      if (!sel) issues.push({step:4, label:({lit:'Litigation',liens:'Judgments/Liens',bk:'Bankruptcy',wc:"Workers' Comp"})[g]+' question not answered'});
+      if (!document.querySelector('.radio-pill.active[data-group="'+g+'"]'))
+        issues.push({step:4, label:({lit:'Litigation',liens:'Judgments/Liens',bk:'Bankruptcy',wc:"Workers' Comp"})[g]+' question not answered', sel:'[data-group="'+g+'"]'});
     });
 
     // Step 5
-    chk(5,'Years in Business', gf('yearsInBusiness'));
-    const projTypes = document.querySelectorAll('#projectTypesGroup input:checked');
-    if (projTypes.length === 0) issues.push({step:5, label:'Select at least one project type'});
-    chk(5,'In-House Trades', gf('inHouseTrades'));
+    chk(5,'Years in Business', gf('yearsInBusiness'), fs('yearsInBusiness'));
+    if (document.querySelectorAll('#projectTypesGroup input:checked').length === 0)
+      issues.push({step:5, label:'Select at least one project type', sel:'#projectTypesGroup'});
+    chk(5,'In-House Trades', gf('inHouseTrades'), fs('inHouseTrades'));
 
-    // Step 7 — bank ref 1 required
+    // Step 7 — bank ref 1
     const b0 = document.querySelector('[data-bank-ref="0"]');
     if (b0) {
       const bf = (attr) => { const el = b0.querySelector('[data-bank="'+attr+'"]'); return el ? el.value : ''; };
-      chk(7,'Lender Name', bf('lenderName'));
-      chk(7,'Loan Officer', bf('loanOfficer'));
-      chk(7,'Phone', bf('phone'));
-      chk(7,'Email', bf('email'));
-      chk(7,'Years as Client', bf('years'));
+      const bs = (attr) => '[data-bank-ref="0"] [data-bank="'+attr+'"]';
+      chk(7,'Lender Name', bf('lenderName'), bs('lenderName'));
+      chk(7,'Loan Officer', bf('loanOfficer'), bs('loanOfficer'));
+      chk(7,'Phone', bf('phone'), bs('phone'));
+      chk(7,'Email', bf('email'), bs('email'));
+      chk(7,'Years as Client', bf('years'), bs('years'));
     }
 
-    // Step 8 — trade refs (all 3 required)
+    // Step 8 — trade refs
     for (let i = 0; i < 3; i++) {
       const row = document.querySelector('[data-trade-idx="'+i+'"]');
       if (!row) continue;
       const tf = (attr) => { const el = row.querySelector('[data-trade="'+attr+'"]'); return el ? el.value : ''; };
+      const ts = (attr) => '[data-trade-idx="'+i+'"] [data-trade="'+attr+'"]';
       const n = i+1;
-      chk(8,'Trade Ref '+n+' Name', tf('name'));
-      chk(8,'Trade Ref '+n+' Trade', tf('trade'));
-      chk(8,'Trade Ref '+n+' Contact', tf('contact'));
-      chk(8,'Trade Ref '+n+' Years', tf('years'));
-      chk(8,'Trade Ref '+n+' Phone', tf('phone'));
-      chk(8,'Trade Ref '+n+' Email', tf('email'));
+      chk(8,'Trade Ref '+n+' Name', tf('name'), ts('name'));
+      chk(8,'Trade Ref '+n+' Trade', tf('trade'), ts('trade'));
+      chk(8,'Trade Ref '+n+' Contact', tf('contact'), ts('contact'));
+      chk(8,'Trade Ref '+n+' Years', tf('years'), ts('years'));
+      chk(8,'Trade Ref '+n+' Phone', tf('phone'), ts('phone'));
+      chk(8,'Trade Ref '+n+' Email', tf('email'), ts('email'));
     }
 
-    // Step 9 — suppliers (all 3 required)
+    // Step 9 — suppliers
     for (let i = 0; i < 3; i++) {
       const row = document.querySelector('[data-supplier-idx="'+i+'"]');
       if (!row) continue;
       const sf = (attr) => { const el = row.querySelector('[data-supplier="'+attr+'"]'); return el ? el.value : ''; };
+      const ss = (attr) => '[data-supplier-idx="'+i+'"] [data-supplier="'+attr+'"]';
       const n = i+1;
-      chk(9,'Supplier '+n+' Name', sf('name'));
-      chk(9,'Supplier '+n+' Trade/Material', sf('material'));
-      chk(9,'Supplier '+n+' Contact', sf('contact'));
-      chk(9,'Supplier '+n+' Years', sf('years'));
-      chk(9,'Supplier '+n+' Phone', sf('phone'));
-      chk(9,'Supplier '+n+' Email', sf('email'));
+      chk(9,'Supplier '+n+' Name', sf('name'), ss('name'));
+      chk(9,'Supplier '+n+' Trade/Material', sf('material'), ss('material'));
+      chk(9,'Supplier '+n+' Contact', sf('contact'), ss('contact'));
+      chk(9,'Supplier '+n+' Years', sf('years'), ss('years'));
+      chk(9,'Supplier '+n+' Phone', sf('phone'), ss('phone'));
+      chk(9,'Supplier '+n+' Email', sf('email'), ss('email'));
     }
 
     return issues;
+  }
+
+  function highlightAllErrors(issues) {
+    // Clear previous highlights
+    document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); });
+    // Add red highlight to each problem field
+    issues.forEach(function(issue) {
+      if (!issue.sel) return;
+      const el = document.querySelector(issue.sel);
+      if (el) el.classList.add('field-error');
+    });
+  }
+
+  function goToField(step, sel) {
+    closeAudit();
+    showStep(step);
+    setTimeout(function() {
+      var el = document.querySelector(sel);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.focus();
+        // Pulse animation
+        el.style.transition = 'box-shadow 200ms ease';
+        el.style.boxShadow = '0 0 0 3px rgba(197,48,48,.4)';
+        setTimeout(function() { el.style.boxShadow = ''; }, 1500);
+      }
+    }, 150);
   }
 
   function showAuditPanel(issues) {
@@ -1134,18 +1225,28 @@
     const pass = issues.length === 0;
     panel.className = 'audit-panel ' + (pass ? 'audit-pass' : 'audit-fail');
 
+    // Highlight all error fields red
+    highlightAllErrors(issues);
+
     if (pass) {
       panel.innerHTML = '<div class="audit-header"><div class="audit-header-icon">&#10003;</div><div><div style="font-weight:600;font-size:16px;">Audit Passed</div><div style="font-size:13px;color:var(--text-secondary);">All required fields are complete and validated.</div></div></div><div class="audit-footer"><button class="btn-primary" onclick="closeAudit();proceedToReview();">Continue to Document Review &#8594;</button></div>';
     } else {
       let body = '';
       const grouped = {};
-      issues.forEach(function(i) { if (!grouped[i.step]) grouped[i.step] = []; grouped[i.step].push(i.label); });
+      const issueMap = {};
+      issues.forEach(function(i) {
+        if (!grouped[i.step]) grouped[i.step] = [];
+        grouped[i.step].push(i);
+      });
       for (const s in grouped) {
         body += '<div class="audit-step-group"><div class="audit-step-label">Step '+s+' - '+STEP_NAMES[s]+'</div>';
-        grouped[s].forEach(function(l) { body += '<div class="audit-item">'+l+'</div>'; });
+        grouped[s].forEach(function(i) {
+          var onclick = i.sel ? ' onclick="goToField('+i.step+',\''+i.sel.replace(/'/g,"\\'")+'\')"' : '';
+          body += '<div class="audit-item"'+onclick+'>'+i.label+'</div>';
+        });
         body += '</div>';
       }
-      panel.innerHTML = '<div class="audit-header"><div class="audit-header-icon">!</div><div><div style="font-weight:600;font-size:16px;">Audit Found '+issues.length+' Issue'+(issues.length>1?'s':'')+'</div><div style="font-size:13px;color:var(--text-secondary);">Please fix the following before continuing.</div></div></div><div class="audit-body">'+body+'</div><div class="audit-footer"><button class="btn-secondary" onclick="closeAudit()">Close</button><button class="btn-primary" onclick="closeAudit();jumpToFirstError()">Go to First Issue</button></div>';
+      panel.innerHTML = '<div class="audit-header"><div class="audit-header-icon">!</div><div><div style="font-weight:600;font-size:16px;">Audit Found '+issues.length+' Issue'+(issues.length>1?'s':'')+'</div><div style="font-size:13px;color:var(--text-secondary);">Click any issue to jump to that field.</div></div></div><div class="audit-body">'+body+'</div><div class="audit-footer"><button class="btn-secondary" onclick="closeAudit()">Close</button><button class="btn-primary" onclick="closeAudit();jumpToFirstError()">Go to First Issue</button></div>';
     }
     document.getElementById('auditOverlay').style.display = 'flex';
   }
@@ -1154,19 +1255,21 @@
 
   function jumpToFirstError() {
     const issues = getRequiredFields();
-    if (issues.length > 0) {
+    if (issues.length > 0 && issues[0].sel) {
+      goToField(issues[0].step, issues[0].sel);
+    } else if (issues.length > 0) {
       showStep(issues[0].step);
     }
   }
 
   function proceedToReview() {
+    document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); });
     saveFormData();
     window.location.href = 'review.html';
   }
 
   function goToReview() {
     saveFormData();
-    // Sanitize all text fields one more time
     document.querySelectorAll('input[type="text"], input:not([type]), textarea').forEach(function(el) {
       if (el.closest('[data-step]') || el.closest('.repeater-row') || el.dataset.field) {
         el.value = el.value.replace(EMOJI_RE, '').trim();
