@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Register</title>
@@ -503,7 +503,12 @@
       return;
     }
 
-    // Build account data (EIN stored locally only — per security notice on page)
+    var API_BASE = 'https://api.perenniaai.com/api/v1';
+
+    // Read LO slug from URL query param
+    var urlParams = new URLSearchParams(window.location.search);
+    var loSlug = urlParams.get('lo') || '';
+
     var accountData = {
       companyName: document.getElementById('companyName').value.trim(),
       ein: document.getElementById('ein').value.trim(),
@@ -514,7 +519,7 @@
       createdAt: new Date().toISOString()
     };
 
-    // Save to localStorage
+    // Save to localStorage immediately (offline fallback)
     accountData._schemaVersion = 1;
     try {
       localStorage.setItem('builderAccount', JSON.stringify(accountData));
@@ -523,8 +528,41 @@
       return;
     }
 
-    // Redirect to application wizard
-    window.location.href = 'application.html';
+    // Register with backend API if LO slug present
+    if (loSlug) {
+      var submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Registering...'; }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_BASE + '/builder-portal/register', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            var resp = JSON.parse(xhr.responseText);
+            localStorage.setItem('builderSubmissionToken', resp.submission_token);
+            localStorage.setItem('builderApplicationId', String(resp.application_id));
+            localStorage.setItem('builderLOName', resp.lo_name || '');
+          } catch (e) { /* continue anyway */ }
+        }
+        window.location.href = 'application.html';
+      };
+      xhr.onerror = function() {
+        // Offline fallback — proceed without token, will retry on submit
+        window.location.href = 'application.html';
+      };
+      xhr.send(JSON.stringify({
+        lo_slug: loSlug,
+        company_name: accountData.companyName,
+        ein: accountData.ein,
+        first_name: accountData.firstName,
+        last_name: accountData.lastName,
+        email: accountData.email,
+        phone: accountData.phone
+      }));
+    } else {
+      window.location.href = 'application.html';
+    }
   });
 
   // Resume Application link

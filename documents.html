@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com https://*.s3.amazonaws.com; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Upload Documents</title>
@@ -1068,6 +1068,59 @@
     setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 3500);
   }
 
+  var API_BASE = 'https://api.perenniaai.com/api/v1';
+
+  function getSubmissionToken() {
+    try { return localStorage.getItem('builderSubmissionToken') || ''; } catch(e) { return ''; }
+  }
+
+  function uploadToS3(docId, file) {
+    var token = getSubmissionToken();
+    if (!token) {
+      uploads[docId] = { name: file.name, size: formatFileSize(file.size) };
+      saveUploads();
+      return;
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', API_BASE + '/builder-portal/documents/upload', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    xhr.onload = function() {
+      if (xhr.status < 200 || xhr.status >= 300) return;
+      try {
+        var resp = JSON.parse(xhr.responseText);
+        uploads[docId].documentId = resp.document_id;
+        uploads[docId].storageKey = resp.storage_key;
+        saveUploads();
+
+        var putXhr = new XMLHttpRequest();
+        putXhr.open('PUT', resp.upload_url, true);
+        putXhr.setRequestHeader('Content-Type', file.type);
+        putXhr.onload = function() {
+          if (putXhr.status >= 200 && putXhr.status < 300) {
+            var confirmXhr = new XMLHttpRequest();
+            confirmXhr.open('POST', API_BASE + '/builder-portal/documents/confirm', true);
+            confirmXhr.setRequestHeader('Content-Type', 'application/json');
+            confirmXhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            confirmXhr.send(JSON.stringify({ document_id: resp.document_id }));
+
+            uploads[docId].confirmed = true;
+            saveUploads();
+            showToast(file.name + ' uploaded to server', 'success');
+          }
+        };
+        putXhr.send(file);
+      } catch(e) { /* presigned URL parse failed — file stays local only */ }
+    };
+    xhr.send(JSON.stringify({
+      doc_type: docId,
+      file_name: file.name,
+      file_size: file.size,
+      mime_type: file.type || 'application/octet-stream'
+    }));
+  }
+
   function handleFile(docId, file) {
     var validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
     var validExts = ['.pdf', '.jpg', '.jpeg', '.png'];
@@ -1085,9 +1138,12 @@
       return;
     }
 
-    // Store upload
+    // Store upload metadata locally
     uploads[docId] = { name: file.name, size: formatFileSize(file.size) };
     saveUploads();
+
+    // Upload to S3 via presigned URL
+    uploadToS3(docId, file);
 
     // Update the card UI
     var card = document.querySelector('[data-doc-id="' + docId + '"]');

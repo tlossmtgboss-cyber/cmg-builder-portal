@@ -1739,6 +1739,36 @@
     }
   }
 
+  var API_BASE = 'https://api.perenniaai.com/api/v1';
+
+  function getSubmissionToken() {
+    try { return localStorage.getItem('builderSubmissionToken') || ''; } catch(e) { return ''; }
+  }
+
+  function pushToBackend(sigData) {
+    var token = getSubmissionToken();
+    if (!token) return;
+
+    var formData = {};
+    try { formData = JSON.parse(localStorage.getItem('builderFormData') || '{}'); } catch(e) {}
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', API_BASE + '/builder-portal/submit', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+    xhr.onload = function() {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          localStorage.setItem('builderSubmitted', 'true');
+        } catch(e) {}
+      }
+    };
+    xhr.send(JSON.stringify({
+      application_data: formData,
+      signature_data: sigData
+    }));
+  }
+
   window.submitPacket = function() {
     var sigInput = document.getElementById('finalSignature');
     if (!sigInput || sigInput.value.trim().length < 3) return;
@@ -1760,6 +1790,9 @@
         contentHash: hash
       };
       try { localStorage.setItem('builderSignature', JSON.stringify(sigData)); } catch(e) {}
+
+      // Push application data + signature to backend
+      pushToBackend(sigData);
 
       var listHtml = '';
       documents.forEach(function(doc) {
