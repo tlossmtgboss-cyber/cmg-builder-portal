@@ -290,6 +290,85 @@
     margin-top: 2px;
   }
 
+  /* Callout arrow for actionable items */
+  .callout-arrow {
+    position: absolute;
+    right: 120px;
+    bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: callout-bounce 1.2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 5;
+  }
+  .callout-arrow-text {
+    background: #C53030;
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(197,48,48,.3);
+  }
+  .callout-arrow-tip {
+    width: 0; height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid #C53030;
+  }
+  @keyframes callout-bounce {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-6px); }
+  }
+  .initial-box.initialed ~ .callout-arrow { display: none; }
+
+  /* E-sign callout (inline) */
+  .esign-callout {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    animation: callout-bounce 1.2s ease-in-out infinite;
+  }
+  .esign-callout-tip {
+    width: 0; height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid #C53030;
+  }
+  .esign-callout-text {
+    background: #C53030;
+    color: #fff;
+    font-family: 'Geist', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(197,48,48,.3);
+  }
+
+  /* Highlight ring on e-sign inputs */
+  .esign-input, #bafSignature {
+    border: 2px solid #C53030 !important;
+    background: #FFF5F5 !important;
+    box-shadow: 0 0 0 3px rgba(197,48,48,.15);
+    transition: all 200ms ease;
+  }
+  .esign-input:focus, #bafSignature:focus {
+    border-color: var(--brand) !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 3px rgba(31,61,46,.15);
+  }
+  .esign-signed .esign-input, .esign-signed #bafSignature {
+    border-color: var(--success) !important;
+    background: #EDF7F0 !important;
+    box-shadow: none;
+  }
+
   /* Doc pages */
   .doc-page { display: none; }
   .doc-page.active { display: block; animation: pageIn 280ms ease; }
@@ -665,7 +744,7 @@
           '<div class="sign-block">' +
             '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(companyName) + '</span></div><div class="sign-label">Builder Company Name</div></div>' +
             '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(contactFirst + ' ' + contactLast) + '</span></div><div class="sign-label">Printed Name of Signer</div></div>' +
-            '<div class="sign-row"><div class="sign-line"><input id="bafSignature" placeholder="Type to e-sign" /></div><div class="sign-label">Signature (type to e-sign)</div></div>' +
+            '<div class="sign-row"><div class="esign-callout"><div class="esign-callout-text">Type to E-Sign</div><div class="esign-callout-tip"></div></div><div class="sign-line"><input id="bafSignature" placeholder="Type to e-sign" /></div><div class="sign-label">Signature (type to e-sign)</div></div>' +
             '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(principalTitle) + '</span></div><div class="sign-label">Job Title</div></div>' +
             '<div class="sign-row" style="grid-column: 1 / -1; max-width: 280px;"><div class="sign-line"><span class="sign-value">' + todayDisplay + '</span></div><div class="sign-label">Date</div></div>' +
           '</div>' +
@@ -1080,6 +1159,7 @@
           '<div style="margin-bottom: 28px;">' + checklistHtml + '</div>' +
           '<h2 class="paper-section-title">Electronic Signature</h2>' +
           '<p style="font-family: Geist, sans-serif; font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Type your full legal name below to apply your electronic signature to all documents in this packet.</p>' +
+          '<div class="esign-callout" style="margin-bottom: 6px;"><div class="esign-callout-text">E-Sign Here</div><div class="esign-callout-tip"></div></div>' +
           '<div style="margin-bottom: 8px;">' +
             '<input type="text" class="esign-input" id="finalSignature" placeholder="Type your full legal name to e-sign" autocomplete="off" />' +
           '</div>' +
@@ -1205,9 +1285,28 @@
             '<div class="initial-value"><span class="initial-check">&#10003;</span> ' + escHtml(initialedPages[pageId] || '') + '</div>' +
             '<div class="initial-box-label">Builder Initials</div>' +
           '</div>' +
+          (isInitialed ? '' : '<div class="callout-arrow"><div class="callout-arrow-text">Initial Here</div><div class="callout-arrow-tip"></div></div>') +
         '</div>';
       });
     }
+
+    // Navigation buttons at bottom
+    var navHtml = '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding:16px 0;">';
+    if (currentDocIndex > 0) {
+      navHtml += '<button onclick="goToPrevDoc()" style="padding:10px 20px; border:1px solid #ECE6D8; border-radius:8px; background:#fff; font-family:Geist,sans-serif; font-size:14px; font-weight:500; color:#4F554E; cursor:pointer; transition:all 150ms ease;">&larr; Previous</button>';
+    } else if (currentDocIndex === 0) {
+      navHtml += '<div></div>';
+    } else {
+      navHtml += '<button onclick="goToPrevDoc()" style="padding:10px 20px; border:1px solid #ECE6D8; border-radius:8px; background:#fff; font-family:Geist,sans-serif; font-size:14px; font-weight:500; color:#4F554E; cursor:pointer; transition:all 150ms ease;">&larr; Previous</button>';
+    }
+    if (currentDocIndex === -1) {
+      navHtml += '<div></div>';
+    } else {
+      var nextLabel = (currentDocIndex === documents.length - 1) ? 'E-Signature Page &rarr;' : 'Next Document &rarr;';
+      navHtml += '<button onclick="goToNextDoc()" style="padding:10px 20px; border:none; border-radius:8px; background:#1F3D2E; font-family:Geist,sans-serif; font-size:14px; font-weight:600; color:#fff; cursor:pointer; transition:all 150ms ease;">' + nextLabel + '</button>';
+    }
+    navHtml += '</div>';
+    html += navHtml;
 
     area.innerHTML = html;
     area.scrollTo({ top: 0, behavior: 'auto' });
@@ -1230,6 +1329,27 @@
 
     // Update page indicator
     updatePageIndicator();
+  }
+
+  function goToNextDoc() {
+    if (currentDocIndex === -1) return;
+    if (currentDocIndex < documents.length - 1) {
+      currentDocIndex++;
+    } else {
+      currentDocIndex = -1;
+    }
+    renderSidebar();
+    renderPaperArea();
+  }
+
+  function goToPrevDoc() {
+    if (currentDocIndex === -1) {
+      currentDocIndex = documents.length - 1;
+    } else if (currentDocIndex > 0) {
+      currentDocIndex--;
+    }
+    renderSidebar();
+    renderPaperArea();
   }
 
   function updatePageIndicator() {
