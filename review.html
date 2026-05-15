@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Document Review & E-Sign</title>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -1096,11 +1098,11 @@
                 '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center;">' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Social Security Number</div>' +
                   '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
-                    '<input class="w9-input ein-input" data-w9="ssn1" style="min-width: 52px; max-width: 60px;" placeholder="___" maxlength="3" />' +
+                    '<input class="w9-input ein-input" data-w9="ssn1" inputmode="numeric" pattern="[0-9]*" style="min-width: 52px; max-width: 60px;" placeholder="___" maxlength="3" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ssn2" style="min-width: 36px; max-width: 42px;" placeholder="__" maxlength="2" />' +
+                    '<input class="w9-input ein-input" data-w9="ssn2" inputmode="numeric" pattern="[0-9]*" style="min-width: 36px; max-width: 42px;" placeholder="__" maxlength="2" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ssn3" style="min-width: 60px; max-width: 70px;" placeholder="____" maxlength="4" />' +
+                    '<input class="w9-input ein-input" data-w9="ssn3" inputmode="numeric" pattern="[0-9]*" style="min-width: 60px; max-width: 70px;" placeholder="____" maxlength="4" />' +
                   '</div>' +
                 '</div>' +
                 // OR divider
@@ -1109,9 +1111,9 @@
                 '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center; ' + (einClean ? 'border-color: var(--brand); background: var(--brand-tint);' : '') + '">' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Employer Identification Number</div>' +
                   '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
-                    '<input class="w9-input ein-input" data-w9="ein1" style="min-width: 36px; max-width: 45px;" value="' + escHtml(einGroup1) + '" placeholder="__" maxlength="2" />' +
+                    '<input class="w9-input ein-input" data-w9="ein1" inputmode="numeric" pattern="[0-9]*" style="min-width: 36px; max-width: 45px;" value="' + escHtml(einGroup1) + '" placeholder="__" maxlength="2" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ein2" style="min-width: 100px; max-width: 120px;" value="' + escHtml(einGroup2) + '" placeholder="_______" maxlength="7" />' +
+                    '<input class="w9-input ein-input" data-w9="ein2" inputmode="numeric" pattern="[0-9]*" style="min-width: 100px; max-width: 120px;" value="' + escHtml(einGroup2) + '" placeholder="_______" maxlength="7" />' +
                   '</div>' +
                 '</div>' +
               '</div>' +
@@ -1643,11 +1645,16 @@
     document.getElementById('esignModal').classList.remove('visible');
   };
 
+  var ALLOWED_FONTS = ["'Fraunces', Georgia, serif", "'Dancing Script', cursive", "'Caveat', cursive", "'Geist', sans-serif"];
+  var ALLOWED_STYLES = ['normal', 'italic'];
+
   window.selectSigStyle = function(el) {
     document.querySelectorAll('.esign-style-option').forEach(function(o) { o.classList.remove('selected'); });
     el.classList.add('selected');
-    selectedSigFont = el.dataset.font;
-    selectedSigStyle = el.dataset.style;
+    var f = el.dataset.font;
+    var s = el.dataset.style;
+    selectedSigFont = ALLOWED_FONTS.indexOf(f) > -1 ? f : ALLOWED_FONTS[0];
+    selectedSigStyle = ALLOWED_STYLES.indexOf(s) > -1 ? s : 'italic';
     var preview = document.getElementById('esignPreviewSig');
     preview.style.fontFamily = selectedSigFont;
     preview.style.fontStyle = selectedSigStyle;
@@ -1827,6 +1834,14 @@
     if (e.target.name === 'w9taxclass') {
       var boxes = document.querySelectorAll('input[name="w9taxclass"]');
       boxes.forEach(function(cb) { if (cb !== e.target) cb.checked = false; });
+    }
+  });
+
+  // W-9: enforce numeric-only on SSN/EIN fields
+  if (pa) pa.addEventListener('input', function(e) {
+    var w = e.target.getAttribute('data-w9');
+    if (w && (w.indexOf('ssn') === 0 || w.indexOf('ein') === 0)) {
+      e.target.value = e.target.value.replace(/[^0-9]/g, '');
     }
   });
 })();

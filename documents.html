@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Upload Documents</title>
 <script src="https://cdn.tailwindcss.com"></script>
@@ -897,6 +899,13 @@
     if (rawUploads) uploads = JSON.parse(rawUploads);
   } catch (e) { /* ignore */ }
 
+  function escHtml(str) {
+    if (!str) return '';
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
   // ===== Build document list (required + conditional) =====
   allDocs = REQUIRED_DOCS.slice();
 
@@ -916,13 +925,13 @@
   var projectAddress = builderFormData.projectAddress || builderFormData.propertyAddress || '';
 
   if (companyName) {
-    infoHTML += '<div class="project-info-item"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0;"><path d="M3 14V5l5-3 5 3v9"/><path d="M3 14h10"/><rect x="6" y="9" width="4" height="5"/></svg><span><strong>' + companyName + '</strong></span></div>';
+    infoHTML += '<div class="project-info-item"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0;"><path d="M3 14V5l5-3 5 3v9"/><path d="M3 14h10"/><rect x="6" y="9" width="4" height="5"/></svg><span><strong>' + escHtml(companyName) + '</strong></span></div>';
   }
   if (companyName && projectAddress) {
     infoHTML += '<div class="project-info-divider"></div>';
   }
   if (projectAddress) {
-    infoHTML += '<div class="project-info-item"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0;"><path d="M8 1C5.2 1 3 3.2 3 6c0 4 5 9 5 9s5-5 5-9c0-2.8-2.2-5-5-5z"/><circle cx="8" cy="6" r="1.5"/></svg><span><strong>' + projectAddress + '</strong></span></div>';
+    infoHTML += '<div class="project-info-item"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gold);flex-shrink:0;"><path d="M8 1C5.2 1 3 3.2 3 6c0 4 5 9 5 9s5-5 5-9c0-2.8-2.2-5-5-5z"/><circle cx="8" cy="6" r="1.5"/></svg><span><strong>' + escHtml(projectAddress) + '</strong></span></div>';
   }
   projectInfoEl.innerHTML = infoHTML;
 
@@ -977,8 +986,8 @@
         cardsHTML += '    <div class="uploaded-file" id="file-' + doc.id + '">';
         cardsHTML += '      <svg class="uploaded-file-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5l4 4 9-10"/></svg>';
         cardsHTML += '      <div class="uploaded-file-info">';
-        cardsHTML += '        <div class="uploaded-file-name">' + uploads[doc.id].name + '</div>';
-        cardsHTML += '        <div class="uploaded-file-size">' + uploads[doc.id].size + '</div>';
+        cardsHTML += '        <div class="uploaded-file-name">' + escHtml(uploads[doc.id].name) + '</div>';
+        cardsHTML += '        <div class="uploaded-file-size">' + escHtml(uploads[doc.id].size) + '</div>';
         cardsHTML += '      </div>';
         cardsHTML += '      <button class="uploaded-file-remove" data-remove-id="' + doc.id + '">Remove</button>';
         cardsHTML += '    </div>';
@@ -1042,16 +1051,25 @@
     });
   }
 
+  function showToast(msg, type) {
+    var t = document.createElement('div');
+    t.textContent = msg;
+    var bg = type === 'error' ? '#c0392b' : type === 'success' ? '#27ae60' : '#1F3D2E';
+    t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:' + bg + ';color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:opacity .3s;';
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 3500);
+  }
+
   function handleFile(docId, file) {
-    // Validate file type
     var validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-    if (validTypes.indexOf(file.type) === -1) {
-      alert('Invalid file type. Please upload a PDF, JPG, or PNG file.');
+    var validExts = ['.pdf', '.jpg', '.jpeg', '.png'];
+    var ext = (file.name || '').toLowerCase().replace(/^.*(\.[^.]+)$/, '$1');
+    if (validTypes.indexOf(file.type) === -1 || validExts.indexOf(ext) === -1) {
+      showToast('Invalid file type. Please upload a PDF, JPG, or PNG file.', 'error');
       return;
     }
-    // Validate file size (25MB)
     if (file.size > 25 * 1024 * 1024) {
-      alert('File exceeds the 25MB limit. Please upload a smaller file.');
+      showToast('File exceeds the 25MB limit. Please upload a smaller file.', 'error');
       return;
     }
 
@@ -1074,8 +1092,8 @@
       '<div class="uploaded-file" id="file-' + docId + '">' +
       '  <svg class="uploaded-file-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5l4 4 9-10"/></svg>' +
       '  <div class="uploaded-file-info">' +
-      '    <div class="uploaded-file-name">' + file.name + '</div>' +
-      '    <div class="uploaded-file-size">' + formatFileSize(file.size) + '</div>' +
+      '    <div class="uploaded-file-name">' + escHtml(file.name) + '</div>' +
+      '    <div class="uploaded-file-size">' + escHtml(formatFileSize(file.size)) + '</div>' +
       '  </div>' +
       '  <button class="uploaded-file-remove" data-remove-id="' + docId + '">Remove</button>' +
       '</div>';
@@ -1207,7 +1225,7 @@
     var contactEmail = accountData.email || builderFormData.contactEmail || builderFormData.email || '';
     var emailEl = document.getElementById('confirmEmail');
     if (contactEmail) {
-      emailEl.innerHTML = 'You\'ll receive a confirmation email at <strong>' + contactEmail + '</strong>';
+      emailEl.innerHTML = 'You\'ll receive a confirmation email at <strong>' + escHtml(contactEmail) + '</strong>';
     } else {
       emailEl.innerHTML = 'You\'ll receive a confirmation email shortly.';
     }
@@ -1218,7 +1236,7 @@
 
   // Done button
   document.getElementById('doneBtn').addEventListener('click', function() {
-    window.location.href = 'schedule.html';
+    window.location.href = 'portal.html';
   });
 
   // Close modal on overlay click
