@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Document Review & E-Sign</title>
@@ -22,14 +22,14 @@
     --paper: #FCFAF6; --paper-shadow: rgba(80,60,30,.12);
   }
   * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); font-feature-settings: 'ss01','cv01','cv11'; letter-spacing: -0.005em; margin: 0; height: 100vh; overflow: hidden; }
+  html, body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg-page); color: var(--text-primary); font-feature-settings: 'ss01','cv01','cv11'; letter-spacing: -0.005em; margin: 0; height: 100vh; height: 100dvh; overflow: hidden; }
   .font-display { font-family: 'Fraunces', Georgia, serif; letter-spacing: -0.018em; }
   .font-mono { font-family: 'Geist Mono', ui-monospace, monospace; }
   .font-serif { font-family: 'Crimson Pro', Georgia, serif; }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-thumb { background: #C9C0AB; border-radius: 8px; border: 2px solid var(--bg-page); }
 
-  .layout-shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; }
+  .layout-shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; height: 100dvh; }
   .top-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 10; }
   .main-split { display: grid; grid-template-columns: 280px 1fr; height: 100%; overflow: hidden; }
 
@@ -478,6 +478,42 @@
 
   /* Certification checkbox (pre-checked, read-only) */
   .cert-checkbox { accent-color: var(--brand); margin-top: 4px; pointer-events: none; }
+
+  @media (max-width: 768px) {
+    .main-split { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .paper { padding: 32px 20px 48px; }
+    .paper-area { padding: 16px 8px 60px; }
+    .top-bar { padding: 0 12px; }
+    .initial-grid { grid-template-columns: repeat(3, 30px) !important; gap: 6px !important; }
+    .sign-block { grid-template-columns: 1fr; gap: 16px; }
+    .initial-box { position: static; margin: 12px auto 0; }
+    .modal-card { padding: 24px 20px; }
+    .submit-card { padding: 28px 20px; }
+  }
+  @media (max-width: 480px) {
+    .paper { padding: 24px 14px 40px; font-size: 13px; }
+    .paper-doc-title { font-size: 22px; }
+    .paper-section-title { font-size: 15px; }
+    .paper-fld.wider, .paper-fld.wide { min-width: auto; width: 100%; display: inline-block; }
+    .w9-input.wider, .w9-input.wide { min-width: auto; width: 100%; }
+    .w9-input { font-size: 16px; }
+    .w9-header-grid { grid-template-columns: 1fr !important; }
+    .w9-header-grid > div { border-right: none !important; border-bottom: 1px solid #000; }
+    .esign-style-grid { grid-template-columns: 1fr; }
+  }
+  @supports (padding: env(safe-area-inset-bottom)) {
+    .paper-area { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+    .top-bar { padding-left: calc(12px + env(safe-area-inset-left)); padding-right: calc(12px + env(safe-area-inset-right)); }
+  }
+  @media print {
+    .top-bar, .sidebar, .esign-modal, .initial-modal, #submitOverlay { display: none !important; }
+    .layout-shell { display: block; height: auto; }
+    .main-split { display: block; }
+    .paper-area { overflow: visible; padding: 0; }
+    .paper { box-shadow: none; padding: 40px 50px; break-inside: avoid; }
+    body { overflow: visible; height: auto; }
+  }
 </style>
 </head>
 <body>
@@ -487,7 +523,7 @@
   <!-- TOP BAR -->
   <header class="top-bar">
     <div class="flex items-center gap-3">
-      <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
+      <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
       <div class="font-display text-lg font-medium" style="color: var(--brand);">CMG <span style="font-weight: 400; color: var(--text-primary);">Home Loans</span></div>
     </div>
     <div class="flex items-center gap-2">
@@ -549,24 +585,24 @@
         Type your full legal name and select a signature style. This will be applied as your electronic signature on the W-9 form.
       </div>
 
-      <label style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin-bottom: 6px;">Full Legal Name</label>
-      <input type="text" id="esignNameInput" placeholder="e.g. Jane Smith" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Geist', sans-serif; font-size: 15px; color: var(--text-primary); outline: none; transition: all 150ms ease; background: var(--bg-surface);" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'" />
+      <label for="esignNameInput" style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin-bottom: 6px;">Full Legal Name</label>
+      <input type="text" id="esignNameInput" placeholder="e.g. Jane Smith" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Geist', sans-serif; font-size: 16px; color: var(--text-primary); outline: none; transition: all 150ms ease; background: var(--bg-surface);" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'" />
 
       <label style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin: 18px 0 8px;">Select Signature Style</label>
-      <div class="esign-style-grid" id="esignStyleGrid">
-        <div class="esign-style-option selected" data-font="'Fraunces', Georgia, serif" data-style="italic" onclick="selectSigStyle(this)">
+      <div class="esign-style-grid" id="esignStyleGrid" role="radiogroup" aria-label="Signature style">
+        <div class="esign-style-option selected" data-font="'Fraunces', Georgia, serif" data-style="italic" onclick="selectSigStyle(this)" tabindex="0" role="radio" aria-checked="true" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
           <div class="sig-preview" style="font-family: 'Fraunces', Georgia, serif; font-style: italic;" id="sigPreview0">—</div>
           <div class="sig-label">Classic Serif</div>
         </div>
-        <div class="esign-style-option" data-font="'Dancing Script', cursive" data-style="normal" onclick="selectSigStyle(this)">
+        <div class="esign-style-option" data-font="'Dancing Script', cursive" data-style="normal" onclick="selectSigStyle(this)" tabindex="-1" role="radio" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
           <div class="sig-preview" style="font-family: 'Dancing Script', cursive;" id="sigPreview1">—</div>
           <div class="sig-label">Script</div>
         </div>
-        <div class="esign-style-option" data-font="'Caveat', cursive" data-style="normal" onclick="selectSigStyle(this)">
+        <div class="esign-style-option" data-font="'Caveat', cursive" data-style="normal" onclick="selectSigStyle(this)" tabindex="-1" role="radio" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
           <div class="sig-preview" style="font-family: 'Caveat', cursive;" id="sigPreview2">—</div>
           <div class="sig-label">Handwritten</div>
         </div>
-        <div class="esign-style-option" data-font="'Geist', sans-serif" data-style="italic" onclick="selectSigStyle(this)">
+        <div class="esign-style-option" data-font="'Geist', sans-serif" data-style="italic" onclick="selectSigStyle(this)" tabindex="-1" role="radio" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
           <div class="sig-preview" style="font-family: 'Geist', sans-serif; font-style: italic; font-weight: 500;" id="sigPreview3">—</div>
           <div class="sig-label">Modern</div>
         </div>
@@ -617,6 +653,11 @@
   try { formData = JSON.parse(localStorage.getItem('builderFormData') || '{}'); } catch(e) {}
   try { account = JSON.parse(localStorage.getItem('builderAccount') || '{}'); } catch(e) {}
 
+  if (!localStorage.getItem('builderAccount')) {
+    window.location.replace((document.querySelector('base') || {}).href + 'register.html');
+    return;
+  }
+
   // Helpers to safely read nested values
   function fd(key, fallback) { return formData[key] || fallback || ''; }
   function ac(key, fallback) { return account[key] || fallback || ''; }
@@ -656,23 +697,26 @@
   // Background
   var litigation = fd('litigation', 'no');
   var litigationDetail = fd('litigationDetail', '');
-  var judgments = fd('judgments', 'no');
-  var judgmentsDetail = fd('judgmentsDetail', '');
+  var judgments = fd('liens', 'no');
+  var judgmentsDetail = fd('liensDetail', '');
   var bankruptcy = fd('bankruptcy', 'no');
   var bankruptcyDetail = fd('bankruptcyDetail', '');
   var workersComp = fd('workersComp', 'yes');
-  var workersCompReason = fd('workersCompReason', '');
+  var workersCompReason = fd('wcReason', '');
   var yearsInBusiness = fd('yearsInBusiness', '');
   var projectTypes = fd('projectTypes', []);
   if (!Array.isArray(projectTypes)) projectTypes = [];
   var inHouseTrades = fd('inHouseTrades', '');
 
-  // Construction history
-  var histResNew = fd('histResNew', {});
-  var histResReno = fd('histResReno', {});
-  var histCommercial = fd('histCommercial', {});
-  var sales3yr = fd('sales3yr', []);
-  if (!Array.isArray(sales3yr)) sales3yr = [];
+  // Construction history — application.html saves as flat fields
+  var histResNew = { started: fd('resNewStarted', ''), completed: fd('resNewCompleted', ''), inProgress: fd('resNewInProgress', ''), avgSize: fd('resNewAvgSize', '') };
+  var histResReno = { started: fd('resRenovStarted', ''), completed: fd('resRenovCompleted', ''), inProgress: fd('resRenovInProgress', ''), avgSize: fd('resRenovAvgSize', '') };
+  var histCommercial = { started: fd('commStarted', ''), completed: fd('commCompleted', ''), inProgress: fd('commInProgress', ''), avgSize: fd('commAvgSize', '') };
+  var sales3yr = [
+    { year: '2025', totalSales: fd('sales2025Total', ''), projectsCompleted: fd('sales2025Projects', '') },
+    { year: '2024', totalSales: fd('sales2024Total', ''), projectsCompleted: fd('sales2024Projects', '') },
+    { year: '2023', totalSales: fd('sales2023Total', ''), projectsCompleted: fd('sales2023Projects', '') }
+  ];
 
   // Completion date
   var completionDate = '';
@@ -718,7 +762,15 @@
   function escHtml(str) {
     var div = document.createElement('div');
     div.textContent = str;
-    return div.innerHTML;
+    return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function fmtPhone(val) {
+    if (!val) return '';
+    var d = val.replace(/\D/g, '');
+    if (d.length === 10) return '(' + d.slice(0,3) + ') ' + d.slice(3,6) + '-' + d.slice(6);
+    if (d.length === 11 && d[0] === '1') return '(' + d.slice(1,4) + ') ' + d.slice(4,7) + '-' + d.slice(7);
+    return val;
   }
 
   // ---------------------------------------------------------------------------
@@ -782,7 +834,7 @@
           '<div class="sign-block">' +
             '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(companyName) + '</span></div><div class="sign-label">Builder Company Name</div></div>' +
             '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(contactFirst + ' ' + contactLast) + '</span></div><div class="sign-label">Printed Name of Signer</div></div>' +
-            '<div class="sign-row"><div class="esign-callout"><div class="esign-callout-text">Type to E-Sign</div><div class="esign-callout-tip"></div></div><div class="sign-line"><input id="bafSignature" placeholder="Type to e-sign" /></div><div class="sign-label">Signature (type to e-sign)</div></div>' +
+            '<div class="sign-row"><div class="esign-callout"><div class="esign-callout-text">Type to E-Sign</div><div class="esign-callout-tip"></div></div><div class="sign-line"><input id="bafSignature" placeholder="Type to e-sign" aria-label="Builder Application Form signature — type to e-sign" /></div><div class="sign-label">Signature (type to e-sign)</div></div>' +
             '<div class="sign-row"><div class="sign-line"><span class="sign-value">' + escHtml(principalTitle) + '</span></div><div class="sign-label">Job Title</div></div>' +
             '<div class="sign-row" style="grid-column: 1 / -1; max-width: 280px;"><div class="sign-line"><span class="sign-value">' + todayDisplay + '</span></div><div class="sign-label">Date</div></div>' +
           '</div>' +
@@ -803,8 +855,8 @@
         for (var i = 0; i < principals.length; i++) {
           var p = principals[i];
           principalsHtml += '<div class="principal-block">' +
-            '<p><strong>' + (i+1) + '.</strong> ' + fld((p.firstName || '') + ' ' + (p.lastName || '')) + ' &middot; Title ' + fld(p.title || '') + ' &middot; Ownership ' + fld(p.ownership ? p.ownership + '%' : '', 'tiny') + ' &middot; ' + fld(p.years ? p.years + ' yrs' : '', 'tiny') + '</p>' +
-            '<p style="margin-top: 4px; padding-left: 14px;">Email ' + fld(p.email || '', 'wide') + ' &middot; Phone ' + fld(p.phone || '') + '</p>' +
+            '<p><strong>' + (i+1) + '.</strong> ' + fld(p.name || ((p.firstName || '') + ' ' + (p.lastName || '')).trim()) + ' &middot; Title ' + fld(p.title || '') + ' &middot; Ownership ' + fld(p.ownership ? p.ownership + '%' : '', 'tiny') + ' &middot; ' + fld(p.years ? p.years + ' yrs' : '', 'tiny') + '</p>' +
+            '<p style="margin-top: 4px; padding-left: 14px;">Email ' + fld(p.email || '', 'wide') + ' &middot; Phone ' + fld(fmtPhone(p.phone || '')) + '</p>' +
           '</div>';
         }
         if (!principalsHtml) {
@@ -821,7 +873,7 @@
             '<p><strong>Address:</strong> ' + fld(companyAddress, 'wider') + '</p>' +
             '<p><strong>City:</strong> ' + fld(companyCity) + '&nbsp;&nbsp;<strong>State:</strong> ' + fld(companyState, 'tiny') + '&nbsp;&nbsp;<strong>Zip:</strong> ' + fld(companyZip, 'short') + '&nbsp;&nbsp;<strong>EIN:</strong> ' + fld(ein) + '</p>' +
             '<p style="margin-top: 14px;"><em style="color: var(--text-secondary);">Point of contact completing this questionnaire:</em></p>' +
-            '<p>First ' + fld(contactFirst) + '&nbsp;&nbsp;Last ' + fld(contactLast) + '&nbsp;&nbsp;Phone ' + fld(contactPhone) + '&nbsp;&nbsp;Email ' + fld(contactEmail, 'wide') + '</p>' +
+            '<p>First ' + fld(contactFirst) + '&nbsp;&nbsp;Last ' + fld(contactLast) + '&nbsp;&nbsp;Phone ' + fld(fmtPhone(contactPhone)) + '&nbsp;&nbsp;Email ' + fld(contactEmail, 'wide') + '</p>' +
             '<h2 class="paper-section-title">Principals / Officers / Members</h2>' +
             principalsHtml +
           '</div>';
@@ -829,7 +881,7 @@
       // Page 2: Background & Experience
       function() {
         var ptHtml = '';
-        var allTypes = ['Residential New 1-4', 'Multi-Family', 'Factory Built', 'Renovation', 'Commercial', 'Other'];
+        var allTypes = ['Residential New Construction 1-4 Unit', 'Multi-Family', 'Factory Built', 'Residential Renovation', 'Commercial (CRE)', 'Other'];
         allTypes.forEach(function(t) {
           var isActive = projectTypes.indexOf(t) !== -1;
           ptHtml += '<span class="' + (isActive ? 'active' : '') + '">' + t + '</span>';
@@ -872,8 +924,8 @@
         for (var i = 0; i < bankRefs.length; i++) {
           var b = bankRefs[i];
           bankHtml += '<div class="ref-block">' +
-            '<p><strong>' + (i+1) + '.</strong> Lender ' + fld(b.lender || '') + ' &middot; LO ' + fld(b.contactName || '') + ' &middot; ' + fld(b.years ? b.years + ' yrs' : '', 'tiny') + '</p>' +
-            '<p style="padding-left: 14px;">Phone ' + fld(b.phone || '') + ' &middot; Email ' + fld(b.email || '', 'wide') + '</p>' +
+            '<p><strong>' + (i+1) + '.</strong> Lender ' + fld(b.lenderName || b.lender || '') + ' &middot; LO ' + fld(b.loanOfficer || b.contactName || '') + ' &middot; ' + fld(b.years ? b.years + ' yrs' : '', 'tiny') + '</p>' +
+            '<p style="padding-left: 14px;">Phone ' + fld(fmtPhone(b.phone || '')) + ' &middot; Email ' + fld(b.email || '', 'wide') + '</p>' +
           '</div>';
         }
         if (!bankHtml) bankHtml = '<div class="ref-block"><p style="color: var(--text-faint); font-style: italic;">No banking references provided</p></div>';
@@ -882,8 +934,8 @@
         for (var i = 0; i < tradeRefs.length; i++) {
           var t = tradeRefs[i];
           tradeHtml += '<div class="ref-block">' +
-            '<p><strong>' + (i+1) + '.</strong> ' + fld(t.company || '') + ' &middot; Trade ' + fld(t.trade || '') + ' &middot; ' + fld(t.years ? t.years + ' yrs' : '', 'tiny') + ' &middot; Contact ' + fld(t.contactName || '') + '</p>' +
-            '<p style="padding-left: 14px;">Phone ' + fld(t.phone || '') + ' &middot; Email ' + fld(t.email || '', 'wide') + '</p>' +
+            '<p><strong>' + (i+1) + '.</strong> ' + fld(t.name || t.company || '') + ' &middot; Trade ' + fld(t.trade || '') + ' &middot; ' + fld(t.years ? t.years + ' yrs' : '', 'tiny') + ' &middot; Contact ' + fld(t.contact || t.contactName || '') + '</p>' +
+            '<p style="padding-left: 14px;">Phone ' + fld(fmtPhone(t.phone || '')) + ' &middot; Email ' + fld(t.email || '', 'wide') + '</p>' +
           '</div>';
         }
         if (!tradeHtml) tradeHtml = '<div class="ref-block"><p style="color: var(--text-faint); font-style: italic;">No trade references provided</p></div>';
@@ -893,8 +945,8 @@
           var s = supplierRefs[i];
           var isLumber = s.isPrimaryLumber || (s.material && s.material.toLowerCase().indexOf('lumber') !== -1);
           supplierHtml += '<div class="ref-block ' + (isLumber ? 'gold' : '') + '">' +
-            '<p><strong>' + (i+1) + '.</strong> ' + fld(s.company || '') + (isLumber ? ' &middot; <span style="font-size: 11px; color: var(--gold-deep); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-family: Geist, sans-serif;">&#9733; Primary Lumber</span>' : ' &middot; Material ' + fld(s.material || '')) + ' &middot; ' + fld(s.years ? s.years + ' yrs' : '', 'tiny') + '</p>' +
-            '<p style="padding-left: 14px;">Contact ' + fld(s.contactName || '') + ' &middot; Phone ' + fld(s.phone || '') + ' &middot; Email ' + fld(s.email || '', 'wide') + '</p>' +
+            '<p><strong>' + (i+1) + '.</strong> ' + fld(s.name || s.company || '') + (isLumber ? ' &middot; <span style="font-size: 11px; color: var(--gold-deep); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-family: Geist, sans-serif;">&#9733; Primary Lumber</span>' : ' &middot; Material ' + fld(s.material || '')) + ' &middot; ' + fld(s.years ? s.years + ' yrs' : '', 'tiny') + '</p>' +
+            '<p style="padding-left: 14px;">Contact ' + fld(s.contact || s.contactName || '') + ' &middot; Phone ' + fld(fmtPhone(s.phone || '')) + ' &middot; Email ' + fld(s.email || '', 'wide') + '</p>' +
           '</div>';
         }
         if (!supplierHtml) supplierHtml = '<div class="ref-block"><p style="color: var(--text-faint); font-style: italic;">No supplier references provided</p></div>';
@@ -1005,7 +1057,7 @@
         return '' +
           // ── W-9 Top Banner ──
           '<div style="border: 2px solid #000; margin-bottom: 0;">' +
-            '<div style="display: grid; grid-template-columns: 180px 1fr 180px; border-bottom: 2px solid #000;">' +
+            '<div class="w9-header-grid" style="display: grid; grid-template-columns: 180px 1fr 180px; border-bottom: 2px solid #000;">' +
               // Left column: Form number
               '<div style="padding: 10px 14px; border-right: 2px solid #000;">' +
                 '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 26px; font-weight: 700; line-height: 1.1;">Form <span style="font-size: 32px;">W-9</span></div>' +
@@ -1028,28 +1080,28 @@
             // ── Line 1 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>1</strong>&nbsp; Name of entity/individual as shown on your income tax return. Name is required on this line; do not leave this line blank.</div>' +
-              '<div><input class="w9-input wider" data-w9="name" value="' + escHtml(companyName || '') + '" placeholder="Legal name" /></div>' +
+              '<div><input class="w9-input wider" data-w9="name" value="' + escHtml(companyName || '') + '" placeholder="Legal name" aria-label="W-9 Line 1: Legal name" /></div>' +
             '</div>' +
 
             // ── Line 2 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>2</strong>&nbsp; Business name/disregarded entity name, if different from above</div>' +
-              '<div><input class="w9-input wider" data-w9="dba" value="' + escHtml(dba || '') + '" placeholder="DBA name" /></div>' +
+              '<div><input class="w9-input wider" data-w9="dba" value="' + escHtml(dba || '') + '" placeholder="DBA name" aria-label="W-9 Line 2: Business name or DBA" /></div>' +
             '</div>' +
 
             // ── Line 3 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;"><strong>3</strong>&nbsp; Check appropriate box for federal tax classification of the person whose name is entered on line 1. Check only one of the following seven boxes.</div>' +
               '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center;">' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="individual"/> Individual/sole proprietor or single-member LLC</label>' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="ccorp"/> C Corporation</label>' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="scorp"/> S Corporation</label>' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="partnership"/> Partnership</label>' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="trust"/> Trust/estate</label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="individual"/> Individual/sole proprietor or single-member LLC</label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="ccorp"/> C Corporation</label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="scorp"/> S Corporation</label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="partnership"/> Partnership</label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="trust"/> Trust/estate</label>' +
               '</div>' +
               '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center; margin-top: 4px;">' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="llc"/> LLC &mdash; Enter tax classification (C=C corporation, S=S corporation, P=partnership): <input class="w9-input tiny" data-w9="llcClass" style="margin-left: 4px; min-width: 30px;" placeholder="C/S/P" maxlength="1" /></label>' +
-                '<label class="w9-cb-label"><input type="checkbox" class="w9-cb" name="w9taxclass" value="other"/> Other (see instructions) &#9654; <input class="w9-input short" data-w9="otherClass" style="margin-left: 4px;" placeholder="Specify" /></label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="llc"/> LLC &mdash; Enter tax classification (C=C corporation, S=S corporation, P=partnership): <input class="w9-input tiny" data-w9="llcClass" style="margin-left: 4px; min-width: 30px;" placeholder="C/S/P" maxlength="1" /></label>' +
+                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="other"/> Other (see instructions) &#9654; <input class="w9-input short" data-w9="otherClass" style="margin-left: 4px;" placeholder="Specify" /></label>' +
               '</div>' +
             '</div>' +
 
@@ -1057,8 +1109,8 @@
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;"><strong>4</strong>&nbsp; Exemptions (codes apply only to certain entities, not individuals; see instructions on page 3)</div>' +
               '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exempt payee code (if any): <input class="w9-input short" data-w9="exemptPayee" placeholder="Code" /></div>' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exemption from FATCA reporting code (if any): <input class="w9-input short" data-w9="fatcaCode" placeholder="Code" /></div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exempt payee code (if any): <input class="w9-input short" data-w9="exemptPayee" placeholder="Code" aria-label="Exempt payee code" /></div>' +
+                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exemption from FATCA reporting code (if any): <input class="w9-input short" data-w9="fatcaCode" placeholder="Code" aria-label="FATCA exemption code" /></div>' +
               '</div>' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 9px; color: var(--text-muted); margin-top: 4px; font-style: italic;">(Applies to accounts maintained outside the U.S.)</div>' +
             '</div>' +
@@ -1066,25 +1118,25 @@
             // ── Line 5 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>5</strong>&nbsp; Address (number, street, and apt. or suite no.) See instructions.</div>' +
-              '<div><input class="w9-input wider" data-w9="address" value="' + escHtml(companyAddress || '') + '" placeholder="Street address" /></div>' +
+              '<div><input class="w9-input wider" data-w9="address" value="' + escHtml(companyAddress || '') + '" placeholder="Street address" aria-label="W-9 Line 5: Street address" /></div>' +
             '</div>' +
 
             // ── Line 6 ──
             '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>6</strong>&nbsp; City, state, and ZIP code</div>' +
               '<div>' +
-                '<input class="w9-input" data-w9="city" value="' + escHtml(companyCity || '') + '" placeholder="City" />' +
+                '<input class="w9-input" data-w9="city" value="' + escHtml(companyCity || '') + '" placeholder="City" aria-label="W-9 City" />' +
                 '<span style="margin: 0 6px; color: var(--text-muted);">,</span>' +
-                '<input class="w9-input tiny" data-w9="state" value="' + escHtml(companyState || '') + '" placeholder="ST" maxlength="2" />' +
+                '<input class="w9-input tiny" data-w9="state" value="' + escHtml(companyState || '') + '" placeholder="ST" maxlength="2" aria-label="W-9 State" />' +
                 '<span style="margin: 0 6px;"></span>' +
-                '<input class="w9-input short" data-w9="zip" value="' + escHtml(companyZip || '') + '" placeholder="ZIP" />' +
+                '<input class="w9-input short" data-w9="zip" value="' + escHtml(companyZip || '') + '" placeholder="ZIP" aria-label="W-9 ZIP code" />' +
               '</div>' +
             '</div>' +
 
             // ── Line 7 ──
             '<div style="border-bottom: 2px solid #000; padding: 6px 14px 8px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>7</strong>&nbsp; List account number(s) here (optional)</div>' +
-              '<div><input class="w9-input wider" data-w9="accounts" placeholder="Account number(s)" /></div>' +
+              '<div><input class="w9-input wider" data-w9="accounts" placeholder="Account number(s)" aria-label="W-9 Line 7: Account numbers" /></div>' +
             '</div>' +
 
           '</div>' +
@@ -1094,27 +1146,14 @@
             '<div style="background: #000; color: #fff; padding: 5px 14px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em;">Part I&nbsp;&nbsp;&nbsp;&nbsp;Taxpayer Identification Number (TIN)</div>' +
             '<div style="padding: 12px 14px;">' +
               '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">Enter your TIN in the appropriate box. The TIN provided must match the name given on line 1 to avoid backup withholding. For individuals, this is generally your social security number (SSN). However, for a resident alien, sole proprietor, or disregarded entity, see the instructions for Part I, later. For other entities, it is your employer identification number (EIN). If you do not have a number, see <em>How to get a TIN</em>, later.</div>' +
-              '<div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center;">' +
-                // SSN box
-                '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center;">' +
-                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Social Security Number</div>' +
-                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
-                    '<input class="w9-input ein-input" data-w9="ssn1" inputmode="numeric" pattern="[0-9]*" style="min-width: 52px; max-width: 60px;" placeholder="___" maxlength="3" />' +
-                    '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ssn2" inputmode="numeric" pattern="[0-9]*" style="min-width: 36px; max-width: 42px;" placeholder="__" maxlength="2" />' +
-                    '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ssn3" inputmode="numeric" pattern="[0-9]*" style="min-width: 60px; max-width: 70px;" placeholder="____" maxlength="4" />' +
-                  '</div>' +
-                '</div>' +
-                // OR divider
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; font-weight: 700; color: var(--text-secondary);">OR</div>' +
-                // EIN box
+              '<div>' +
+                // EIN box (full width)
                 '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center; ' + (einClean ? 'border-color: var(--brand); background: var(--brand-tint);' : '') + '">' +
                   '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Employer Identification Number</div>' +
                   '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
-                    '<input class="w9-input ein-input" data-w9="ein1" inputmode="numeric" pattern="[0-9]*" style="min-width: 36px; max-width: 45px;" value="' + escHtml(einGroup1) + '" placeholder="__" maxlength="2" />' +
+                    '<input class="w9-input ein-input" data-w9="ein1" inputmode="numeric" pattern="[0-9]*" style="min-width: 36px; max-width: 45px;" value="' + escHtml(einGroup1) + '" placeholder="__" maxlength="2" aria-label="EIN first two digits" />' +
                     '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ein2" inputmode="numeric" pattern="[0-9]*" style="min-width: 100px; max-width: 120px;" value="' + escHtml(einGroup2) + '" placeholder="_______" maxlength="7" />' +
+                    '<input class="w9-input ein-input" data-w9="ein2" inputmode="numeric" pattern="[0-9]*" style="min-width: 100px; max-width: 120px;" value="' + escHtml(einGroup2) + '" placeholder="_______" maxlength="7" aria-label="EIN remaining seven digits" />' +
                   '</div>' +
                 '</div>' +
               '</div>' +
@@ -1193,7 +1232,7 @@
               '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>Date</span><span style="font-weight: 600; color: var(--text-primary);">' + escHtml(bDateStr) + '</span></div>' +
               '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>Time</span><span style="font-weight: 600; color: var(--text-primary);">' + escHtml(existingBooking.time) + '</span></div>' +
               '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>Duration</span><span style="font-weight: 600; color: var(--text-primary);">30 minutes</span></div>' +
-              '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>With</span><span style="font-weight: 600; color: var(--text-primary);">Tim Loss</span></div>' +
+              '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>With</span><span style="font-weight: 600; color: var(--text-primary);">Your CMG Lending Team</span></div>' +
             '</div>' +
             '<p style="font-size: 12px; color: var(--text-muted); font-family: Geist, sans-serif;">You can reschedule by clicking below.</p>' +
             '<button type="button" class="btn-secondary" onclick="resetScheduleWidget()" style="margin-top: 8px; font-size: 13px; padding: 8px 20px;">Reschedule</button>' +
@@ -1257,18 +1296,26 @@
           '<h2 class="paper-section-title" style="margin-top: 32px;">Documents Included in This Packet</h2>' +
           '<div style="margin-bottom: 28px;">' + checklistHtml + '</div>' +
           '<h2 class="paper-section-title">Electronic Signature</h2>' +
+          '<div style="font-family: Geist, sans-serif; font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; line-height: 1.6;">' +
+            '<strong style="color: var(--text-primary);">ESIGN Act Consent Disclosure</strong><br/>' +
+            'By signing electronically, you consent to the use of electronic records and signatures in connection with this builder application packet. You have the right to withdraw this consent at any time by contacting CMG Home Loans in writing. If you withdraw consent, the transaction may need to be completed using paper documents. ' +
+            'To receive and retain electronic records, you need a device with a current web browser (Chrome, Firefox, Safari, or Edge) and internet access. You may request a paper copy of any electronically signed document by contacting your loan officer.' +
+          '</div>' +
+          '<label style="display:flex;align-items:flex-start;gap:10px;font-family:Geist,sans-serif;font-size:13px;color:var(--text-secondary);margin-bottom:20px;cursor:pointer;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">' +
+            '<input type="checkbox" id="esignConsentCheck" style="accent-color:var(--brand);width:18px;height:18px;margin-top:2px;flex-shrink:0;" />' +
+            '<span>I have read the ESIGN Act Consent Disclosure above. I agree to use electronic signatures and records for this transaction. I understand I may withdraw this consent at any time by contacting CMG Home Loans in writing.</span>' +
+          '</label>' +
           '<p style="font-family: Geist, sans-serif; font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Type your full legal name below to apply your electronic signature to all documents in this packet.</p>' +
           '<div class="esign-callout" style="margin-bottom: 6px;"><div class="esign-callout-text">E-Sign Here</div><div class="esign-callout-tip"></div></div>' +
           '<div style="margin-bottom: 8px;">' +
             '<input type="text" class="esign-input" id="finalSignature" placeholder="Type your full legal name to e-sign" autocomplete="off" aria-label="Electronic signature — type your full legal name" />' +
           '</div>' +
           '<div style="display: flex; gap: 32px; margin-top: 20px;">' +
-            '<div><div style="font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);">Date</div><div style="font-size: 14px; margin-top: 4px;">' + todayDisplay + '</div></div>' +
-            '<div><div style="font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);">IP Address</div><div style="font-size: 14px; margin-top: 4px; color: var(--text-secondary);">Recorded at signing</div></div>' +
+            '<div><div style="font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);">Date &amp; Time</div><div style="font-size: 14px; margin-top: 4px;">' + todayDisplay + '</div></div>' +
           '</div>' +
           '<div style="margin-top: 32px; text-align: center;">' +
             '<button class="btn-primary" id="completeSubmitBtn" disabled onclick="submitPacket()" style="padding: 14px 40px; font-size: 15px;">Complete & Submit Packet</button>' +
-            '<p style="font-size: 11px; color: var(--text-muted); margin-top: 10px; font-family: Geist, sans-serif;">By clicking submit, you agree to the use of electronic records and signatures.</p>' +
+            '<p style="font-size: 11px; color: var(--text-muted); margin-top: 10px; font-family: Geist, sans-serif;">By clicking submit, you consent to the use of electronic records and signatures per the ESIGN Act disclosure above.</p>' +
           '</div>' +
         '</div>';
     },
@@ -1457,10 +1504,32 @@
     var sigInput = document.getElementById('finalSignature');
     if (sigInput) {
       sigInput.addEventListener('input', function() {
+        saveReviewState();
         updateSubmitState();
         renderSidebar();
       });
     }
+
+    // Bind BAF signature input
+    var bafSigInput = document.getElementById('bafSignature');
+    if (bafSigInput) {
+      bafSigInput.addEventListener('input', function() {
+        saveReviewState();
+        updateSubmitState();
+      });
+    }
+
+    // Bind ESIGN consent checkbox
+    var consentBox = document.getElementById('esignConsentCheck');
+    if (consentBox) {
+      consentBox.addEventListener('change', function() {
+        saveReviewState();
+        updateSubmitState();
+      });
+    }
+
+    // Restore persisted signature values after DOM render
+    restoreSignatureInputs();
 
     // Update page indicator
     updatePageIndicator();
@@ -1519,7 +1588,10 @@
   // ---------------------------------------------------------------------------
   // Initials modal
   // ---------------------------------------------------------------------------
+  var _modalTrigger = null;
+
   function openInitialModal(pageId) {
+    _modalTrigger = document.activeElement;
     pendingInitialPageId = pageId;
     var modal = document.getElementById('initialModal');
     var input = document.getElementById('initialInput');
@@ -1533,6 +1605,7 @@
   window.closeInitialModal = function() {
     document.getElementById('initialModal').classList.remove('open');
     pendingInitialPageId = null;
+    if (_modalTrigger && _modalTrigger.focus) { _modalTrigger.focus(); _modalTrigger = null; }
   };
 
   window.confirmInitial = function() {
@@ -1561,9 +1634,65 @@
       }
     }
 
+    saveReviewState();
     renderSidebar();
     updateSubmitState();
   };
+
+  // ---------------------------------------------------------------------------
+  // Persist review state to localStorage (C2 fix)
+  // ---------------------------------------------------------------------------
+  function saveReviewState() {
+    try {
+      var state = {
+        initialedPages: initialedPages,
+        bafSignature: '',
+        finalSignature: '',
+        esignConsent: false,
+        savedAt: new Date().toISOString()
+      };
+      var baf = document.getElementById('bafSignature');
+      if (baf) state.bafSignature = baf.value;
+      var fin = document.getElementById('finalSignature');
+      if (fin) state.finalSignature = fin.value;
+      var consent = document.getElementById('esignConsentCheck');
+      if (consent) state.esignConsent = consent.checked;
+      localStorage.setItem('builderReviewState', JSON.stringify(state));
+    } catch(e) { /* quota exceeded */ }
+  }
+
+  function restoreReviewState() {
+    try {
+      var raw = localStorage.getItem('builderReviewState');
+      if (!raw) return;
+      var state = JSON.parse(raw);
+      if (state.initialedPages) {
+        for (var k in state.initialedPages) {
+          if (state.initialedPages.hasOwnProperty(k)) {
+            initialedPages[k] = state.initialedPages[k];
+          }
+        }
+      }
+      // Signatures restored after render via restoreSignatureInputs
+    } catch(e) { /* ignore */ }
+  }
+
+  function restoreSignatureInputs() {
+    try {
+      var raw = localStorage.getItem('builderReviewState');
+      if (!raw) return;
+      var state = JSON.parse(raw);
+      var baf = document.getElementById('bafSignature');
+      if (baf && state.bafSignature) baf.value = state.bafSignature;
+      var fin = document.getElementById('finalSignature');
+      if (fin && state.finalSignature) fin.value = state.finalSignature;
+      var consent = document.getElementById('esignConsentCheck');
+      if (consent && state.esignConsent) consent.checked = true;
+    } catch(e) { /* ignore */ }
+  }
+
+  // Restore persisted state before first render
+  restoreReviewState();
 
   // Modal input preview
   document.getElementById('initialInput').addEventListener('input', function() {
@@ -1593,12 +1722,20 @@
     var sigInput = document.getElementById('finalSignature');
     var hasSig = sigInput && sigInput.value.trim().length >= 3;
 
+    var bafSigInput = document.getElementById('bafSignature');
+    var hasBafSig = bafSigInput && bafSigInput.value.trim().length >= 3;
+
+    var consentBox = document.getElementById('esignConsentCheck');
+    var hasConsent = consentBox && consentBox.checked;
+
+    var canSubmit = allInitialed && hasSig && hasBafSig && w9Signed && hasConsent;
+
     var topBtn = document.getElementById('submitPacketBtn');
-    topBtn.disabled = !(allInitialed && hasSig && w9Signed);
+    topBtn.disabled = !canSubmit;
 
     var bottomBtn = document.getElementById('completeSubmitBtn');
     if (bottomBtn) {
-      bottomBtn.disabled = !(allInitialed && hasSig && w9Signed);
+      bottomBtn.disabled = !canSubmit;
     }
   }
 
@@ -1606,23 +1743,41 @@
     var sigInput = document.getElementById('finalSignature');
     if (!sigInput || sigInput.value.trim().length < 3) return;
 
-    // Save signature to localStorage
-    var sigData = {
-      name: sigInput.value.trim(),
-      date: new Date().toISOString(),
-      pages: initialedPages
-    };
-    try {
-      localStorage.setItem('builderSignature', JSON.stringify(sigData));
-    } catch(e) {}
+    // Build tamper-evident audit trail (ESIGN Act compliance)
+    var signedName = sigInput.value.trim();
+    var signedAt = new Date().toISOString();
+    var w9Snapshot = '';
+    try { w9Snapshot = localStorage.getItem('builderW9Data') || ''; } catch(e) {}
+    var auditPayload = signedName + '|' + signedAt + '|' + JSON.stringify(initialedPages) + '|' + w9Snapshot;
 
-    // Build doc list for overlay
-    var listHtml = '';
-    documents.forEach(function(doc) {
-      listHtml += '<div class="doc-checklist-item"><div class="doc-checklist-check">&#10003;</div><span>' + escHtml(doc.title) + '</span><span style="margin-left: auto; font-family: Geist Mono, monospace; font-size: 10px; color: var(--success);">SIGNED</span></div>';
-    });
-    document.getElementById('submitDocList').innerHTML = listHtml;
-    document.getElementById('submitOverlay').classList.add('open');
+    function finishSubmit(hash) {
+      var sigData = {
+        name: signedName,
+        date: signedAt,
+        pages: initialedPages,
+        userAgent: navigator.userAgent,
+        viewport: window.innerWidth + 'x' + window.innerHeight,
+        contentHash: hash
+      };
+      try { localStorage.setItem('builderSignature', JSON.stringify(sigData)); } catch(e) {}
+
+      var listHtml = '';
+      documents.forEach(function(doc) {
+        listHtml += '<div class="doc-checklist-item"><div class="doc-checklist-check">&#10003;</div><span>' + escHtml(doc.title) + '</span><span style="margin-left: auto; font-family: Geist Mono, monospace; font-size: 10px; color: var(--success);">SIGNED</span></div>';
+      });
+      document.getElementById('submitDocList').innerHTML = listHtml;
+      document.getElementById('submitOverlay').classList.add('open');
+    }
+
+    if (window.crypto && window.crypto.subtle) {
+      var enc = new TextEncoder();
+      window.crypto.subtle.digest('SHA-256', enc.encode(auditPayload)).then(function(buf) {
+        var arr = Array.from(new Uint8Array(buf));
+        finishSubmit(arr.map(function(b) { return b.toString(16).padStart(2, '0'); }).join(''));
+      }).catch(function() { finishSubmit('unavailable'); });
+    } else {
+      finishSubmit('unavailable');
+    }
   };
 
   // Close submit overlay on overlay click
@@ -1641,6 +1796,7 @@
 
   window.openEsignModal = function() {
     if (w9Signed) return;
+    _modalTrigger = document.activeElement;
     var modal = document.getElementById('esignModal');
     var nameInput = document.getElementById('esignNameInput');
     nameInput.value = (contactFirst + ' ' + contactLast).trim();
@@ -1653,14 +1809,19 @@
 
   window.closeEsignModal = function() {
     document.getElementById('esignModal').classList.remove('visible');
+    if (_modalTrigger && _modalTrigger.focus) { _modalTrigger.focus(); _modalTrigger = null; }
   };
 
   var ALLOWED_FONTS = ["'Fraunces', Georgia, serif", "'Dancing Script', cursive", "'Caveat', cursive", "'Geist', sans-serif"];
   var ALLOWED_STYLES = ['normal', 'italic'];
 
   window.selectSigStyle = function(el) {
-    document.querySelectorAll('.esign-style-option').forEach(function(o) { o.classList.remove('selected'); });
+    var opts = document.querySelectorAll('.esign-style-option');
+    opts.forEach(function(o) { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); o.setAttribute('tabindex', '-1'); });
     el.classList.add('selected');
+    el.setAttribute('aria-checked', 'true');
+    el.setAttribute('tabindex', '0');
+    el.focus();
     var f = el.dataset.font;
     var s = el.dataset.style;
     selectedSigFont = ALLOWED_FONTS.indexOf(f) > -1 ? f : ALLOWED_FONTS[0];
@@ -1670,6 +1831,16 @@
     preview.style.fontStyle = selectedSigStyle;
     if (selectedSigFont.indexOf('Geist') > -1) { preview.style.fontWeight = '500'; } else { preview.style.fontWeight = ''; }
   };
+
+  document.getElementById('esignStyleGrid').addEventListener('keydown', function(e) {
+    if (['ArrowRight','ArrowDown','ArrowLeft','ArrowUp'].indexOf(e.key) === -1) return;
+    e.preventDefault();
+    var opts = Array.prototype.slice.call(document.querySelectorAll('.esign-style-option'));
+    var cur = opts.indexOf(document.activeElement);
+    if (cur === -1) return;
+    var next = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? (cur + 1) % opts.length : (cur - 1 + opts.length) % opts.length;
+    selectSigStyle(opts[next]);
+  });
 
   function updateSigPreviews() {
     var name = document.getElementById('esignNameInput').value.trim() || '—';
@@ -1835,6 +2006,21 @@
       _schedRenderTimes();
       _schedUpdateBtn();
     }
+    // Restore persisted W-9 edits
+    try {
+      var w9Raw = localStorage.getItem('builderW9Data');
+      if (w9Raw) {
+        var w9 = JSON.parse(w9Raw);
+        document.querySelectorAll('[data-w9]').forEach(function(el) {
+          var key = el.getAttribute('data-w9');
+          if (w9[key] !== undefined && w9[key] !== '') el.value = w9[key];
+        });
+        if (w9._taxClass && W9_VALID_TAX_CLASSES.indexOf(w9._taxClass) !== -1) {
+          var radio = document.querySelector('input[name="w9taxclass"][value="' + w9._taxClass + '"]');
+          if (radio) radio.checked = true;
+        }
+      }
+    } catch(e) {}
   };
 
   // ---------------------------------------------------------------------------
@@ -1847,29 +2033,72 @@
   // Escape key closes modals
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
+      var submitOv = document.getElementById('submitOverlay');
+      if (submitOv && submitOv.classList.contains('open')) { submitOv.classList.remove('open'); return; }
       if (document.getElementById('esignModal').classList.contains('visible')) closeEsignModal();
       if (document.getElementById('initialModal').classList.contains('open')) closeInitialModal();
     }
   });
 
-  // W-9: make tax classification checkboxes act as radios (one at a time)
+  // W-9: enforce numeric-only on EIN fields + persist W-9 edits
   var pa = document.getElementById('paperArea');
-  if (pa) pa.addEventListener('change', function(e) {
-    if (e.target.name === 'w9taxclass') {
-      var boxes = document.querySelectorAll('input[name="w9taxclass"]');
-      boxes.forEach(function(cb) { if (cb !== e.target) cb.checked = false; });
-    }
-  });
-
-  // W-9: enforce numeric-only on SSN/EIN fields
   if (pa) pa.addEventListener('input', function(e) {
     var w = e.target.getAttribute('data-w9');
-    if (w && (w.indexOf('ssn') === 0 || w.indexOf('ein') === 0)) {
+    if (!w) return;
+    if (w.indexOf('ein') === 0) {
       e.target.value = e.target.value.replace(/[^0-9]/g, '');
     }
+    saveW9Data();
   });
+  if (pa) pa.addEventListener('change', function(e) {
+    if (e.target.name === 'w9taxclass') saveW9Data();
+  });
+
+  var W9_VALID_TAX_CLASSES = ['individual','ccorp','scorp','partnership','trust','llc','other'];
+  function saveW9Data() {
+    var w9 = {};
+    document.querySelectorAll('[data-w9]').forEach(function(el) {
+      var key = el.getAttribute('data-w9');
+      if (key === 'ein1' || key === 'ein2') return;
+      w9[key] = el.value || '';
+    });
+    var sel = document.querySelector('input[name="w9taxclass"]:checked');
+    if (sel && W9_VALID_TAX_CLASSES.indexOf(sel.value) !== -1) w9._taxClass = sel.value;
+    try { localStorage.setItem('builderW9Data', JSON.stringify(w9)); } catch(e) {}
+  }
+
+  // ---------------------------------------------------------------------------
+  // Focus trapping for modals
+  // ---------------------------------------------------------------------------
+  function trapFocus(modalEl) {
+    modalEl.addEventListener('keydown', function(e) {
+      if (e.key !== 'Tab') return;
+      var focusable = modalEl.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  }
+
+  trapFocus(document.getElementById('initialModal'));
+  trapFocus(document.getElementById('esignModal'));
+  trapFocus(document.getElementById('submitOverlay'));
 })();
 </script>
 
+<script src="aria-widget.js"></script>
 </body>
 </html>

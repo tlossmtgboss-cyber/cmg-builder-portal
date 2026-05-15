@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Register</title>
@@ -183,13 +183,22 @@
   }
   .animate-in { animation: fadeUp 0.5s ease-out both; }
   .animate-in-delay { animation: fadeUp 0.5s ease-out 0.15s both; }
+
+  @media (max-width: 480px) {
+    .form-card { margin: 0 8px; }
+    #registerForm { padding: 20px 16px 24px !important; }
+    .name-grid { grid-template-columns: 1fr !important; }
+    .input { font-size: 16px; }
+    .toast { top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; left: 12px; transform: translateY(-120%); }
+    .toast.show { transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
 <noscript><p style="padding:40px;text-align:center;font-family:sans-serif;color:#1A1F1B;">JavaScript is required to use the CMG Builder Portal. Please enable JavaScript in your browser settings.</p></noscript>
 
 <!-- Toast notification -->
-<div id="toast" class="toast"></div>
+<div id="toast" class="toast" role="alert" aria-live="assertive"></div>
 
 <div style="position: relative; z-index: 1;">
 
@@ -260,7 +269,7 @@
         <!-- Company Legal Name -->
         <div style="margin-bottom: 20px;">
           <label class="field-label" for="companyName">
-            Company Legal Name <span class="req">*</span>
+            Company Legal Name <span class="req" aria-hidden="true">*</span>
           </label>
           <input
             type="text"
@@ -271,13 +280,13 @@
             required
             autocomplete="organization"
           />
-          <div class="field-error" id="companyNameError">Company name is required.</div>
+          <div class="field-error" id="companyNameError" role="alert">Company name is required.</div>
         </div>
 
         <!-- EIN -->
         <div style="margin-bottom: 20px;">
           <label class="field-label" for="ein">
-            EIN <span class="req">*</span>
+            EIN <span class="req" aria-hidden="true">*</span>
           </label>
           <input
             type="text"
@@ -289,14 +298,14 @@
             maxlength="10"
             autocomplete="off"
           />
-          <div class="field-error" id="einError">Valid EIN required (format: XX-XXXXXXX).</div>
+          <div class="field-error" id="einError" role="alert">Valid EIN required (format: XX-XXXXXXX).</div>
         </div>
 
         <!-- Name row -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+        <div class="name-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
           <div>
             <label class="field-label" for="firstName">
-              Contact First Name <span class="req">*</span>
+              Contact First Name <span class="req" aria-hidden="true">*</span>
             </label>
             <input
               type="text"
@@ -307,11 +316,11 @@
               required
               autocomplete="given-name"
             />
-            <div class="field-error" id="firstNameError">First name is required.</div>
+            <div class="field-error" id="firstNameError" role="alert">First name is required.</div>
           </div>
           <div>
             <label class="field-label" for="lastName">
-              Contact Last Name <span class="req">*</span>
+              Contact Last Name <span class="req" aria-hidden="true">*</span>
             </label>
             <input
               type="text"
@@ -322,14 +331,14 @@
               required
               autocomplete="family-name"
             />
-            <div class="field-error" id="lastNameError">Last name is required.</div>
+            <div class="field-error" id="lastNameError" role="alert">Last name is required.</div>
           </div>
         </div>
 
         <!-- Email -->
         <div style="margin-bottom: 20px;">
           <label class="field-label" for="email">
-            Email <span class="req">*</span>
+            Email <span class="req" aria-hidden="true">*</span>
           </label>
           <input
             type="email"
@@ -340,13 +349,13 @@
             required
             autocomplete="email"
           />
-          <div class="field-error" id="emailError">Valid email address is required.</div>
+          <div class="field-error" id="emailError" role="alert">Valid email address is required.</div>
         </div>
 
         <!-- Phone -->
-        <div style="margin-bottom: 20px;">
+        <div style="margin-bottom: 28px;">
           <label class="field-label" for="phone">
-            Phone <span class="req">*</span>
+            Phone <span class="req" aria-hidden="true">*</span>
           </label>
           <input
             type="tel"
@@ -357,43 +366,7 @@
             required
             autocomplete="tel"
           />
-          <div class="field-error" id="phoneError">Phone number is required.</div>
-        </div>
-
-        <!-- Password -->
-        <div style="margin-bottom: 20px;">
-          <label class="field-label" for="password">
-            Password <span class="req">*</span>
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="input"
-            placeholder="Minimum 8 characters"
-            required
-            minlength="8"
-            autocomplete="new-password"
-          />
-          <div class="field-error" id="passwordError">Password must be at least 8 characters.</div>
-        </div>
-
-        <!-- Confirm Password -->
-        <div style="margin-bottom: 28px;">
-          <label class="field-label" for="confirmPassword">
-            Confirm Password <span class="req">*</span>
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            class="input"
-            placeholder="Re-enter your password"
-            required
-            minlength="8"
-            autocomplete="new-password"
-          />
-          <div class="field-error" id="confirmPasswordError">Passwords do not match.</div>
+          <div class="field-error" id="phoneError" role="alert">Valid 10-digit phone number required.</div>
         </div>
 
         <!-- Submit -->
@@ -447,11 +420,7 @@
     { id: 'firstName', errorId: 'firstNameError', validate: v => v.trim().length > 0 },
     { id: 'lastName', errorId: 'lastNameError', validate: v => v.trim().length > 0 },
     { id: 'email', errorId: 'emailError', validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
-    { id: 'phone', errorId: 'phoneError', validate: v => v.trim().length > 0 },
-    { id: 'password', errorId: 'passwordError', validate: v => v.length >= 8 },
-    { id: 'confirmPassword', errorId: 'confirmPasswordError', validate: function(v) {
-      return v.length >= 8 && v === document.getElementById('password').value;
-    }}
+    { id: 'phone', errorId: 'phoneError', validate: v => /^\(\d{3}\)\s?\d{3}-\d{4}$/.test(v.trim()) || /^\d{10}$/.test(v.trim().replace(/\D/g, '')) }
   ];
 
   // Clear error on input
@@ -459,8 +428,24 @@
     var input = document.getElementById(field.id);
     input.addEventListener('input', function() {
       input.classList.remove('error');
+      input.removeAttribute('aria-invalid');
+      input.removeAttribute('aria-describedby');
       document.getElementById(field.errorId).classList.remove('visible');
     });
+  });
+
+  // Phone auto-formatting: (XXX) XXX-XXXX
+  var phoneInput = document.getElementById('phone');
+  phoneInput.addEventListener('input', function() {
+    var raw = phoneInput.value.replace(/\D/g, '');
+    if (raw.length > 10) raw = raw.slice(0, 10);
+    if (raw.length >= 7) {
+      phoneInput.value = '(' + raw.slice(0, 3) + ') ' + raw.slice(3, 6) + '-' + raw.slice(6);
+    } else if (raw.length >= 4) {
+      phoneInput.value = '(' + raw.slice(0, 3) + ') ' + raw.slice(3);
+    } else if (raw.length > 0) {
+      phoneInput.value = '(' + raw;
+    }
   });
 
   // EIN auto-formatting: insert dash after 2 digits
@@ -495,10 +480,14 @@
 
       if (!field.validate(value)) {
         input.classList.add('error');
+        input.setAttribute('aria-invalid', 'true');
+        input.setAttribute('aria-describedby', field.errorId);
         error.classList.add('visible');
         valid = false;
       } else {
         input.classList.remove('error');
+        input.removeAttribute('aria-invalid');
+        input.removeAttribute('aria-describedby');
         error.classList.remove('visible');
       }
     });
@@ -514,7 +503,7 @@
       return;
     }
 
-    // Build account data
+    // Build account data (EIN stored locally only — per security notice on page)
     var accountData = {
       companyName: document.getElementById('companyName').value.trim(),
       ein: document.getElementById('ein').value.trim(),
@@ -525,7 +514,8 @@
       createdAt: new Date().toISOString()
     };
 
-    // Save to localStorage (do not store password in localStorage)
+    // Save to localStorage
+    accountData._schemaVersion = 1;
     try {
       localStorage.setItem('builderAccount', JSON.stringify(accountData));
     } catch (err) {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Application</title>
@@ -114,7 +114,7 @@
   .progress-fill { height: 100%; background: var(--brand); transition: width 350ms ease; }
 
   /* Save confirmation toast */
-  .save-toast { position: fixed; top: 24px; right: 24px; background: var(--brand); color: #fff; padding: 14px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.15); transform: translateY(-20px); opacity: 0; transition: all 300ms ease; pointer-events: none; }
+  .save-toast { position: fixed; top: max(24px, env(safe-area-inset-top, 0px)); right: 24px; background: var(--brand); color: #fff; padding: 14px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.15); transform: translateY(-20px); opacity: 0; transition: all 300ms ease; pointer-events: none; }
   .save-toast.visible { transform: translateY(0); opacity: 1; }
 
   /* Field auditor */
@@ -133,16 +133,27 @@
   .audit-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
   .audit-pass .audit-header-icon { background: #F0FFF4; color: #2F855A; }
   .audit-fail .audit-header-icon { background: #FFF5F5; color: #C53030; }
+
+  @media (max-width: 768px) {
+    .max-w-\[1440px\] { padding-left: 12px; padding-right: 12px; }
+    .panel-body { padding: 16px; }
+    .panel-header { padding: 24px 16px; }
+    .panel-footer { padding: 16px; }
+    .repeater-row { padding: 14px; }
+    .input, .select, .textarea { font-size: 16px; }
+    .radio-pill, .check-pill { min-height: 44px; }
+    .stepper-rail { display: none; }
+  }
 </style>
 </head>
 <body class="relative">
 <noscript><p style="padding:40px;text-align:center;font-family:sans-serif;color:#1A1F1B;">JavaScript is required to use the CMG Builder Portal. Please enable JavaScript in your browser settings.</p></noscript>
 
 <!-- Save confirmation toast -->
-<div class="save-toast" id="saveToast">Progress saved successfully.</div>
+<div class="save-toast" id="saveToast" role="status" aria-live="polite">Progress saved successfully.</div>
 
 <!-- Audit overlay -->
-<div class="audit-overlay" id="auditOverlay" style="display:none;" onclick="if(event.target===this)closeAudit()">
+<div class="audit-overlay" id="auditOverlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Field audit results" onclick="if(event.target===this)closeAudit()">
   <div class="audit-panel" id="auditPanel"></div>
 </div>
 
@@ -150,7 +161,7 @@
 <header class="sticky top-0 z-50" style="background: rgba(250,247,241,.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);">
   <div class="max-w-[1440px] mx-auto px-8 py-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
+      <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
       <div class="font-display text-xl font-medium" style="color: var(--brand);">CMG Home Loans</div>
     </div>
     <div class="flex items-center gap-4">
@@ -186,46 +197,46 @@
         </div>
         <div class="panel-body">
           <div class="grid grid-cols-12 gap-5">
-            <div class="col-span-12"><label class="field-label">Project Street Address<span class="req">*</span></label><input class="input" data-field="projectAddress" placeholder="123 Main Street" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">City<span class="req">*</span></label><input class="input" data-field="projectCity" /></div>
-            <div class="col-span-6 md:col-span-3"><label class="field-label">State<span class="req">*</span></label>
-              <select class="select" id="projState" data-field="projectState">
+            <div class="col-span-12"><label class="field-label" for="projectAddress">Project Street Address<span class="req" aria-hidden="true">*</span></label><input class="input" id="projectAddress" data-field="projectAddress" placeholder="123 Main Street" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="projectCity">City<span class="req" aria-hidden="true">*</span></label><input class="input" id="projectCity" data-field="projectCity" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label" for="projectState">State<span class="req" aria-hidden="true">*</span></label>
+              <select class="select" id="projectState" data-field="projectState">
                 <option value="">Select</option>
                 <option>AL</option><option>AK</option><option>AZ</option><option>AR</option><option>CA</option><option>CO</option><option>CT</option><option>DE</option><option>FL</option><option>GA</option><option>HI</option><option>ID</option><option>IL</option><option>IN</option><option>IA</option><option>KS</option><option>KY</option><option>LA</option><option>ME</option><option>MD</option><option>MA</option><option>MI</option><option>MN</option><option>MS</option><option>MO</option><option>MT</option><option>NE</option><option>NV</option><option>NH</option><option>NJ</option><option>NM</option><option>NY</option><option>NC</option><option>ND</option><option>OH</option><option>OK</option><option>OR</option><option>PA</option><option>RI</option><option>SC</option><option>SD</option><option>TN</option><option value="TX">TX</option><option>UT</option><option>VT</option><option>VA</option><option>WA</option><option>WV</option><option>WI</option><option>WY</option>
               </select>
             </div>
-            <div class="col-span-6 md:col-span-3"><label class="field-label">Zip<span class="req">*</span></label><input class="input" data-field="projectZip" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Borrower Full Name<span class="req">*</span></label><input class="input" data-field="borrowerName" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Co-Borrower Full Name <span class="text-[10px]">(if applicable)</span></label><input class="input" data-field="coBorrowerName" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Estimated Project Duration<span class="req">*</span></label>
-              <div class="flex gap-2 items-center"><input class="input" type="number" data-field="estimatedDuration" placeholder="0" /><span class="text-sm" style="color: var(--text-muted);">months</span></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label" for="projectZip">Zip<span class="req" aria-hidden="true">*</span></label><input class="input" id="projectZip" data-field="projectZip" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="borrowerName">Borrower Full Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="borrowerName" data-field="borrowerName" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="coBorrowerName">Co-Borrower Full Name <span class="text-[10px]">(if applicable)</span></label><input class="input" id="coBorrowerName" data-field="coBorrowerName" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="estimatedDuration">Estimated Project Duration<span class="req" aria-hidden="true">*</span></label>
+              <div class="flex gap-2 items-center"><input class="input" type="number" min="0" id="estimatedDuration" data-field="estimatedDuration" placeholder="0" /><span class="text-sm" style="color: var(--text-muted);">months</span></div>
             </div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Construction Contract Amount<span class="req">*</span></label>
-              <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);">$</span><input class="input pl-7 dollar-field" data-field="contractAmount" placeholder="0" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="contractAmount">Construction Contract Amount<span class="req" aria-hidden="true">*</span></label>
+              <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-muted);">$</span><input class="input pl-7 dollar-field" id="contractAmount" data-field="contractAmount" placeholder="0" /></div>
             </div>
           </div>
           <hr class="my-7" style="border-color: var(--border);">
           <div class="space-y-6">
             <div>
-              <label class="field-label">Is the subject property located in Texas?<span class="req">*</span></label>
-              <div class="flex gap-2 mt-1">
-                <button type="button" class="radio-pill" data-group="isTx" data-value="yes">Yes</button>
-                <button type="button" class="radio-pill" data-group="isTx" data-value="no">No</button>
+              <label class="field-label">Is the subject property located in Texas?<span class="req" aria-hidden="true">*</span></label>
+              <div class="flex gap-2 mt-1" role="radiogroup" aria-label="Is the subject property located in Texas?">
+                <button type="button" class="radio-pill" data-group="isTx" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+                <button type="button" class="radio-pill" data-group="isTx" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
               </div>
             </div>
             <div>
-              <label class="field-label">Will the builder request a construction disbursement (draw) at closing?<span class="req">*</span></label>
-              <div class="flex gap-2 mt-1">
-                <button type="button" class="radio-pill" data-group="drawAtClose" data-value="yes">Yes</button>
-                <button type="button" class="radio-pill" data-group="drawAtClose" data-value="no">No</button>
+              <label class="field-label">Will the builder request a construction disbursement (draw) at closing?<span class="req" aria-hidden="true">*</span></label>
+              <div class="flex gap-2 mt-1" role="radiogroup" aria-label="Will the builder request a construction disbursement at closing?">
+                <button type="button" class="radio-pill" data-group="drawAtClose" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+                <button type="button" class="radio-pill" data-group="drawAtClose" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
               </div>
               <p class="text-[12px] mt-2" style="color: var(--text-muted);">If yes, you'll fill out the Draw Request Form at the end. Max 10% of contract price less any borrower deposit.</p>
             </div>
             <div>
               <label class="field-label">Is the project subject to HOA / PUD approval?</label>
-              <div class="flex gap-2 mt-1">
-                <button type="button" class="radio-pill" data-group="hasHoa" data-value="yes">Yes</button>
-                <button type="button" class="radio-pill" data-group="hasHoa" data-value="no">No</button>
+              <div class="flex gap-2 mt-1" role="radiogroup" aria-label="Is the project subject to HOA / PUD approval?">
+                <button type="button" class="radio-pill" data-group="hasHoa" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+                <button type="button" class="radio-pill" data-group="hasHoa" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
               </div>
             </div>
           </div>
@@ -245,23 +256,23 @@
         </div>
         <div class="panel-body">
           <div class="grid grid-cols-12 gap-5">
-            <div class="col-span-12 md:col-span-8"><label class="field-label">Company Legal Name<span class="req">*</span></label><input class="input" data-field="companyName" /></div>
-            <div class="col-span-12 md:col-span-4"><label class="field-label">EIN<span class="req">*</span></label><input class="input" data-field="ein" placeholder="XX-XXXXXXX" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">DBA — Doing Business As</label><input class="input" data-field="dba" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Parent Company Name</label><input class="input" data-field="parentCompany" /></div>
-            <div class="col-span-12"><label class="field-label">Street Address<span class="req">*</span></label><input class="input" data-field="companyAddress" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">City<span class="req">*</span></label><input class="input" data-field="companyCity" /></div>
-            <div class="col-span-6 md:col-span-3"><label class="field-label">State<span class="req">*</span></label><input class="input" data-field="companyState" /></div>
-            <div class="col-span-6 md:col-span-3"><label class="field-label">Zip<span class="req">*</span></label><input class="input" data-field="companyZip" /></div>
+            <div class="col-span-12 md:col-span-8"><label class="field-label" for="companyName">Company Legal Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="companyName" data-field="companyName" /></div>
+            <div class="col-span-12 md:col-span-4"><label class="field-label" for="ein">EIN<span class="req" aria-hidden="true">*</span></label><input class="input" id="ein" data-field="ein" placeholder="XX-XXXXXXX" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="dba">DBA — Doing Business As</label><input class="input" id="dba" data-field="dba" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="parentCompany">Parent Company Name</label><input class="input" id="parentCompany" data-field="parentCompany" /></div>
+            <div class="col-span-12"><label class="field-label" for="companyAddress">Street Address<span class="req" aria-hidden="true">*</span></label><input class="input" id="companyAddress" data-field="companyAddress" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="companyCity">City<span class="req" aria-hidden="true">*</span></label><input class="input" id="companyCity" data-field="companyCity" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label" for="companyState">State<span class="req" aria-hidden="true">*</span></label><input class="input" id="companyState" data-field="companyState" /></div>
+            <div class="col-span-6 md:col-span-3"><label class="field-label" for="companyZip">Zip<span class="req" aria-hidden="true">*</span></label><input class="input" id="companyZip" data-field="companyZip" /></div>
           </div>
           <hr class="my-7" style="border-color: var(--border);">
           <h3 class="subsec-title">Point of Contact</h3>
           <p class="text-[12px] mb-4" style="color: var(--text-muted);">The person completing this application.</p>
           <div class="grid grid-cols-12 gap-5">
-            <div class="col-span-12 md:col-span-6"><label class="field-label">First Name<span class="req">*</span></label><input class="input" data-field="contactFirst" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Last Name<span class="req">*</span></label><input class="input" data-field="contactLast" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-field="contactPhone" placeholder="(555) 555-5555" /></div>
-            <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" data-field="contactEmail" type="email" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="contactFirst">First Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="contactFirst" data-field="contactFirst" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="contactLast">Last Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="contactLast" data-field="contactLast" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="contactPhone">Phone<span class="req" aria-hidden="true">*</span></label><input class="input" id="contactPhone" data-field="contactPhone" type="tel" placeholder="(555) 555-5555" /></div>
+            <div class="col-span-12 md:col-span-6"><label class="field-label" for="contactEmail">Email<span class="req" aria-hidden="true">*</span></label><input class="input" id="contactEmail" data-field="contactEmail" type="email" /></div>
           </div>
         </div>
         <div class="panel-footer">
@@ -300,34 +311,34 @@
         </div>
         <div class="panel-body space-y-8">
           <div>
-            <label class="field-label">Is the company or any member, officer or partner currently involved in litigation?<span class="req">*</span></label>
-            <div class="flex gap-2 mt-1 mb-3">
-              <button type="button" class="radio-pill" data-group="lit" data-value="yes">Yes</button>
-              <button type="button" class="radio-pill" data-group="lit" data-value="no">No</button>
+            <label class="field-label">Is the company or any member, officer or partner currently involved in litigation?<span class="req" aria-hidden="true">*</span></label>
+            <div class="flex gap-2 mt-1 mb-3" role="radiogroup" aria-label="Is the company or any member currently involved in litigation?">
+              <button type="button" class="radio-pill" data-group="lit" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+              <button type="button" class="radio-pill" data-group="lit" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
             </div>
-            <div class="cond-hidden" id="cond-lit"><textarea class="textarea" data-field="litigationDetail" placeholder="Briefly explain"></textarea></div>
+            <div class="cond-hidden" id="cond-lit"><label class="field-label" for="litigationDetail" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Litigation details</label><textarea class="textarea" id="litigationDetail" data-field="litigationDetail" placeholder="Briefly explain"></textarea></div>
           </div>
           <div>
-            <label class="field-label">Does the company or any member, officer or partner have any judgments, liens, or garnishments?<span class="req">*</span></label>
-            <div class="flex gap-2 mt-1 mb-3">
-              <button type="button" class="radio-pill" data-group="liens" data-value="yes">Yes</button>
-              <button type="button" class="radio-pill" data-group="liens" data-value="no">No</button>
+            <label class="field-label">Does the company or any member, officer or partner have any judgments, liens, or garnishments?<span class="req" aria-hidden="true">*</span></label>
+            <div class="flex gap-2 mt-1 mb-3" role="radiogroup" aria-label="Does the company have any judgments, liens, or garnishments?">
+              <button type="button" class="radio-pill" data-group="liens" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+              <button type="button" class="radio-pill" data-group="liens" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
             </div>
-            <div class="cond-hidden" id="cond-liens"><textarea class="textarea" data-field="liensDetail" placeholder="Briefly explain"></textarea></div>
+            <div class="cond-hidden" id="cond-liens"><label class="field-label" for="liensDetail" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Liens details</label><textarea class="textarea" id="liensDetail" data-field="liensDetail" placeholder="Briefly explain"></textarea></div>
           </div>
           <div>
-            <label class="field-label">Has any member, officer, principal or partner discharged a bankruptcy in the last 7 years?<span class="req">*</span></label>
-            <div class="flex gap-2 mt-1 mb-3">
-              <button type="button" class="radio-pill" data-group="bk" data-value="yes">Yes</button>
-              <button type="button" class="radio-pill" data-group="bk" data-value="no">No</button>
+            <label class="field-label">Has any member, officer, principal or partner discharged a bankruptcy in the last 7 years?<span class="req" aria-hidden="true">*</span></label>
+            <div class="flex gap-2 mt-1 mb-3" role="radiogroup" aria-label="Has any principal discharged a bankruptcy in the last 7 years?">
+              <button type="button" class="radio-pill" data-group="bk" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+              <button type="button" class="radio-pill" data-group="bk" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
             </div>
-            <div class="cond-hidden" id="cond-bk"><textarea class="textarea" data-field="bankruptcyDetail" placeholder="Briefly explain"></textarea></div>
+            <div class="cond-hidden" id="cond-bk"><label class="field-label" for="bankruptcyDetail" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Bankruptcy details</label><textarea class="textarea" id="bankruptcyDetail" data-field="bankruptcyDetail" placeholder="Briefly explain"></textarea></div>
           </div>
           <div>
-            <label class="field-label">Does the company carry Workers' Compensation insurance?<span class="req">*</span></label>
-            <div class="flex gap-2 mt-1 mb-3">
-              <button type="button" class="radio-pill" data-group="wc" data-value="yes">Yes</button>
-              <button type="button" class="radio-pill" data-group="wc" data-value="no">No</button>
+            <label class="field-label">Does the company carry Workers' Compensation insurance?<span class="req" aria-hidden="true">*</span></label>
+            <div class="flex gap-2 mt-1 mb-3" role="radiogroup" aria-label="Does the company carry Workers Compensation insurance?">
+              <button type="button" class="radio-pill" data-group="wc" data-value="yes" role="radio" aria-checked="false" tabindex="0">Yes</button>
+              <button type="button" class="radio-pill" data-group="wc" data-value="no" role="radio" aria-checked="false" tabindex="0">No</button>
             </div>
             <div class="cond-hidden" id="cond-wc">
               <div class="text-[12px] mb-2" style="color: var(--text-muted);">If no, select the reason:</div>
@@ -337,7 +348,7 @@
                 <label class="check-pill"><input type="radio" name="wcReason" class="accent-current" value="state_licensing" /> Workers' Compensation is included in my State's licensing.</label>
                 <label class="check-pill"><input type="radio" name="wcReason" class="accent-current" value="other" /> Other</label>
               </div>
-              <textarea class="textarea mt-3" data-field="wcReasonOther" placeholder="If other, explain"></textarea>
+              <label class="field-label" for="wcReasonOther" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Workers comp other reason</label><textarea class="textarea mt-3" id="wcReasonOther" data-field="wcReasonOther" placeholder="If other, explain"></textarea>
             </div>
           </div>
         </div>
@@ -356,10 +367,10 @@
         </div>
         <div class="panel-body">
           <div class="grid grid-cols-12 gap-5 mb-7">
-            <div class="col-span-12 md:col-span-4"><label class="field-label">Years in Business Under This Company<span class="req">*</span></label><input class="input" type="number" data-field="yearsInBusiness" placeholder="0" /></div>
+            <div class="col-span-12 md:col-span-4"><label class="field-label" for="yearsInBusiness">Years in Business Under This Company<span class="req" aria-hidden="true">*</span></label><input class="input" type="number" min="0" id="yearsInBusiness" data-field="yearsInBusiness" placeholder="0" /></div>
           </div>
           <div class="mb-7">
-            <label class="field-label">Type of Construction Projects (select all that apply)<span class="req">*</span></label>
+            <label class="field-label">Type of Construction Projects (select all that apply)<span class="req" aria-hidden="true">*</span></label>
             <div class="flex flex-wrap gap-2 mt-1" id="projectTypesGroup">
               <label class="check-pill"><input type="checkbox" class="accent-current" value="Multi-Family" /> Multi-Family</label>
               <label class="check-pill"><input type="checkbox" class="accent-current" value="Factory Built" /> Factory Built</label>
@@ -370,8 +381,8 @@
             </div>
           </div>
           <div>
-            <label class="field-label">Trades your company performs in-house<span class="req">*</span></label>
-            <textarea class="textarea" data-field="inHouseTrades" placeholder="Framing, finish carpentry, etc."></textarea>
+            <label class="field-label" for="inHouseTrades">Trades your company performs in-house<span class="req" aria-hidden="true">*</span></label>
+            <textarea class="textarea" id="inHouseTrades" data-field="inHouseTrades" placeholder="Framing, finish carpentry, etc."></textarea>
           </div>
         </div>
         <div class="panel-footer">
@@ -393,28 +404,28 @@
             <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
               <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--gold-deep);">Residential New Construction</div>
               <div class="space-y-3">
-                <div><label class="field-label">Houses Started (5 yr)</label><input class="input" type="number" data-field="resNewStarted" /></div>
-                <div><label class="field-label">Houses Completed (5 yr)</label><input class="input" type="number" data-field="resNewCompleted" /></div>
-                <div><label class="field-label">Currently Under Construction</label><input class="input" type="number" data-field="resNewInProgress" /></div>
-                <div><label class="field-label">Average Project Size ($)</label><input class="input dollar-field" data-field="resNewAvgSize" /></div>
+                <div><label class="field-label" for="resNewStarted">Houses Started (5 yr)</label><input class="input" type="number" min="0" id="resNewStarted" data-field="resNewStarted" /></div>
+                <div><label class="field-label" for="resNewCompleted">Houses Completed (5 yr)</label><input class="input" type="number" min="0" id="resNewCompleted" data-field="resNewCompleted" /></div>
+                <div><label class="field-label" for="resNewInProgress">Currently Under Construction</label><input class="input" type="number" min="0" id="resNewInProgress" data-field="resNewInProgress" /></div>
+                <div><label class="field-label" for="resNewAvgSize">Average Project Size ($)</label><input class="input dollar-field" id="resNewAvgSize" data-field="resNewAvgSize" /></div>
               </div>
             </div>
             <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
               <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--gold-deep);">Residential Renovation</div>
               <div class="space-y-3">
-                <div><label class="field-label">Projects Started (5 yr)</label><input class="input" type="number" data-field="resRenovStarted" /></div>
-                <div><label class="field-label">Projects Completed (5 yr)</label><input class="input" type="number" data-field="resRenovCompleted" /></div>
-                <div><label class="field-label">Projects In Progress</label><input class="input" type="number" data-field="resRenovInProgress" /></div>
-                <div><label class="field-label">Average Project Size ($)</label><input class="input dollar-field" data-field="resRenovAvgSize" /></div>
+                <div><label class="field-label" for="resRenovStarted">Projects Started (5 yr)</label><input class="input" type="number" min="0" id="resRenovStarted" data-field="resRenovStarted" /></div>
+                <div><label class="field-label" for="resRenovCompleted">Projects Completed (5 yr)</label><input class="input" type="number" min="0" id="resRenovCompleted" data-field="resRenovCompleted" /></div>
+                <div><label class="field-label" for="resRenovInProgress">Projects In Progress</label><input class="input" type="number" min="0" id="resRenovInProgress" data-field="resRenovInProgress" /></div>
+                <div><label class="field-label" for="resRenovAvgSize">Average Project Size ($)</label><input class="input dollar-field" id="resRenovAvgSize" data-field="resRenovAvgSize" /></div>
               </div>
             </div>
             <div class="col-span-12 md:col-span-4 p-4 rounded-lg" style="background: var(--bg-soft); border: 1px solid var(--border);">
               <div class="font-mono text-[10px] uppercase tracking-[0.14em] mb-3" style="color: var(--gold-deep);">Commercial Construction</div>
               <div class="space-y-3">
-                <div><label class="field-label">Projects Started (5 yr)</label><input class="input" type="number" data-field="commStarted" /></div>
-                <div><label class="field-label">Projects Completed (5 yr)</label><input class="input" type="number" data-field="commCompleted" /></div>
-                <div><label class="field-label">Projects In Progress</label><input class="input" type="number" data-field="commInProgress" /></div>
-                <div><label class="field-label">Average Project Size ($)</label><input class="input dollar-field" data-field="commAvgSize" /></div>
+                <div><label class="field-label" for="commStarted">Projects Started (5 yr)</label><input class="input" type="number" min="0" id="commStarted" data-field="commStarted" /></div>
+                <div><label class="field-label" for="commCompleted">Projects Completed (5 yr)</label><input class="input" type="number" min="0" id="commCompleted" data-field="commCompleted" /></div>
+                <div><label class="field-label" for="commInProgress">Projects In Progress</label><input class="input" type="number" min="0" id="commInProgress" data-field="commInProgress" /></div>
+                <div><label class="field-label" for="commAvgSize">Average Project Size ($)</label><input class="input dollar-field" id="commAvgSize" data-field="commAvgSize" /></div>
               </div>
             </div>
           </div>
@@ -429,9 +440,9 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2025</td><td class="py-3 pr-4"><input class="input dollar-field" data-field="sales2025Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2025Projects" /></td></tr>
-                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2024</td><td class="py-3 pr-4"><input class="input dollar-field" data-field="sales2024Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2024Projects" /></td></tr>
-                <tr><td class="py-3 pr-4 font-display text-lg">2023</td><td class="py-3 pr-4"><input class="input dollar-field" data-field="sales2023Total" /></td><td class="py-3"><input class="input" type="number" data-field="sales2023Projects" /></td></tr>
+                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2025</td><td class="py-3 pr-4"><label for="sales2025Total" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">2025 Total Sales</label><input class="input dollar-field" id="sales2025Total" data-field="sales2025Total" /></td><td class="py-3"><label for="sales2025Projects" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">2025 Projects Completed</label><input class="input" type="number" min="0" id="sales2025Projects" data-field="sales2025Projects" /></td></tr>
+                <tr class="border-b" style="border-color: var(--border);"><td class="py-3 pr-4 font-display text-lg">2024</td><td class="py-3 pr-4"><label for="sales2024Total" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">2024 Total Sales</label><input class="input dollar-field" id="sales2024Total" data-field="sales2024Total" /></td><td class="py-3"><label for="sales2024Projects" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">2024 Projects Completed</label><input class="input" type="number" min="0" id="sales2024Projects" data-field="sales2024Projects" /></td></tr>
+                <tr><td class="py-3 pr-4 font-display text-lg">2023</td><td class="py-3 pr-4"><label for="sales2023Total" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">2023 Total Sales</label><input class="input dollar-field" id="sales2023Total" data-field="sales2023Total" /></td><td class="py-3"><label for="sales2023Projects" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">2023 Projects Completed</label><input class="input" type="number" min="0" id="sales2023Projects" data-field="sales2023Projects" /></td></tr>
               </tbody>
             </table>
           </div>
@@ -453,29 +464,29 @@
           <div class="repeater-row" data-bank-ref="0">
             <span class="repeater-row-num">Bank Ref 01 (Required)</span>
             <div class="grid grid-cols-12 gap-5 mt-2">
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Lender Name<span class="req">*</span></label><input class="input" data-bank="lenderName" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Loan Officer<span class="req">*</span></label><input class="input" data-bank="loanOfficer" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-bank="phone" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" data-bank="email" type="email" /></div>
-              <div class="col-span-12 md:col-span-3"><label class="field-label">Years as Client<span class="req">*</span></label><input class="input" data-bank="years" type="number" /></div>
-              <div class="col-span-12 md:col-span-9"><label class="field-label">Street Address</label><input class="input" data-bank="address" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" data-bank="city" /></div>
-              <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" data-bank="state" /></div>
-              <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" data-bank="zip" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank0_lenderName">Lender Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="bank0_lenderName" data-bank="lenderName" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank0_loanOfficer">Loan Officer<span class="req" aria-hidden="true">*</span></label><input class="input" id="bank0_loanOfficer" data-bank="loanOfficer" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank0_phone">Phone<span class="req" aria-hidden="true">*</span></label><input class="input" id="bank0_phone" data-bank="phone" type="tel" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank0_email">Email<span class="req" aria-hidden="true">*</span></label><input class="input" id="bank0_email" data-bank="email" type="email" /></div>
+              <div class="col-span-12 md:col-span-3"><label class="field-label" for="bank0_years">Years as Client<span class="req" aria-hidden="true">*</span></label><input class="input" id="bank0_years" data-bank="years" type="number" min="0" /></div>
+              <div class="col-span-12 md:col-span-9"><label class="field-label" for="bank0_address">Street Address</label><input class="input" id="bank0_address" data-bank="address" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank0_city">City</label><input class="input" id="bank0_city" data-bank="city" /></div>
+              <div class="col-span-6 md:col-span-3"><label class="field-label" for="bank0_state">State</label><input class="input" id="bank0_state" data-bank="state" /></div>
+              <div class="col-span-6 md:col-span-3"><label class="field-label" for="bank0_zip">Zip</label><input class="input" id="bank0_zip" data-bank="zip" /></div>
             </div>
           </div>
           <div class="repeater-row" data-bank-ref="1">
             <span class="repeater-row-num" style="background: var(--text-muted);">Bank Ref 02 (Optional)</span>
             <div class="grid grid-cols-12 gap-5 mt-2">
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Lender Name</label><input class="input" data-bank="lenderName" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Loan Officer</label><input class="input" data-bank="loanOfficer" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Phone</label><input class="input" data-bank="phone" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">Email</label><input class="input" data-bank="email" type="email" /></div>
-              <div class="col-span-12 md:col-span-3"><label class="field-label">Years as Client</label><input class="input" data-bank="years" type="number" /></div>
-              <div class="col-span-12 md:col-span-9"><label class="field-label">Street Address</label><input class="input" data-bank="address" /></div>
-              <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" data-bank="city" /></div>
-              <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" data-bank="state" /></div>
-              <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" data-bank="zip" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank1_lenderName">Lender Name</label><input class="input" id="bank1_lenderName" data-bank="lenderName" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank1_loanOfficer">Loan Officer</label><input class="input" id="bank1_loanOfficer" data-bank="loanOfficer" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank1_phone">Phone</label><input class="input" id="bank1_phone" data-bank="phone" type="tel" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank1_email">Email</label><input class="input" id="bank1_email" data-bank="email" type="email" /></div>
+              <div class="col-span-12 md:col-span-3"><label class="field-label" for="bank1_years">Years as Client</label><input class="input" id="bank1_years" data-bank="years" type="number" min="0" /></div>
+              <div class="col-span-12 md:col-span-9"><label class="field-label" for="bank1_address">Street Address</label><input class="input" id="bank1_address" data-bank="address" /></div>
+              <div class="col-span-12 md:col-span-6"><label class="field-label" for="bank1_city">City</label><input class="input" id="bank1_city" data-bank="city" /></div>
+              <div class="col-span-6 md:col-span-3"><label class="field-label" for="bank1_state">State</label><input class="input" id="bank1_state" data-bank="state" /></div>
+              <div class="col-span-6 md:col-span-3"><label class="field-label" for="bank1_zip">Zip</label><input class="input" id="bank1_zip" data-bank="zip" /></div>
             </div>
           </div>
         </div>
@@ -509,8 +520,8 @@
         <div class="panel-body">
           <div id="suppliersList"></div>
           <div class="mt-7">
-            <label class="field-label">Additional Comments</label>
-            <textarea class="textarea" data-field="supplierComments" placeholder="Anything else underwriting should know..."></textarea>
+            <label class="field-label" for="supplierComments">Additional Comments</label>
+            <textarea class="textarea" id="supplierComments" data-field="supplierComments" placeholder="Anything else underwriting should know..."></textarea>
           </div>
         </div>
         <div class="panel-footer">
@@ -525,7 +536,7 @@
 
 <script>
   // Registration guard
-  if (!localStorage.getItem('builderAccount') && !localStorage.getItem('builderFormData')) {
+  if (!localStorage.getItem('builderAccount')) {
     window.location.replace((document.querySelector('base') || {}).href + 'register.html');
   }
 
@@ -593,8 +604,12 @@
   document.querySelectorAll('[data-group]').forEach(btn => {
     btn.addEventListener('click', () => {
       const g = btn.dataset.group;
-      document.querySelectorAll(`[data-group="${g}"]`).forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`[data-group="${g}"]`).forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-checked', 'false');
+      });
       btn.classList.add('active');
+      btn.setAttribute('aria-checked', 'true');
       const v = btn.dataset.value;
       radioState[g] = v;
 
@@ -625,6 +640,16 @@
     }
   });
 
+  // EIN auto-formatting on Step 2
+  var einField = document.getElementById('ein');
+  if (einField) {
+    einField.addEventListener('input', function() {
+      var raw = einField.value.replace(/[^0-9]/g, '');
+      if (raw.length > 9) raw = raw.slice(0, 9);
+      einField.value = raw.length > 2 ? raw.slice(0, 2) + '-' + raw.slice(2) : raw;
+    });
+  }
+
   // =========================================================================
   // Principals repeater
   // =========================================================================
@@ -636,21 +661,42 @@
     document.getElementById('principalsList').insertAdjacentHTML('beforeend', `
       <div class="repeater-row" data-principal-idx="${idx}">
         <span class="repeater-row-num">Principal ${num}</span>
+        ${principalCount > 1 ? '<button type="button" class="btn-ghost" style="position:absolute;top:8px;right:8px;color:var(--danger);font-size:12px;padding:6px 10px;border-radius:6px;" onclick="removePrincipal(this)" aria-label="Remove principal ' + num + '">&times; Remove</button>' : ''}
         <div class="grid grid-cols-12 gap-5 mt-2">
-          <div class="col-span-12 md:col-span-7"><label class="field-label">Full Name<span class="req">*</span></label><input class="input" data-principal="name" /></div>
-          <div class="col-span-12 md:col-span-5"><label class="field-label">Title<span class="req">*</span></label><input class="input" data-principal="title" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">Ownership %<span class="req">*</span></label><input class="input" type="number" max="100" data-principal="ownership" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">Years Experience<span class="req">*</span></label><input class="input" type="number" data-principal="years" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" data-principal="email" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-principal="phone" placeholder="(555) 555-5555" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" data-principal="address" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" data-principal="city" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" data-principal="state" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" data-principal="zip" /></div>
+          <div class="col-span-12 md:col-span-7"><label class="field-label" for="principal${idx}_name">Full Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="principal${idx}_name" data-principal="name" /></div>
+          <div class="col-span-12 md:col-span-5"><label class="field-label" for="principal${idx}_title">Title<span class="req" aria-hidden="true">*</span></label><input class="input" id="principal${idx}_title" data-principal="title" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="principal${idx}_ownership">Ownership %<span class="req" aria-hidden="true">*</span></label><input class="input" id="principal${idx}_ownership" type="number" min="0" max="100" data-principal="ownership" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="principal${idx}_years">Years Experience<span class="req" aria-hidden="true">*</span></label><input class="input" id="principal${idx}_years" type="number" min="0" data-principal="years" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="principal${idx}_email">Email<span class="req" aria-hidden="true">*</span></label><input class="input" id="principal${idx}_email" type="email" data-principal="email" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="principal${idx}_phone">Phone<span class="req" aria-hidden="true">*</span></label><input class="input" id="principal${idx}_phone" data-principal="phone" type="tel" placeholder="(555) 555-5555" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="principal${idx}_address">Street Address</label><input class="input" id="principal${idx}_address" data-principal="address" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="principal${idx}_city">City</label><input class="input" id="principal${idx}_city" data-principal="city" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="principal${idx}_state">State</label><input class="input" id="principal${idx}_state" data-principal="state" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="principal${idx}_zip">Zip</label><input class="input" id="principal${idx}_zip" data-principal="zip" /></div>
         </div>
       </div>`);
   }
   addPrincipal();
+
+  window.removePrincipal = function(btn) {
+    const row = btn.closest('.repeater-row');
+    if (!row) return;
+    if (!confirm('Remove this principal?')) return;
+    row.remove();
+    principalCount--;
+    // Re-number remaining principals
+    const rows = document.querySelectorAll('#principalsList .repeater-row');
+    rows.forEach(function(r, i) {
+      r.setAttribute('data-principal-idx', i);
+      const numEl = r.querySelector('.repeater-row-num');
+      if (numEl) numEl.textContent = 'Principal ' + String(i + 1).padStart(2, '0');
+      // Show/hide remove button for first principal
+      const removeBtn = r.querySelector('[aria-label^="Remove principal"]');
+      if (removeBtn && rows.length <= 1) removeBtn.style.display = 'none';
+      else if (removeBtn) removeBtn.style.display = '';
+    });
+    saveFormData();
+  };
 
   function fillPrincipalFromOwner(checked) {
     const row = document.querySelector('[data-principal-idx="0"]');
@@ -681,16 +727,16 @@
       <div class="repeater-row" data-trade-idx="${idx}">
         <span class="repeater-row-num">Trade Ref 0${i}</span>
         <div class="grid grid-cols-12 gap-5 mt-2">
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Subcontractor Name<span class="req">*</span></label><input class="input" data-trade="name" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Trade<span class="req">*</span></label><input class="input" data-trade="trade" placeholder="Electrical, HVAC, etc." /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Contact Person<span class="req">*</span></label><input class="input" data-trade="contact" /></div>
-          <div class="col-span-12 md:col-span-3"><label class="field-label">Relationship (yrs)<span class="req">*</span></label><input class="input" type="number" data-trade="years" /></div>
-          <div class="col-span-12 md:col-span-3"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-trade="phone" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" data-trade="email" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" data-trade="address" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" data-trade="city" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" data-trade="state" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" data-trade="zip" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="trade${idx}_name">Subcontractor Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="trade${idx}_name" data-trade="name" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="trade${idx}_trade">Trade<span class="req" aria-hidden="true">*</span></label><input class="input" id="trade${idx}_trade" data-trade="trade" placeholder="Electrical, HVAC, etc." /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="trade${idx}_contact">Contact Person<span class="req" aria-hidden="true">*</span></label><input class="input" id="trade${idx}_contact" data-trade="contact" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label" for="trade${idx}_years">Relationship (yrs)<span class="req" aria-hidden="true">*</span></label><input class="input" id="trade${idx}_years" type="number" min="0" data-trade="years" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label" for="trade${idx}_phone">Phone<span class="req" aria-hidden="true">*</span></label><input class="input" id="trade${idx}_phone" data-trade="phone" type="tel" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="trade${idx}_email">Email<span class="req" aria-hidden="true">*</span></label><input class="input" id="trade${idx}_email" type="email" data-trade="email" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="trade${idx}_address">Street Address</label><input class="input" id="trade${idx}_address" data-trade="address" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="trade${idx}_city">City</label><input class="input" id="trade${idx}_city" data-trade="city" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="trade${idx}_state">State</label><input class="input" id="trade${idx}_state" data-trade="state" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="trade${idx}_zip">Zip</label><input class="input" id="trade${idx}_zip" data-trade="zip" /></div>
         </div>
       </div>`;
   }
@@ -707,16 +753,16 @@
       <div class="repeater-row" data-supplier-idx="${idx}">
         <span class="repeater-row-num" style="${bg}">${label}</span>
         <div class="grid grid-cols-12 gap-5 mt-2">
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Supplier Name<span class="req">*</span></label><input class="input" data-supplier="name" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Trade / Material<span class="req">*</span></label><input class="input" data-supplier="material" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Contact Person<span class="req">*</span></label><input class="input" data-supplier="contact" /></div>
-          <div class="col-span-12 md:col-span-3"><label class="field-label">Relationship (yrs)<span class="req">*</span></label><input class="input" type="number" data-supplier="years" /></div>
-          <div class="col-span-12 md:col-span-3"><label class="field-label">Phone<span class="req">*</span></label><input class="input" data-supplier="phone" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Email<span class="req">*</span></label><input class="input" type="email" data-supplier="email" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">Street Address</label><input class="input" data-supplier="address" /></div>
-          <div class="col-span-12 md:col-span-6"><label class="field-label">City</label><input class="input" data-supplier="city" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">State</label><input class="input" data-supplier="state" /></div>
-          <div class="col-span-6 md:col-span-3"><label class="field-label">Zip</label><input class="input" data-supplier="zip" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="supplier${idx}_name">Supplier Name<span class="req" aria-hidden="true">*</span></label><input class="input" id="supplier${idx}_name" data-supplier="name" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="supplier${idx}_material">Trade / Material<span class="req" aria-hidden="true">*</span></label><input class="input" id="supplier${idx}_material" data-supplier="material" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="supplier${idx}_contact">Contact Person<span class="req" aria-hidden="true">*</span></label><input class="input" id="supplier${idx}_contact" data-supplier="contact" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label" for="supplier${idx}_years">Relationship (yrs)<span class="req" aria-hidden="true">*</span></label><input class="input" id="supplier${idx}_years" type="number" min="0" data-supplier="years" /></div>
+          <div class="col-span-12 md:col-span-3"><label class="field-label" for="supplier${idx}_phone">Phone<span class="req" aria-hidden="true">*</span></label><input class="input" id="supplier${idx}_phone" data-supplier="phone" type="tel" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="supplier${idx}_email">Email<span class="req" aria-hidden="true">*</span></label><input class="input" id="supplier${idx}_email" type="email" data-supplier="email" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="supplier${idx}_address">Street Address</label><input class="input" id="supplier${idx}_address" data-supplier="address" /></div>
+          <div class="col-span-12 md:col-span-6"><label class="field-label" for="supplier${idx}_city">City</label><input class="input" id="supplier${idx}_city" data-supplier="city" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="supplier${idx}_state">State</label><input class="input" id="supplier${idx}_state" data-supplier="state" /></div>
+          <div class="col-span-6 md:col-span-3"><label class="field-label" for="supplier${idx}_zip">Zip</label><input class="input" id="supplier${idx}_zip" data-supplier="zip" /></div>
         </div>
       </div>`;
   }
@@ -850,6 +896,7 @@
   function saveFormData() {
     const data = collectFormData();
     data._currentStep = currentStep;
+    data._schemaVersion = 1;
     data.savedAt = new Date().toISOString();
     try {
       localStorage.setItem('builderFormData', JSON.stringify(data));
@@ -861,10 +908,15 @@
     }
   }
 
-  // Attach save-on-change listeners to all inputs/selects/textareas
+  // Attach save-on-change listeners to all inputs/selects/textareas (debounced)
+  var _saveTimer = null;
+  function debouncedSave() {
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(saveFormData, 400);
+  }
   document.addEventListener('input', (e) => {
     if (e.target.matches('.input, .select, .textarea, input, select, textarea')) {
-      saveFormData();
+      debouncedSave();
     }
   });
   document.addEventListener('change', (e) => {
@@ -916,7 +968,7 @@
       'supplierComments'
     ];
     simpleFields.forEach(f => {
-      if (data[f] !== undefined && data[f] !== '') setFieldVal(f, data[f]);
+      if (data[f] !== undefined) setFieldVal(f, data[f]);
     });
 
     // Radio groups
@@ -930,8 +982,12 @@
         radioState[group] = val;
         const btn = document.querySelector(`[data-group="${group}"][data-value="${val}"]`);
         if (btn) {
-          document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+          document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-checked', 'false');
+          });
           btn.classList.add('active');
+          btn.setAttribute('aria-checked', 'true');
         }
         // Trigger conditional visibility
         if (group === 'lit') document.getElementById('cond-lit').classList.toggle('cond-hidden', val !== 'yes');
@@ -1167,6 +1223,13 @@
       issues.push({step:5, label:'Select at least one project type', sel:'#projectTypesGroup'});
     chk(5,'In-House Trades', gf('inHouseTrades'), fs('inHouseTrades'));
 
+    // Step 6 — require at least one year of sales data
+    const has2025 = gf('sales2025Total').replace(/[^0-9]/g,'') || gf('sales2025Projects');
+    const has2024 = gf('sales2024Total').replace(/[^0-9]/g,'') || gf('sales2024Projects');
+    const has2023 = gf('sales2023Total').replace(/[^0-9]/g,'') || gf('sales2023Projects');
+    if (!has2025 && !has2024 && !has2023)
+      issues.push({step:6, label:'Enter sales data for at least one year (2023–2025)', sel:fs('sales2025Total')});
+
     // Step 7 — bank ref 1
     const b0 = document.querySelector('[data-bank-ref="0"]');
     if (b0) {
@@ -1213,13 +1276,11 @@
   }
 
   function highlightAllErrors(issues) {
-    // Clear previous highlights
-    document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); });
-    // Add red highlight to each problem field
+    document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); el.removeAttribute('aria-invalid'); });
     issues.forEach(function(issue) {
       if (!issue.sel) return;
       const el = document.querySelector(issue.sel);
-      if (el) el.classList.add('field-error');
+      if (el) { el.classList.add('field-error'); el.setAttribute('aria-invalid', 'true'); }
     });
   }
 
@@ -1268,10 +1329,32 @@
       panel.innerHTML = '<div class="audit-header"><div class="audit-header-icon">!</div><div><div style="font-weight:600;font-size:16px;">Audit Found '+issues.length+' Issue'+(issues.length>1?'s':'')+'</div><div style="font-size:13px;color:var(--text-secondary);">Click any issue to jump to that field.</div></div></div><div class="audit-body">'+body+'</div><div class="audit-footer"><button class="btn-secondary" onclick="closeAudit()">Close</button><button class="btn-primary" onclick="closeAudit();jumpToFirstError()">Go to First Issue</button></div>';
     }
     document.getElementById('auditOverlay').style.display = 'flex';
+    // Move focus into the modal for accessibility
+    setTimeout(function() {
+      var focusable = panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length > 0) focusable[0].focus();
+    }, 50);
   }
 
   function closeAudit() { document.getElementById('auditOverlay').style.display = 'none'; }
-  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && document.getElementById('auditOverlay').style.display !== 'none') closeAudit(); });
+  document.addEventListener('keydown', function(e) {
+    var overlay = document.getElementById('auditOverlay');
+    if (overlay.style.display === 'none') return;
+    if (e.key === 'Escape') { closeAudit(); return; }
+    // Focus trap: Tab cycles only within the audit modal
+    if (e.key === 'Tab') {
+      var panel = document.getElementById('auditPanel');
+      var focusable = panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length === 0) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first || !panel.contains(document.activeElement)) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last || !panel.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      }
+    }
+  });
 
   function jumpToFirstError() {
     const issues = getRequiredFields();
@@ -1283,7 +1366,7 @@
   }
 
   function proceedToReview() {
-    document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); });
+    document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); el.removeAttribute('aria-invalid'); });
     saveFormData();
     window.location.href = 'review.html';
   }
@@ -1307,5 +1390,6 @@
   renderStepper();
 </script>
 
+<script src="aria-widget.js"></script>
 </body>
 </html>

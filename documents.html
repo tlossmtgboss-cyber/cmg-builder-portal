@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Upload Documents</title>
@@ -502,10 +502,12 @@
     font-weight: 500;
     background: none;
     border: none;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 10px 14px;
+    border-radius: 6px;
     transition: background 150ms ease;
     font-family: 'Geist', system-ui, sans-serif;
+    min-height: 44px;
+    min-width: 44px;
   }
   .uploaded-file-remove:hover { background: var(--danger-soft); }
 
@@ -696,7 +698,7 @@
 <!-- ===== Top Bar ===== -->
 <div class="top-bar">
   <div style="display: flex; align-items: center; gap: 10px;">
-    <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
+    <a href="portal.html" style="display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 16px; transition: all 150ms ease; background: var(--bg-surface);" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'" title="Back to Portal">&larr;</a>
     <div class="top-bar-brand">CMG Home Loans</div>
   </div>
   <div class="top-bar-center">Smart Docs Portal</div>
@@ -706,8 +708,6 @@
   </div>
 </div>
 
-<!-- Toast notification -->
-<div class="toast-notification" id="toastNotification"></div>
 
 <!-- ===== Progress Steps ===== -->
 <div class="progress-bar">
@@ -757,7 +757,7 @@
   <!-- Upload counter -->
   <div class="upload-counter animate-in animate-delay-1">
     <div class="counter-text"><span id="uploadedCount">0</span> of <span id="totalRequired">12</span> documents uploaded</div>
-    <div class="counter-bar-wrap">
+    <div class="counter-bar-wrap" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Document upload progress" id="counterBarWrap">
       <div class="counter-bar-fill" id="counterBar"></div>
     </div>
   </div>
@@ -777,8 +777,8 @@
         <path class="check-path" d="M8 18l7 7 13-14" style="stroke-dasharray:30;stroke-dashoffset:30;" />
       </svg>
     </div>
-    <h2 class="modal-title" id="modalTitle">Application Submitted Successfully</h2>
-    <p class="modal-subtitle">Your builder packet has been sent to your CMG loan officer for review.</p>
+    <h2 class="modal-title" id="modalTitle">Documents Saved Successfully</h2>
+    <p class="modal-subtitle">Your document checklist has been saved. Please contact your loan officer to arrange document delivery.</p>
     <div class="modal-summary">
       <div class="modal-summary-row">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -888,6 +888,11 @@
     }
   }
 
+  // Auth guard — redirect if no account
+  if (!localStorage.getItem('builderAccount')) {
+    window.location.replace((document.querySelector('base') || {}).href + 'register.html');
+  }
+
   // ===== Load localStorage data =====
   var builderFormData = {};
   var accountData = {};
@@ -904,7 +909,7 @@
     if (!str) return '';
     var d = document.createElement('div');
     d.textContent = str;
-    return d.innerHTML;
+    return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   // ===== Build document list (required + conditional) =====
@@ -995,7 +1000,7 @@
       } else {
         cardsHTML += '    <div class="drop-zone" id="zone-' + doc.id + '" role="button" tabindex="0" aria-label="Upload ' + escHtml(doc.name) + '">';
         cardsHTML += '      <input type="file" id="input-' + doc.id + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" aria-label="Upload file for ' + escHtml(doc.name) + '" />';
-        cardsHTML += '      <svg class="drop-zone-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24V10"/><path d="M12 16l6-6 6 6"/><rect x="4" y="28" width="28" height="0" rx="0"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4"/></svg>';
+        cardsHTML += '      <svg class="drop-zone-icon" aria-hidden="true" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24V10"/><path d="M12 16l6-6 6 6"/><rect x="4" y="28" width="28" height="0" rx="0"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4"/></svg>';
         cardsHTML += '      <p class="drop-zone-text">Drop file here or <strong>browse</strong></p>';
         cardsHTML += '      <p class="drop-zone-formats">PDF, JPG, PNG &middot; Max 25 MB</p>';
         cardsHTML += '    </div>';
@@ -1055,6 +1060,7 @@
 
   function showToast(msg, type) {
     var t = document.createElement('div');
+    t.setAttribute('role', 'alert');
     t.textContent = msg;
     var bg = type === 'error' ? '#c0392b' : type === 'success' ? '#27ae60' : '#1F3D2E';
     t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:' + bg + ';color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:opacity .3s;';
@@ -1066,8 +1072,12 @@
     var validTypes = ['application/pdf', 'image/jpeg', 'image/png'];
     var validExts = ['.pdf', '.jpg', '.jpeg', '.png'];
     var ext = (file.name || '').toLowerCase().replace(/^.*(\.[^.]+)$/, '$1');
-    if (validTypes.indexOf(file.type) === -1 || validExts.indexOf(ext) === -1) {
+    if (validTypes.indexOf(file.type) === -1 && validExts.indexOf(ext) === -1) {
       showToast('Invalid file type. Please upload a PDF, JPG, or PNG file.', 'error');
+      return;
+    }
+    if (file.size === 0) {
+      showToast('File is empty (0 bytes). Please upload a valid document.', 'error');
       return;
     }
     if (file.size > 25 * 1024 * 1024) {
@@ -1119,10 +1129,12 @@
 
     // Restore drop zone
     var wrapEl = card.querySelector('.drop-zone-wrap');
+    var docName = '';
+    allDocs.forEach(function(d) { if (d.id === docId) docName = d.name; });
     wrapEl.innerHTML =
-      '<div class="drop-zone" id="zone-' + docId + '" role="button" tabindex="0" aria-label="Upload document">' +
-      '  <input type="file" id="input-' + docId + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" aria-label="Upload file" />' +
-      '  <svg class="drop-zone-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24V10"/><path d="M12 16l6-6 6 6"/><rect x="4" y="28" width="28" height="0" rx="0"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4"/></svg>' +
+      '<div class="drop-zone" id="zone-' + docId + '" role="button" tabindex="0" aria-label="Upload ' + escHtml(docName) + '">' +
+      '  <input type="file" id="input-' + docId + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" aria-label="Upload file for ' + escHtml(docName) + '" />' +
+      '  <svg class="drop-zone-icon" aria-hidden="true" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24V10"/><path d="M12 16l6-6 6 6"/><rect x="4" y="28" width="28" height="0" rx="0"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4"/></svg>' +
       '  <p class="drop-zone-text">Drop file here or <strong>browse</strong></p>' +
       '  <p class="drop-zone-formats">PDF, JPG, PNG &middot; Max 25 MB</p>' +
       '</div>';
@@ -1144,7 +1156,9 @@
     try {
       uploads._uploadedAt = new Date().toISOString();
       localStorage.setItem('builderDocUploads', JSON.stringify(uploads));
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      showToast('Could not save upload data. Your browser storage may be full.', 'error');
+    }
   }
 
   function updateCounter() {
@@ -1157,8 +1171,10 @@
     document.getElementById('uploadedCount').textContent = uploaded;
     document.getElementById('totalRequired').textContent = total;
 
-    var pct = total > 0 ? (uploaded / total) * 100 : 0;
+    var pct = total > 0 ? Math.round((uploaded / total) * 100) : 0;
     document.getElementById('counterBar').style.width = pct + '%';
+    var barWrap = document.getElementById('counterBarWrap');
+    if (barWrap) barWrap.setAttribute('aria-valuenow', pct);
 
     // Enable/disable submit button
     var submitBtn = document.getElementById('submitAppBtn');
@@ -1187,8 +1203,11 @@
   var submitBtn = document.getElementById('submitAppBtn');
   var modal = document.getElementById('successModal');
 
+  var modalTrigger = null;
+
   submitBtn.addEventListener('click', function() {
     if (submitBtn.disabled) return;
+    modalTrigger = document.activeElement;
 
     // Count uploaded docs
     var uploadedCount = 0;
@@ -1196,31 +1215,23 @@
       if (uploads[doc.id] && uploads[doc.id].name) uploadedCount++;
     });
 
-    // Count e-signed docs from localStorage
+    // Count e-signed docs from localStorage (review.html writes builderSignature)
     var esignCount = 0;
     try {
-      var esignData = localStorage.getItem('builderEsignData');
-      if (esignData) {
-        var parsed = JSON.parse(esignData);
-        if (parsed.signedCount) esignCount = parsed.signedCount;
-        else if (parsed.documents) esignCount = parsed.documents.length;
-        else esignCount = 6; // default
-      } else {
-        esignCount = 6;
+      var sigRaw = localStorage.getItem('builderSignature');
+      if (sigRaw) {
+        var sigParsed = JSON.parse(sigRaw);
+        var pageCount = sigParsed.pages ? Object.keys(sigParsed.pages).length : 0;
+        esignCount = pageCount > 0 ? pageCount : 6;
       }
-    } catch (e) { esignCount = 6; }
+    } catch (e) { esignCount = 0; }
 
     // Populate modal
     document.getElementById('esignSummary').textContent = 'E-signed document packet (' + esignCount + ' documents)';
     document.getElementById('docsSummary').textContent = 'Supporting documents (' + uploadedCount + ' files)';
 
-    var contactEmail = accountData.email || builderFormData.contactEmail || builderFormData.email || '';
     var emailEl = document.getElementById('confirmEmail');
-    if (contactEmail) {
-      emailEl.innerHTML = 'You\'ll receive a confirmation email at <strong>' + escHtml(contactEmail) + '</strong>';
-    } else {
-      emailEl.innerHTML = 'You\'ll receive a confirmation email shortly.';
-    }
+    emailEl.textContent = 'Your loan officer will confirm receipt once documents are delivered.';
 
     // Show modal
     modal.classList.add('visible');
@@ -1232,21 +1243,46 @@
     window.location.href = 'portal.html';
   });
 
+  function closeModal() {
+    modal.classList.remove('visible');
+    if (modalTrigger && modalTrigger.focus) { modalTrigger.focus(); modalTrigger = null; }
+  }
+
   // Close modal on overlay click
   modal.addEventListener('click', function(e) {
     if (e.target === modal) {
-      modal.classList.remove('visible');
+      closeModal();
     }
   });
 
-  // Close modal on Escape
+  // Close modal on Escape + trap focus inside modal
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modal.classList.contains('visible')) {
-      modal.classList.remove('visible');
+    if (!modal.classList.contains('visible')) return;
+    if (e.key === 'Escape') {
+      closeModal();
+      return;
+    }
+    if (e.key === 'Tab') {
+      var focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length === 0) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     }
   });
 
 })();
 </script>
+<script src="aria-widget.js"></script>
 </body>
 </html>
