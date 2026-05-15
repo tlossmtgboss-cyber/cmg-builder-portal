@@ -1572,7 +1572,9 @@
   // Submit state
   // ---------------------------------------------------------------------------
   function updateSubmitState() {
-    var totalInitialable = allPages.length - 1;
+    var schedPages = 0;
+    documents.forEach(function(d) { if (d.isSchedule) schedPages += d.pages.length; });
+    var totalInitialable = allPages.length - 1 - schedPages;
     var totalInitialed = Object.keys(initialedPages).length;
     var allInitialed = totalInitialed >= totalInitialable;
 
