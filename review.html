@@ -15,7 +15,7 @@
   :root {
     --bg-page: #EFEAE0; --bg-surface: #FFFFFF; --bg-sidebar: #F6F2EA; --bg-elevated: #F2EDE2; --bg-soft: #FBF8F2;
     --border: #ECE6D8; --border-strong: #D8D0BD; --border-active: #1F3D2E;
-    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E; --text-faint: #B5B2A4;
+    --text-primary: #1A1F1B; --text-secondary: #4F554E; --text-muted: #8B8A7E; --text-faint: #837F72;
     --brand: #1F3D2E; --brand-hover: #2A4F3D; --brand-soft: #E5EDE6; --brand-tint: #EFF3EE;
     --gold: #B8924A; --gold-soft: #F5EDD9; --gold-deep: #6B4F1A;
     --success: #2D7A52; --danger: #9B2C2C;
@@ -481,6 +481,7 @@
 </style>
 </head>
 <body>
+<noscript><p style="padding:40px;text-align:center;font-family:sans-serif;color:#1A1F1B;">JavaScript is required to use the CMG Builder Portal. Please enable JavaScript in your browser settings.</p></noscript>
 
 <div class="layout-shell">
   <!-- TOP BAR -->
@@ -1259,7 +1260,7 @@
           '<p style="font-family: Geist, sans-serif; font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Type your full legal name below to apply your electronic signature to all documents in this packet.</p>' +
           '<div class="esign-callout" style="margin-bottom: 6px;"><div class="esign-callout-text">E-Sign Here</div><div class="esign-callout-tip"></div></div>' +
           '<div style="margin-bottom: 8px;">' +
-            '<input type="text" class="esign-input" id="finalSignature" placeholder="Type your full legal name to e-sign" autocomplete="off" />' +
+            '<input type="text" class="esign-input" id="finalSignature" placeholder="Type your full legal name to e-sign" autocomplete="off" aria-label="Electronic signature — type your full legal name" />' +
           '</div>' +
           '<div style="display: flex; gap: 32px; margin-top: 20px;">' +
             '<div><div style="font-family: Geist Mono, monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted);">Date</div><div style="font-size: 14px; margin-top: 4px;">' + todayDisplay + '</div></div>' +
@@ -1343,11 +1344,17 @@
 
     nav.innerHTML = html;
 
-    // Rebind click handlers
+    // Rebind click + keyboard handlers
     nav.querySelectorAll('.doc-nav-item').forEach(function(item) {
+      item.setAttribute('role', 'tab');
+      item.setAttribute('tabindex', '0');
+      if (item.classList.contains('active')) item.setAttribute('aria-selected', 'true');
       item.addEventListener('click', function() {
         var idx = parseInt(item.dataset.docIndex, 10);
         navigateToDoc(idx);
+      });
+      item.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
       });
     });
 
@@ -1747,8 +1754,11 @@
     days.forEach(function(d) {
       var chip = document.createElement('div');
       chip.className = 'sched-day-chip';
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('tabindex', '0');
       if (_schedDate && _schedDate.toDateString() === d.toDateString()) chip.classList.add('selected');
       chip.innerHTML = '<div class="sd-name">' + _SD[d.getDay()] + '</div><div class="sd-num">' + d.getDate() + '</div><div class="sd-mon">' + _SM[d.getMonth()] + '</div>';
+      chip.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); } });
       chip.addEventListener('click', function() {
         _schedDate = d; _schedTime = null;
         _schedRenderDays(); _schedRenderTimes(); _schedUpdateBtn();
@@ -1766,8 +1776,11 @@
     slots.forEach(function(t) {
       var btn = document.createElement('div');
       btn.className = 'sched-time-chip';
+      btn.setAttribute('role', 'button');
+      btn.setAttribute('tabindex', '0');
       if (_schedTime === t) btn.classList.add('selected');
       btn.textContent = t;
+      btn.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); } });
       btn.addEventListener('click', function() {
         _schedTime = t; _schedRenderTimes(); _schedUpdateBtn();
       });

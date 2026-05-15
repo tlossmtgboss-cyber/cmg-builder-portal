@@ -24,7 +24,7 @@
     --text-primary: #1A1F1B;
     --text-secondary: #4F554E;
     --text-muted: #8B8A7E;
-    --text-faint: #B5B2A4;
+    --text-faint: #837F72;
     --brand: #1F3D2E;
     --brand-hover: #2A4F3D;
     --brand-soft: #E5EDE6;
@@ -136,6 +136,7 @@
 </style>
 </head>
 <body class="relative">
+<noscript><p style="padding:40px;text-align:center;font-family:sans-serif;color:#1A1F1B;">JavaScript is required to use the CMG Builder Portal. Please enable JavaScript in your browser settings.</p></noscript>
 
 <!-- Save confirmation toast -->
 <div class="save-toast" id="saveToast">Progress saved successfully.</div>
@@ -154,7 +155,7 @@
     </div>
     <div class="flex items-center gap-4">
       <div class="text-[12px]" style="color: var(--text-muted);">Step <span id="stepLabel" style="color: var(--text-primary); font-weight: 500;">1 of 9</span></div>
-      <button class="btn-ghost" id="saveExitBtn" onclick="saveAndExit()">Save & Exit</button>
+      <button type="button" class="btn-ghost" id="saveExitBtn" onclick="saveAndExit()">Save & Exit</button>
     </div>
   </div>
   <div class="progress-track"><div class="progress-fill" id="progressFill" style="width: 11%;"></div></div>
