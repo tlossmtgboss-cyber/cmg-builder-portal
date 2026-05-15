@@ -121,6 +121,41 @@
   .w9-cb { accent-color: var(--brand); cursor: pointer; width: 15px; height: 15px; }
   .w9-cb-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 
+  /* Schedule Call widget (embedded in paper area) */
+  .sched-nav-btn {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg-surface); color: var(--text-secondary); font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 150ms ease; flex-shrink: 0;
+  }
+  .sched-nav-btn:hover { border-color: var(--brand); color: var(--brand); }
+  .sched-nav-btn:disabled { opacity: .3; cursor: default; }
+  .sched-day-chip {
+    flex: 1; min-width: 0; padding: 10px 4px; border-radius: 10px;
+    border: 1px solid var(--border); text-align: center; cursor: pointer;
+    transition: all 200ms ease; background: var(--bg-surface);
+  }
+  .sched-day-chip:hover { border-color: var(--brand); background: var(--brand-tint); }
+  .sched-day-chip.selected { background: var(--brand); border-color: var(--brand); transform: scale(1.04); box-shadow: 0 4px 12px rgba(31,61,46,.25); }
+  .sched-day-chip.selected .sd-name, .sched-day-chip.selected .sd-num, .sched-day-chip.selected .sd-mon { color: #fff; }
+  .sd-name { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 2px; }
+  .sd-num { font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+  .sd-mon { font-family: 'Geist Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-top: 1px; }
+  .sched-time-chip {
+    padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg-surface); font-family: 'Geist', sans-serif; font-size: 13px;
+    font-weight: 500; color: var(--text-primary); text-align: center; cursor: pointer;
+    transition: all 150ms ease;
+  }
+  .sched-time-chip:hover { border-color: var(--brand); background: var(--brand-tint); }
+  .sched-time-chip.selected { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn-secondary {
+    background: var(--bg-surface); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text-primary); font-family: 'Geist', sans-serif; font-weight: 500;
+    cursor: pointer; transition: all 150ms ease;
+  }
+  .btn-secondary:hover { border-color: var(--brand); color: var(--brand); }
+
   /* E-Signature modal */
   .esign-overlay {
     display: none; position: fixed; inset: 0; z-index: 9000;
@@ -1127,6 +1162,67 @@
     ]
   });
 
+  // --- SCHEDULE CALL (calendar widget, between W-9 and E-Sign) ---
+  documents.push({
+    id: 'schedule',
+    title: 'Schedule Call',
+    shortTitle: 'Call',
+    isSchedule: true,
+    pages: [
+      function() {
+        var schedAcct = {};
+        try { schedAcct = JSON.parse(localStorage.getItem('builderAccount') || '{}'); } catch(e) {}
+        var sName = ((schedAcct.firstName || '') + ' ' + (schedAcct.lastName || '')).trim() || '—';
+        var sEmail = schedAcct.email || '—';
+        var existingBooking = null;
+        try { existingBooking = JSON.parse(localStorage.getItem('builderBooking') || 'null'); } catch(e) {}
+
+        if (existingBooking) {
+          var bDate = new Date(existingBooking.date);
+          var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+          var bDateStr = dayNames[bDate.getDay()] + ', ' + monthNames[bDate.getMonth()] + ' ' + bDate.getDate() + ', ' + bDate.getFullYear();
+          return '<div style="text-align: center; padding: 40px 0;">' +
+            '<div style="width: 64px; height: 64px; border-radius: 50%; background: var(--brand-tint); color: var(--brand); display: inline-flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px;">&#10003;</div>' +
+            '<h2 class="paper-section-title" style="text-align: center; margin-top: 0;">Consultation Scheduled</h2>' +
+            '<p style="color: var(--text-secondary); font-family: Geist, sans-serif; font-size: 14px;">Your call has been booked.</p>' +
+            '<div style="background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; margin: 20px auto; max-width: 320px; text-align: left;">' +
+              '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>Date</span><span style="font-weight: 600; color: var(--text-primary);">' + escHtml(bDateStr) + '</span></div>' +
+              '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>Time</span><span style="font-weight: 600; color: var(--text-primary);">' + escHtml(existingBooking.time) + '</span></div>' +
+              '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>Duration</span><span style="font-weight: 600; color: var(--text-primary);">30 minutes</span></div>' +
+              '<div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--text-secondary); line-height: 2; font-family: Geist, sans-serif;"><span>With</span><span style="font-weight: 600; color: var(--text-primary);">Tim Loss</span></div>' +
+            '</div>' +
+            '<p style="font-size: 12px; color: var(--text-muted); font-family: Geist, sans-serif;">You can reschedule by clicking below.</p>' +
+            '<button type="button" class="btn-secondary" onclick="resetScheduleWidget()" style="margin-top: 8px; font-size: 13px; padding: 8px 20px;">Reschedule</button>' +
+          '</div>';
+        }
+
+        return '<div id="schedWidget" style="font-family: Geist, sans-serif;">' +
+          '<h2 class="paper-section-title" style="font-size: 20px; margin-top: 0;">Pick a date</h2>' +
+          '<p style="font-size: 13px; color: var(--text-muted); font-family: Geist, sans-serif; margin-bottom: 16px;">Schedule a 30-minute call with your construction lending team.</p>' +
+          '<div id="schedDayPicker" style="display: flex; align-items: center; gap: 6px; margin-bottom: 28px;">' +
+            '<button type="button" class="sched-nav-btn" id="schedPrevBtn" onclick="schedShift(-5)">&lsaquo;</button>' +
+            '<div id="schedDayRow" style="display: flex; gap: 6px; flex: 1; overflow: hidden;"></div>' +
+            '<button type="button" class="sched-nav-btn" id="schedNextBtn" onclick="schedShift(5)">&rsaquo;</button>' +
+          '</div>' +
+          '<h2 class="paper-section-title" style="font-size: 20px;">Pick a time</h2>' +
+          '<p style="font-size: 13px; color: var(--text-muted); font-family: Geist, sans-serif; margin-bottom: 16px;">Choose your preferred time. Reschedule anytime.</p>' +
+          '<div style="font-family: Geist Mono, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 8px;">Morning</div>' +
+          '<div id="schedMornGrid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;"></div>' +
+          '<div style="height: 12px;"></div>' +
+          '<div style="font-family: Geist Mono, monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 8px;">Afternoon</div>' +
+          '<div id="schedAftGrid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;"></div>' +
+          '<div style="height: 1px; background: var(--border); margin: 24px 0;"></div>' +
+          '<div style="background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;">' +
+            '<div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;"><span style="font-weight: 600; color: var(--text-primary);">Scheduling for:</span> ' + escHtml(sName) + '</div>' +
+            '<div style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); line-height: 1.8;"><span style="font-weight: 600; color: var(--text-primary);">Email:</span> ' + escHtml(sEmail) + '</div>' +
+          '</div>' +
+          '<button type="button" class="btn-primary" id="schedConfirmBtn" disabled onclick="schedSubmit()" style="width: 100%; padding: 14px; font-size: 15px;">Confirm Booking</button>' +
+        '</div>';
+      }
+    ]
+  });
+
   // ---------------------------------------------------------------------------
   // Flatten all pages, track which doc each belongs to
   // ---------------------------------------------------------------------------
@@ -1194,6 +1290,21 @@
     var html = '';
     documents.forEach(function(doc, di) {
       var isActive = di === currentDocIndex;
+
+      if (doc.isSchedule) {
+        var hasBooking = false;
+        try { hasBooking = !!localStorage.getItem('builderBooking'); } catch(e) {}
+        html += '<div class="doc-nav-item ' + (isActive ? 'active' : '') + '" data-doc-index="' + di + '">' +
+          '<div class="doc-nav-icon" style="background: var(--brand-tint); border-color: var(--brand);">' + (hasBooking ? '<span style="color: var(--success); font-size: 12px;">&#10003;</span>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" style="color: var(--brand);"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>') + '</div>' +
+          '<div style="flex: 1; min-width: 0;">' +
+            '<div class="doc-nav-title">' + escHtml(doc.title) + '</div>' +
+            '<div class="doc-nav-meta">30-min consultation</div>' +
+            '<div class="doc-nav-status">' + (hasBooking ? '<span class="check">&#10003; Booked</span>' : '<span class="pending">Not yet scheduled</span>') + '</div>' +
+          '</div>' +
+        '</div>';
+        return;
+      }
+
       var pageCount = doc.pages.length;
       var initialedCount = 0;
       doc.pages.forEach(function(_, pi) {
@@ -1238,8 +1349,10 @@
       });
     });
 
-    // Update progress summary
-    var totalInitialable = allPages.length - 1; // exclude e-sign page
+    // Update progress summary (exclude e-sign page and schedule page from count)
+    var schedPageCount = 0;
+    documents.forEach(function(d) { if (d.isSchedule) schedPageCount += d.pages.length; });
+    var totalInitialable = allPages.length - 1 - schedPageCount;
     var totalInitialed = Object.keys(initialedPages).length;
     var summary = document.getElementById('progressSummary');
     summary.innerHTML = '<div>' + totalInitialed + ' of ' + totalInitialable + ' pages initialed</div>' +
@@ -1271,23 +1384,32 @@
         '</div>';
       }
 
-      doc.pages.forEach(function(renderFn, pi) {
-        var pageId = 'p_' + currentDocIndex + '_' + pi;
-        var absPage = doc.pageStart + pi + 1;
-        var isInitialed = !!initialedPages[pageId];
-        var borderTop = (pi === 0 && doc.conditional) ? 'border-top: 4px solid var(--gold);' : '';
-
-        html += '<div class="paper" style="' + borderTop + '">' +
-          '<div class="paper-page-num">Page ' + absPage + ' of ' + totalPages + '</div>' +
-          renderFn() +
-          '<div class="initial-box ' + (isInitialed ? 'initialed' : '') + '" data-page-id="' + pageId + '">' +
-            '<div class="initial-prompt">Tap to<br/>Initial</div>' +
-            '<div class="initial-value"><span class="initial-check">&#10003;</span> ' + escHtml(initialedPages[pageId] || '') + '</div>' +
-            '<div class="initial-box-label">Builder Initials</div>' +
-          '</div>' +
-          (isInitialed ? '' : '<div class="callout-arrow"><div class="callout-arrow-text">Initial Here</div><div class="callout-arrow-tip"></div></div>') +
+      if (doc.isSchedule) {
+        html += '<div class="paper" style="border-top: 3px solid var(--brand);">' +
+          '<div class="paper-header-logo">CMG <span style="color: var(--text-primary); font-weight: 400;">Home Loans</span></div>' +
+          '<h1 class="paper-doc-title">Schedule Call</h1>' +
+          '<div class="paper-doc-sub">Book a 30-minute consultation with your construction lending team</div>' +
+          doc.pages[0]() +
         '</div>';
-      });
+      } else {
+        doc.pages.forEach(function(renderFn, pi) {
+          var pageId = 'p_' + currentDocIndex + '_' + pi;
+          var absPage = doc.pageStart + pi + 1;
+          var isInitialed = !!initialedPages[pageId];
+          var borderTop = (pi === 0 && doc.conditional) ? 'border-top: 4px solid var(--gold);' : '';
+
+          html += '<div class="paper" style="' + borderTop + '">' +
+            '<div class="paper-page-num">Page ' + absPage + ' of ' + totalPages + '</div>' +
+            renderFn() +
+            '<div class="initial-box ' + (isInitialed ? 'initialed' : '') + '" data-page-id="' + pageId + '">' +
+              '<div class="initial-prompt">Tap to<br/>Initial</div>' +
+              '<div class="initial-value"><span class="initial-check">&#10003;</span> ' + escHtml(initialedPages[pageId] || '') + '</div>' +
+              '<div class="initial-box-label">Builder Initials</div>' +
+            '</div>' +
+            (isInitialed ? '' : '<div class="callout-arrow"><div class="callout-arrow-text">Initial Here</div><div class="callout-arrow-tip"></div></div>') +
+          '</div>';
+        });
+      }
     }
 
     // Navigation buttons at bottom
@@ -1302,7 +1424,8 @@
     if (currentDocIndex === -1) {
       navHtml += '<div></div>';
     } else {
-      var nextLabel = (currentDocIndex === documents.length - 1) ? 'E-Signature Page &rarr;' : 'Next Document &rarr;';
+      var nextDoc = (currentDocIndex < documents.length - 1) ? documents[currentDocIndex + 1] : null;
+      var nextLabel = (currentDocIndex === documents.length - 1) ? 'E-Signature Page &rarr;' : (nextDoc && nextDoc.isSchedule ? 'Schedule Call &rarr;' : 'Next Document &rarr;');
       navHtml += '<button onclick="goToNextDoc()" style="padding:10px 20px; border:none; border-radius:8px; background:#1F3D2E; font-family:Geist,sans-serif; font-size:14px; font-weight:600; color:#fff; cursor:pointer; transition:all 150ms ease;">' + nextLabel + '</button>';
     }
     navHtml += '</div>';
@@ -1358,12 +1481,16 @@
       indicator.textContent = 'Page ' + totalPages + ' of ' + totalPages;
     } else {
       var doc = documents[currentDocIndex];
-      var start = doc.pageStart + 1;
-      var end = doc.pageStart + doc.pages.length;
-      if (start === end) {
-        indicator.textContent = 'Page ' + start + ' of ' + totalPages;
+      if (doc.isSchedule) {
+        indicator.textContent = 'Schedule Call';
       } else {
-        indicator.textContent = 'Pages ' + start + '–' + end + ' of ' + totalPages;
+        var start = doc.pageStart + 1;
+        var end = doc.pageStart + doc.pages.length;
+        if (start === end) {
+          indicator.textContent = 'Page ' + start + ' of ' + totalPages;
+        } else {
+          indicator.textContent = 'Pages ' + start + '–' + end + ' of ' + totalPages;
+        }
       }
     }
   }
@@ -1574,6 +1701,115 @@
     }
     renderSidebar();
     updateSubmitState();
+  };
+
+  // ---------------------------------------------------------------------------
+  // Schedule Call widget logic
+  // ---------------------------------------------------------------------------
+  var _schedDate = null, _schedTime = null, _schedOffset = 0;
+  var _SD = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  var _SM = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  var _SMF = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var _SDF = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var _SMORN = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM'];
+  var _SAFT = ['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
+
+  function _schedGetDays() {
+    var days = [], today = new Date(); today.setHours(0,0,0,0);
+    var d = new Date(today); d.setDate(d.getDate() + 1 + _schedOffset);
+    var c = 0;
+    while (days.length < 5) {
+      var dow = d.getDay();
+      if (dow !== 0 && dow !== 6) days.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+      c++; if (c > 30) break;
+    }
+    return days;
+  }
+
+  function _schedRenderDays() {
+    var row = document.getElementById('schedDayRow');
+    if (!row) return;
+    var days = _schedGetDays();
+    row.innerHTML = '';
+    days.forEach(function(d) {
+      var chip = document.createElement('div');
+      chip.className = 'sched-day-chip';
+      if (_schedDate && _schedDate.toDateString() === d.toDateString()) chip.classList.add('selected');
+      chip.innerHTML = '<div class="sd-name">' + _SD[d.getDay()] + '</div><div class="sd-num">' + d.getDate() + '</div><div class="sd-mon">' + _SM[d.getMonth()] + '</div>';
+      chip.addEventListener('click', function() {
+        _schedDate = d; _schedTime = null;
+        _schedRenderDays(); _schedRenderTimes(); _schedUpdateBtn();
+      });
+      row.appendChild(chip);
+    });
+    var prev = document.getElementById('schedPrevBtn');
+    if (prev) prev.disabled = _schedOffset <= 0;
+  }
+
+  function _schedRenderSlots(id, slots) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    c.innerHTML = '';
+    slots.forEach(function(t) {
+      var btn = document.createElement('div');
+      btn.className = 'sched-time-chip';
+      if (_schedTime === t) btn.classList.add('selected');
+      btn.textContent = t;
+      btn.addEventListener('click', function() {
+        _schedTime = t; _schedRenderTimes(); _schedUpdateBtn();
+      });
+      c.appendChild(btn);
+    });
+  }
+
+  function _schedRenderTimes() {
+    _schedRenderSlots('schedMornGrid', _SMORN);
+    _schedRenderSlots('schedAftGrid', _SAFT);
+  }
+
+  function _schedUpdateBtn() {
+    var btn = document.getElementById('schedConfirmBtn');
+    if (btn) btn.disabled = !(_schedDate && _schedTime);
+  }
+
+  window.schedShift = function(n) {
+    _schedOffset = Math.max(0, _schedOffset + n);
+    _schedRenderDays();
+  };
+
+  window.schedSubmit = function() {
+    if (!_schedDate || !_schedTime) return;
+    var schedAcct = {};
+    try { schedAcct = JSON.parse(localStorage.getItem('builderAccount') || '{}'); } catch(e) {}
+    var sName = ((schedAcct.firstName || '') + ' ' + (schedAcct.lastName || '')).trim() || '';
+    var sEmail = schedAcct.email || '';
+    try {
+      localStorage.setItem('builderBooking', JSON.stringify({
+        date: _schedDate.toISOString(), time: _schedTime,
+        name: sName, email: sEmail, bookedAt: new Date().toISOString()
+      }));
+    } catch(e) {}
+    renderPaperArea();
+    renderSidebar();
+  };
+
+  window.resetScheduleWidget = function() {
+    try { localStorage.removeItem('builderBooking'); } catch(e) {}
+    _schedDate = null; _schedTime = null; _schedOffset = 0;
+    renderPaperArea();
+    renderSidebar();
+  };
+
+  // After paper area renders, initialize schedule widget if visible
+  var _origRenderPaper = renderPaperArea;
+  renderPaperArea = function() {
+    _origRenderPaper();
+    if (documents[currentDocIndex] && documents[currentDocIndex].isSchedule) {
+      _schedRenderDays();
+      _schedRenderTimes();
+      _schedUpdateBtn();
+    }
   };
 
   // ---------------------------------------------------------------------------
