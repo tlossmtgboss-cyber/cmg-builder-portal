@@ -523,6 +523,11 @@
 </div>
 
 <script>
+  // Registration guard
+  if (!localStorage.getItem('builderAccount') && !localStorage.getItem('builderFormData')) {
+    window.location.replace((document.querySelector('base') || {}).href + 'register.html');
+  }
+
   // =========================================================================
   // Step definitions — 9 steps only
   // =========================================================================
@@ -845,7 +850,14 @@
     const data = collectFormData();
     data._currentStep = currentStep;
     data.savedAt = new Date().toISOString();
-    localStorage.setItem('builderFormData', JSON.stringify(data));
+    try {
+      localStorage.setItem('builderFormData', JSON.stringify(data));
+    } catch (e) {
+      var toast = document.getElementById('saveToast');
+      toast.textContent = 'Warning: Unable to save. Storage may be full.';
+      toast.classList.add('visible');
+      setTimeout(function() { toast.classList.remove('visible'); toast.textContent = 'Progress saved successfully.'; }, 3000);
+    }
   }
 
   // Attach save-on-change listeners to all inputs/selects/textareas
@@ -913,7 +925,7 @@
     };
     Object.entries(radioMap).forEach(([dataKey, group]) => {
       const val = data[dataKey];
-      if (val) {
+      if (val && /^[a-zA-Z0-9_-]+$/.test(val)) {
         radioState[group] = val;
         const btn = document.querySelector(`[data-group="${group}"][data-value="${val}"]`);
         if (btn) {
@@ -929,7 +941,7 @@
     });
 
     // Workers comp reason radio
-    if (data.wcReason) {
+    if (data.wcReason && /^[a-zA-Z0-9_-]+$/.test(data.wcReason)) {
       const wcRadio = document.querySelector(`input[name="wcReason"][value="${data.wcReason}"]`);
       if (wcRadio) {
         wcRadio.checked = true;
@@ -1022,7 +1034,10 @@
     saveFormData();
     const toast = document.getElementById('saveToast');
     toast.classList.add('visible');
-    setTimeout(() => toast.classList.remove('visible'), 2500);
+    setTimeout(function() {
+      toast.classList.remove('visible');
+      window.location.href = 'portal.html';
+    }, 1200);
   }
 
   // =========================================================================
@@ -1255,6 +1270,7 @@
   }
 
   function closeAudit() { document.getElementById('auditOverlay').style.display = 'none'; }
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && document.getElementById('auditOverlay').style.display !== 'none') closeAudit(); });
 
   function jumpToFirstError() {
     const issues = getRequiredFields();

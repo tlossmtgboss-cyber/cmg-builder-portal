@@ -518,11 +518,11 @@
 </div>
 
 <!-- Initial Modal -->
-<div class="modal-overlay" id="initialModal">
+<div class="modal-overlay" id="initialModal" role="dialog" aria-modal="true" aria-labelledby="initialModalTitle">
   <div class="modal-card">
-    <div class="modal-title">Initial this page</div>
+    <div class="modal-title" id="initialModalTitle">Initial this page</div>
     <div class="modal-sub">Type your initials below to confirm you have reviewed this page.</div>
-    <input type="text" class="modal-input" id="initialInput" maxlength="4" autocomplete="off" />
+    <input type="text" class="modal-input" id="initialInput" maxlength="4" autocomplete="off" aria-label="Your initials" />
     <div class="modal-preview" id="initialPreview"></div>
     <div class="modal-actions">
       <button class="modal-btn-cancel" onclick="closeInitialModal()">Cancel</button>
@@ -533,9 +533,9 @@
 
 <!-- E-Signature Adoption Modal -->
 <div class="esign-overlay" id="esignModal">
-  <div class="esign-modal">
+  <div class="esign-modal" role="dialog" aria-modal="true" aria-labelledby="esignModalTitle">
     <div class="esign-modal-head">
-      <h3>Adopt Your E-Signature</h3>
+      <h3 id="esignModalTitle">Adopt Your E-Signature</h3>
       <button class="esign-modal-close" onclick="closeEsignModal()">&times;</button>
     </div>
     <div class="esign-modal-body">
@@ -592,10 +592,10 @@
 </div>
 
 <!-- Submit Success Overlay -->
-<div class="submit-overlay" id="submitOverlay">
+<div class="submit-overlay" id="submitOverlay" role="dialog" aria-modal="true" aria-labelledby="submitOverlayTitle">
   <div class="submit-card">
     <div class="submit-icon">&#10003;</div>
-    <div class="submit-title">Packet Submitted</div>
+    <div class="submit-title" id="submitOverlayTitle">Packet Submitted</div>
     <p class="submit-sub">Your builder application packet has been signed and submitted. All documents have been recorded with your electronic signature.</p>
     <div style="text-align: left; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
       <div id="submitDocList"></div>
@@ -676,9 +676,12 @@
   // Completion date
   var completionDate = '';
   if (estimatedDuration) {
-    var d = new Date();
-    d.setMonth(d.getMonth() + parseInt(estimatedDuration, 10));
-    completionDate = d.toISOString().split('T')[0];
+    var dur = parseInt(estimatedDuration, 10);
+    if (!isNaN(dur)) {
+      var d = new Date();
+      d.setMonth(d.getMonth() + dur);
+      completionDate = d.toISOString().split('T')[0];
+    }
   }
 
   var today = new Date().toISOString().split('T')[0];
@@ -705,9 +708,6 @@
 
   // Render Y/N radio (read-only)
   function ynRadio(value) {
-    var y = (value === 'yes' || value === 'Yes' || value === true) ? 'active' : '';
-    var n = (!y || y !== 'active') ? 'active' : '';
-    // Recheck: if value is specifically 'yes', y is active
     if (value === 'yes' || value === 'Yes' || value === true) {
       return '<span class="paper-radio-ro"><span class="active">Yes</span><span>No</span></span>';
     }
@@ -1403,7 +1403,7 @@
           html += '<div class="paper" style="' + borderTop + '">' +
             '<div class="paper-page-num">Page ' + absPage + ' of ' + totalPages + '</div>' +
             renderFn() +
-            '<div class="initial-box ' + (isInitialed ? 'initialed' : '') + '" data-page-id="' + pageId + '">' +
+            '<div class="initial-box ' + (isInitialed ? 'initialed' : '') + '" data-page-id="' + pageId + '" role="button" tabindex="0" aria-label="Initial page ' + absPage + '">' +
               '<div class="initial-prompt">Tap to<br/>Initial</div>' +
               '<div class="initial-value"><span class="initial-check">&#10003;</span> ' + escHtml(initialedPages[pageId] || '') + '</div>' +
               '<div class="initial-box-label">Builder Initials</div>' +
@@ -1440,6 +1440,9 @@
     area.querySelectorAll('.initial-box:not(.initialed)').forEach(function(box) {
       box.addEventListener('click', function() {
         openInitialModal(box.dataset.pageId);
+      });
+      box.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInitialModal(box.dataset.pageId); }
       });
     });
 
@@ -1584,11 +1587,11 @@
     var hasSig = sigInput && sigInput.value.trim().length >= 3;
 
     var topBtn = document.getElementById('submitPacketBtn');
-    topBtn.disabled = !(allInitialed && hasSig);
+    topBtn.disabled = !(allInitialed && hasSig && w9Signed);
 
     var bottomBtn = document.getElementById('completeSubmitBtn');
     if (bottomBtn) {
-      bottomBtn.disabled = !(allInitialed && hasSig);
+      bottomBtn.disabled = !(allInitialed && hasSig && w9Signed);
     }
   }
 
@@ -1827,6 +1830,14 @@
   renderSidebar();
   renderPaperArea();
   updateSubmitState();
+
+  // Escape key closes modals
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (document.getElementById('esignModal').classList.contains('visible')) closeEsignModal();
+      if (document.getElementById('initialModal').classList.contains('open')) closeInitialModal();
+    }
+  });
 
   // W-9: make tax classification checkboxes act as radios (one at a time)
   var pa = document.getElementById('paperArea');

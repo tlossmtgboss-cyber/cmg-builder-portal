@@ -769,14 +769,14 @@
 </div>
 
 <!-- ===== Success Modal ===== -->
-<div class="modal-overlay" id="successModal">
+<div class="modal-overlay" id="successModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-card">
     <div class="check-circle">
       <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
         <path class="check-path" d="M8 18l7 7 13-14" style="stroke-dasharray:30;stroke-dashoffset:30;" />
       </svg>
     </div>
-    <h2 class="modal-title">Application Submitted Successfully</h2>
+    <h2 class="modal-title" id="modalTitle">Application Submitted Successfully</h2>
     <p class="modal-subtitle">Your builder packet has been sent to your CMG loan officer for review.</p>
     <div class="modal-summary">
       <div class="modal-summary-row">
@@ -799,7 +799,7 @@
       </div>
     </div>
     <p class="modal-email" id="confirmEmail"></p>
-    <button class="btn-done" id="doneBtn">Schedule Consultation &rarr;</button>
+    <button class="btn-done" id="doneBtn">Return to Portal &rarr;</button>
   </div>
 </div>
 
@@ -968,8 +968,8 @@
       cardsHTML += '  <div class="doc-card-header">';
       cardsHTML += '    <div class="doc-icon-wrap ' + getIconClass(doc.tag) + '">' + getDocIcon(doc.tag) + '</div>';
       cardsHTML += '    <div class="doc-card-info">';
-      cardsHTML += '      <p class="doc-card-name">' + doc.name + '</p>';
-      cardsHTML += '      <p class="doc-card-desc">' + doc.desc + '</p>';
+      cardsHTML += '      <p class="doc-card-name">' + escHtml(doc.name) + '</p>';
+      cardsHTML += '      <p class="doc-card-desc">' + escHtml(doc.desc) + '</p>';
       cardsHTML += '      <span class="tag-badge ' + getTagClass(doc.tag) + '">' + doc.tag + '</span>';
       cardsHTML += '    </div>';
       cardsHTML += '    <div class="doc-card-status" id="status-' + doc.id + '">';
@@ -992,8 +992,8 @@
         cardsHTML += '      <button class="uploaded-file-remove" data-remove-id="' + doc.id + '">Remove</button>';
         cardsHTML += '    </div>';
       } else {
-        cardsHTML += '    <div class="drop-zone" id="zone-' + doc.id + '">';
-        cardsHTML += '      <input type="file" id="input-' + doc.id + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />';
+        cardsHTML += '    <div class="drop-zone" id="zone-' + doc.id + '" role="button" tabindex="0" aria-label="Upload ' + escHtml(doc.name) + '">';
+        cardsHTML += '      <input type="file" id="input-' + doc.id + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" aria-label="Upload file for ' + escHtml(doc.name) + '" />';
         cardsHTML += '      <svg class="drop-zone-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24V10"/><path d="M12 16l6-6 6 6"/><rect x="4" y="28" width="28" height="0" rx="0"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4"/></svg>';
         cardsHTML += '      <p class="drop-zone-text">Drop file here or <strong>browse</strong></p>';
         cardsHTML += '      <p class="drop-zone-formats">PDF, JPG, PNG &middot; Max 25 MB</p>';
@@ -1015,8 +1015,9 @@
     var input = document.getElementById('input-' + docId);
     if (!zone || !input) return;
 
-    // Click to browse
+    // Click/keyboard to browse
     zone.addEventListener('click', function() { input.click(); });
+    zone.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
 
     // File input change
     input.addEventListener('change', function() {
@@ -1118,8 +1119,8 @@
     // Restore drop zone
     var wrapEl = card.querySelector('.drop-zone-wrap');
     wrapEl.innerHTML =
-      '<div class="drop-zone" id="zone-' + docId + '">' +
-      '  <input type="file" id="input-' + docId + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" />' +
+      '<div class="drop-zone" id="zone-' + docId + '" role="button" tabindex="0" aria-label="Upload document">' +
+      '  <input type="file" id="input-' + docId + '" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" aria-label="Upload file" />' +
       '  <svg class="drop-zone-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 24V10"/><path d="M12 16l6-6 6 6"/><rect x="4" y="28" width="28" height="0" rx="0"/><path d="M6 24v4a2 2 0 002 2h20a2 2 0 002-2v-4"/></svg>' +
       '  <p class="drop-zone-text">Drop file here or <strong>browse</strong></p>' +
       '  <p class="drop-zone-formats">PDF, JPG, PNG &middot; Max 25 MB</p>' +
@@ -1175,20 +1176,10 @@
 
   updateCounter();
 
-  // ===== Toast helper =====
-  function showToast(message) {
-    var toast = document.getElementById('toastNotification');
-    toast.textContent = message;
-    toast.classList.add('visible');
-    setTimeout(function() {
-      toast.classList.remove('visible');
-    }, 2000);
-  }
-
   // ===== Save Progress button =====
   document.getElementById('saveProgressBtn').addEventListener('click', function() {
     saveUploads();
-    showToast('Progress saved');
+    showToast('Progress saved', 'success');
   });
 
   // ===== Submit button =====
@@ -1232,6 +1223,7 @@
 
     // Show modal
     modal.classList.add('visible');
+    document.getElementById('doneBtn').focus();
   });
 
   // Done button
