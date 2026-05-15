@@ -392,8 +392,8 @@ tailwind.config = {
                     </div>
                     <svg class="action-arrow w-4 h-4 text-ink-faint flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
                   </a>
-                  <!-- Schedule Consultation -->
-                  <a href="schedule.html" class="action-row flex items-center gap-4 px-6 py-4 cursor-pointer no-underline">
+                  <!-- Schedule Consultation (lightbox) -->
+                  <div id="openScheduleModal" class="action-row flex items-center gap-4 px-6 py-4 cursor-pointer">
                     <div class="w-9 h-9 rounded-lg bg-forest-tint flex items-center justify-center flex-shrink-0">
                       <svg class="w-[18px] h-[18px] text-forest" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" /></svg>
                     </div>
@@ -402,7 +402,7 @@ tailwind.config = {
                       <div class="text-[11px] text-ink-muted mt-0.5">Book a 30-min call with your construction lending team</div>
                     </div>
                     <svg class="action-arrow w-4 h-4 text-ink-faint flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
-                  </a>
+                  </div>
                   <!-- Message LO -->
                   <div class="action-row flex items-center gap-4 px-6 py-4 opacity-50 cursor-not-allowed">
                     <div class="w-9 h-9 rounded-lg bg-gold-soft flex items-center justify-center flex-shrink-0">
@@ -430,6 +430,107 @@ tailwind.config = {
         </div>
       </main>
 
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- Schedule Consultation Lightbox                                          -->
+<!-- ======================================================================= -->
+<style>
+  .sched-overlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(26,31,27,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:24px; }
+  .sched-overlay.open { display:flex; animation:sched-fade-in 250ms ease; }
+  @keyframes sched-fade-in { from{opacity:0} to{opacity:1} }
+  .sched-card { background:#fff; border:1px solid #ECE6D8; border-radius:14px; box-shadow:0 16px 48px rgba(0,0,0,.15); width:100%; max-width:480px; overflow:hidden; position:relative; animation:sched-slide-up 300ms ease; max-height:90vh; overflow-y:auto; }
+  @keyframes sched-slide-up { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .sched-close { position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:8px; border:1px solid #ECE6D8; background:#fff; color:#8B8A7E; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; z-index:10; transition:all 150ms ease; }
+  .sched-close:hover { border-color:#1F3D2E; color:#1F3D2E; }
+  .sched-hdr { padding:20px 24px 16px; border-bottom:1px solid #ECE6D8; }
+  .sched-hdr-text { font-family:'Geist Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.12em; color:#8B8A7E; }
+  .sched-body { padding:24px; }
+  .sched-title { font-family:'Fraunces',Georgia,serif; font-size:18px; font-weight:600; color:#1A1F1B; margin-bottom:4px; }
+  .sched-sub { font-size:13px; color:#8B8A7E; margin-bottom:16px; }
+  .sched-day-picker { display:flex; align-items:center; gap:6px; margin-bottom:28px; }
+  .sched-day-nav { width:32px; height:32px; border-radius:50%; border:1px solid #ECE6D8; background:#fff; color:#4F554E; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 150ms ease; flex-shrink:0; }
+  .sched-day-nav:hover { border-color:#1F3D2E; color:#1F3D2E; }
+  .sched-day-nav:disabled { opacity:.3; cursor:default; }
+  .sched-day-nav:disabled:hover { border-color:#ECE6D8; color:#4F554E; }
+  .sched-day-scroll { display:flex; gap:6px; flex:1; overflow:hidden; }
+  .sched-day-cell { flex:1; min-width:0; padding:10px 4px; border-radius:10px; border:1px solid #ECE6D8; text-align:center; cursor:pointer; transition:all 200ms ease; background:#fff; }
+  .sched-day-cell:hover { border-color:#1F3D2E; background:#EFF3EE; }
+  .sched-day-cell.selected { background:#1F3D2E; border-color:#1F3D2E; transform:scale(1.04); box-shadow:0 4px 12px rgba(31,61,46,.25); }
+  .sched-day-cell.selected .sdn,.sched-day-cell.selected .sdd,.sched-day-cell.selected .sdm { color:#fff; }
+  .sdn { font-family:'Geist Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:#8B8A7E; margin-bottom:2px; }
+  .sdd { font-family:'Fraunces',Georgia,serif; font-size:22px; font-weight:600; color:#1A1F1B; line-height:1.2; }
+  .sdm { font-family:'Geist Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.08em; color:#8B8A7E; margin-top:1px; }
+  .sched-time-label { font-family:'Geist Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:#8B8A7E; margin-bottom:8px; }
+  .sched-time-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+  .sched-time-slot { padding:10px 6px; border:1px solid #ECE6D8; border-radius:8px; background:#fff; font-family:'Geist',sans-serif; font-size:13px; font-weight:500; color:#1A1F1B; text-align:center; cursor:pointer; transition:all 150ms ease; }
+  .sched-time-slot:hover { border-color:#1F3D2E; background:#EFF3EE; }
+  .sched-time-slot.selected { background:#1F3D2E; border-color:#1F3D2E; color:#fff; }
+  .sched-divider { height:1px; background:#ECE6D8; margin:24px 0; }
+  .sched-user-info { background:#FBF8F2; border:1px solid #ECE6D8; border-radius:10px; padding:14px 16px; margin-bottom:20px; }
+  .sched-user-row { display:flex; align-items:center; gap:6px; font-size:13px; color:#4F554E; line-height:1.8; }
+  .sched-user-label { font-weight:600; color:#1A1F1B; }
+  .sched-submit-btn { width:100%; padding:14px; border:none; border-radius:10px; background:#1F3D2E; color:#fff; font-family:'Geist',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:all 200ms ease; }
+  .sched-submit-btn:hover { background:#2A4F3D; box-shadow:0 4px 16px rgba(31,61,46,.2); }
+  .sched-submit-btn:disabled { opacity:.4; cursor:default; }
+  .sched-submit-btn:disabled:hover { background:#1F3D2E; box-shadow:none; }
+  .sched-success { display:none; text-align:center; padding:40px 24px; }
+  .sched-success.visible { display:block; }
+  .sched-success-check { width:64px; height:64px; border-radius:50%; background:#EFF3EE; color:#1F3D2E; display:inline-flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:16px; animation:sched-pop 400ms ease; }
+  @keyframes sched-pop { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+  .sched-success-title { font-family:'Fraunces',Georgia,serif; font-size:22px; font-weight:600; margin-bottom:8px; }
+  .sched-success-detail { font-size:14px; color:#4F554E; margin-bottom:6px; }
+  .sched-success-summary { background:#FBF8F2; border:1px solid #ECE6D8; border-radius:10px; padding:14px 16px; margin:20px 0; text-align:left; }
+  .sched-success-row { display:flex; justify-content:space-between; font-size:13px; color:#4F554E; line-height:2; }
+  .sched-success-val { font-weight:600; color:#1A1F1B; }
+  .sched-done-btn { display:inline-block; padding:12px 32px; border-radius:10px; background:#1F3D2E; color:#fff; border:none; font-family:'Geist',sans-serif; font-weight:600; font-size:14px; cursor:pointer; transition:all 150ms ease; margin-top:8px; }
+  .sched-done-btn:hover { background:#2A4F3D; }
+  @media (max-width:520px) { .sched-card { border-radius:12px; } .sched-day-cell { padding:8px 2px; } .sdd { font-size:18px; } .sched-time-grid { grid-template-columns:1fr 1fr; } }
+</style>
+
+<div class="sched-overlay" id="schedOverlay">
+  <div class="sched-card">
+    <button class="sched-close" id="schedClose">&times;</button>
+    <div class="sched-hdr"><span class="sched-hdr-text">Schedule Consultation</span></div>
+
+    <div class="sched-body" id="schedForm">
+      <div class="sched-title">Pick a date</div>
+      <div class="sched-sub"></div>
+      <div class="sched-day-picker">
+        <button class="sched-day-nav" id="schedPrev">&lsaquo;</button>
+        <div class="sched-day-scroll" id="schedDayScroll"></div>
+        <button class="sched-day-nav" id="schedNext">&rsaquo;</button>
+      </div>
+      <div class="sched-title">Pick a time</div>
+      <div class="sched-sub">Choose your preferred time. Reschedule anytime.</div>
+      <div>
+        <div class="sched-time-label">Morning</div>
+        <div class="sched-time-grid" id="schedMorning"></div>
+        <div style="height:12px;"></div>
+        <div class="sched-time-label">Afternoon</div>
+        <div class="sched-time-grid" id="schedAfternoon"></div>
+      </div>
+      <div class="sched-divider"></div>
+      <div class="sched-user-info">
+        <div class="sched-user-row"><span class="sched-user-label">Scheduling for:</span> <span id="schedInfoName">&mdash;</span></div>
+        <div class="sched-user-row"><span class="sched-user-label">Email:</span> <span id="schedInfoEmail">&mdash;</span></div>
+      </div>
+      <button class="sched-submit-btn" id="schedSubmitBtn" disabled>Confirm Booking</button>
+    </div>
+
+    <div class="sched-success" id="schedSuccess">
+      <div class="sched-success-check">&#10003;</div>
+      <div class="sched-success-title">You're all set!</div>
+      <div class="sched-success-detail">Your consultation has been scheduled.</div>
+      <div class="sched-success-summary">
+        <div class="sched-success-row"><span>Date</span><span class="sched-success-val" id="schedSuccessDate"></span></div>
+        <div class="sched-success-row"><span>Time</span><span class="sched-success-val" id="schedSuccessTime"></span></div>
+        <div class="sched-success-row"><span>Duration</span><span class="sched-success-val">30 minutes</span></div>
+        <div class="sched-success-row"><span>With</span><span class="sched-success-val">Tim Loss</span></div>
+      </div>
+      <button class="sched-done-btn" id="schedDoneBtn">Done</button>
     </div>
   </div>
 </div>
@@ -840,9 +941,145 @@ tailwind.config = {
       localStorage.removeItem('builderDocUploads');
       localStorage.removeItem('builderSignature');
       localStorage.removeItem('builderEsignData');
+      localStorage.removeItem('builderBooking');
     } catch (err) { /* ignore */ }
     window.location.href = 'register.html';
   });
+
+  // =========================================================================
+  // Schedule Consultation Lightbox
+  // =========================================================================
+  var SCHED_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var SCHED_DAYS_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  var SCHED_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var SCHED_MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var SCHED_MORNING = ['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM'];
+  var SCHED_AFTERNOON = ['1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM'];
+
+  var schedDate = null, schedTime = null, schedOffset = 0;
+  var schedOverlay = document.getElementById('schedOverlay');
+
+  var schedUserName = (firstName + ' ' + lastName).trim() || '—';
+  var schedUserEmail = (account && account.email) || '—';
+  document.getElementById('schedInfoName').textContent = schedUserName;
+  document.getElementById('schedInfoEmail').textContent = schedUserEmail;
+
+  function schedGetDays() {
+    var days = [];
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var d = new Date(today);
+    d.setDate(d.getDate() + 1 + schedOffset);
+    var count = 0;
+    while (days.length < 5) {
+      var dow = d.getDay();
+      if (dow !== 0 && dow !== 6) days.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+      count++;
+      if (count > 30) break;
+    }
+    return days;
+  }
+
+  function schedRenderDays() {
+    var scroll = document.getElementById('schedDayScroll');
+    var days = schedGetDays();
+    scroll.innerHTML = '';
+    days.forEach(function(d) {
+      var cell = document.createElement('div');
+      cell.className = 'sched-day-cell';
+      if (schedDate && schedDate.toDateString() === d.toDateString()) cell.classList.add('selected');
+      cell.innerHTML = '<div class="sdn">' + SCHED_DAYS_SHORT[d.getDay()] + '</div><div class="sdd">' + d.getDate() + '</div><div class="sdm">' + SCHED_MONTHS[d.getMonth()].toUpperCase() + '</div>';
+      cell.addEventListener('click', function() {
+        schedDate = d;
+        schedTime = null;
+        schedRenderDays();
+        schedRenderTimes();
+        schedUpdateBtn();
+      });
+      scroll.appendChild(cell);
+    });
+    document.getElementById('schedPrev').disabled = schedOffset <= 0;
+  }
+
+  function schedRenderSlots(id, slots) {
+    var c = document.getElementById(id);
+    c.innerHTML = '';
+    slots.forEach(function(t) {
+      var btn = document.createElement('div');
+      btn.className = 'sched-time-slot';
+      if (schedTime === t) btn.classList.add('selected');
+      btn.textContent = t;
+      btn.addEventListener('click', function() {
+        schedTime = t;
+        schedRenderTimes();
+        schedUpdateBtn();
+      });
+      c.appendChild(btn);
+    });
+  }
+
+  function schedRenderTimes() {
+    schedRenderSlots('schedMorning', SCHED_MORNING);
+    schedRenderSlots('schedAfternoon', SCHED_AFTERNOON);
+  }
+
+  function schedUpdateBtn() {
+    document.getElementById('schedSubmitBtn').disabled = !(schedDate && schedTime);
+  }
+
+  document.getElementById('schedPrev').addEventListener('click', function() {
+    schedOffset = Math.max(0, schedOffset - 5);
+    schedRenderDays();
+  });
+  document.getElementById('schedNext').addEventListener('click', function() {
+    schedOffset += 5;
+    schedRenderDays();
+  });
+
+  document.getElementById('openScheduleModal').addEventListener('click', function() {
+    schedDate = null;
+    schedTime = null;
+    schedOffset = 0;
+    document.getElementById('schedForm').style.display = 'block';
+    document.getElementById('schedSuccess').classList.remove('visible');
+    schedRenderDays();
+    schedRenderTimes();
+    schedUpdateBtn();
+    schedOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  });
+
+  function schedClose() {
+    schedOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('schedClose').addEventListener('click', schedClose);
+  schedOverlay.addEventListener('click', function(e) {
+    if (e.target === schedOverlay) schedClose();
+  });
+
+  document.getElementById('schedSubmitBtn').addEventListener('click', function() {
+    if (!schedDate || !schedTime) return;
+    try {
+      localStorage.setItem('builderBooking', JSON.stringify({
+        date: schedDate.toISOString(),
+        time: schedTime,
+        name: schedUserName,
+        email: schedUserEmail,
+        bookedAt: new Date().toISOString()
+      }));
+    } catch(e) {}
+
+    var dateStr = SCHED_DAYS[schedDate.getDay()] + ', ' + SCHED_MONTHS_FULL[schedDate.getMonth()] + ' ' + schedDate.getDate() + ', ' + schedDate.getFullYear();
+    document.getElementById('schedSuccessDate').textContent = dateStr;
+    document.getElementById('schedSuccessTime').textContent = schedTime;
+    document.getElementById('schedForm').style.display = 'none';
+    document.getElementById('schedSuccess').classList.add('visible');
+  });
+
+  document.getElementById('schedDoneBtn').addEventListener('click', schedClose);
 
 })();
 </script>
