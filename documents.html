@@ -1122,6 +1122,7 @@
 
   function saveUploads() {
     try {
+      uploads._uploadedAt = new Date().toISOString();
       localStorage.setItem('builderDocUploads', JSON.stringify(uploads));
     } catch (e) { /* ignore */ }
   }

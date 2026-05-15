@@ -842,6 +842,7 @@
   function saveFormData() {
     const data = collectFormData();
     data._currentStep = currentStep;
+    data.savedAt = new Date().toISOString();
     localStorage.setItem('builderFormData', JSON.stringify(data));
   }
 

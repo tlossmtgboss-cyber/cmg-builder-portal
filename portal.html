@@ -308,54 +308,9 @@ tailwind.config = {
               </div>
             </div>
 
-            <!-- Timeline -->
+            <!-- Timeline (dynamically rendered by JS) -->
             <div class="px-8 pb-7">
-              <div class="flex items-start relative" id="timeline">
-                <!-- Step 1: Submitted -->
-                <div class="flex-1 flex flex-col items-center text-center relative">
-                  <div class="relative z-10 mb-2.5">
-                    <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                    </div>
-                  </div>
-                  <span class="text-xs font-medium text-emerald-700 leading-tight">Submitted</span>
-                  <span class="font-mono text-[10px] text-ink-muted mt-0.5" id="timelineDate1">--</span>
-                  <!-- Connector -->
-                  <div class="absolute top-4 left-[calc(50%+18px)] right-[calc(-50%+18px)] h-0.5 z-0 timeline-connector-done rounded-full"></div>
-                </div>
-                <!-- Step 2: Documents Verified -->
-                <div class="flex-1 flex flex-col items-center text-center relative">
-                  <div class="relative z-10 mb-2.5">
-                    <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                    </div>
-                  </div>
-                  <span class="text-xs font-medium text-emerald-700 leading-tight">Documents Verified</span>
-                  <span class="font-mono text-[10px] text-ink-muted mt-0.5" id="timelineDate2">--</span>
-                  <!-- Connector -->
-                  <div class="absolute top-4 left-[calc(50%+18px)] right-[calc(-50%+18px)] h-0.5 z-0 timeline-connector-done rounded-full"></div>
-                </div>
-                <!-- Step 3: Underwriting (active) -->
-                <div class="flex-1 flex flex-col items-center text-center relative">
-                  <div class="relative z-10 mb-2.5">
-                    <div class="w-8 h-8 rounded-full bg-gold-soft border-2 border-gold flex items-center justify-center animate-pulse-ring">
-                      <span class="w-2 h-2 rounded-full bg-gold animate-pulse-dot"></span>
-                    </div>
-                  </div>
-                  <span class="text-xs font-semibold text-gold-deep leading-tight">Underwriting</span>
-                  <span class="font-mono text-[10px] text-gold-deep mt-0.5 font-medium">In Progress</span>
-                  <!-- Connector -->
-                  <div class="absolute top-4 left-[calc(50%+18px)] right-[calc(-50%+18px)] h-0.5 z-0 timeline-connector-pending"></div>
-                </div>
-                <!-- Step 4: Approved (pending) -->
-                <div class="flex-1 flex flex-col items-center text-center">
-                  <div class="relative z-10 mb-2.5">
-                    <div class="w-8 h-8 rounded-full bg-cream-200 border-[1.5px] border-cream-400 text-ink-faint flex items-center justify-center text-xs font-semibold">4</div>
-                  </div>
-                  <span class="text-xs font-medium text-ink-faint leading-tight">Approved</span>
-                  <span class="font-mono text-[10px] text-ink-faint mt-0.5">&mdash;</span>
-                </div>
-              </div>
+              <div class="flex items-start relative" id="timeline"></div>
             </div>
           </div>
 
@@ -489,7 +444,7 @@ tailwind.config = {
   // =========================================================================
   // Load data from localStorage
   // =========================================================================
-  var account = null, formData = null, docUploads = null, signature = null;
+  var account = null, formData = null, docUploads = null, signature = null, booking = null;
 
   try {
     var rawAcct = localStorage.getItem('builderAccount');
@@ -500,6 +455,8 @@ tailwind.config = {
     if (rawUploads) docUploads = JSON.parse(rawUploads);
     var rawSig = localStorage.getItem('builderSignature');
     if (rawSig) signature = JSON.parse(rawSig);
+    var rawBooking = localStorage.getItem('builderBooking');
+    if (rawBooking) booking = JSON.parse(rawBooking);
   } catch (e) { /* ignore parse errors */ }
 
   // =========================================================================
@@ -588,11 +545,106 @@ tailwind.config = {
     : "Here's your application overview";
 
   // =========================================================================
-  // Timeline dates
+  // Dynamic Progress Tracker
   // =========================================================================
-  var subShort = formatShortDate(submittedDate);
-  document.getElementById('timelineDate1').textContent = subShort;
-  document.getElementById('timelineDate2').textContent = subShort;
+  var milestones = [
+    {
+      label: 'Application Completed',
+      done: !!formData,
+      date: (formData && formData.savedAt) || (account && account.createdAt) || null
+    },
+    {
+      label: 'Submitted',
+      done: !!signature,
+      date: (signature && signature.date) || null
+    },
+    {
+      label: 'Documents Verified',
+      done: !!(docUploads && Object.keys(docUploads).filter(function(k) { return k !== '_uploadedAt'; }).length > 0),
+      date: (docUploads && docUploads._uploadedAt) || null
+    },
+    {
+      label: 'Underwriting',
+      done: false,
+      date: null
+    },
+    {
+      label: 'Approved',
+      done: false,
+      date: null
+    }
+  ];
+
+  var completedCount = 0;
+  milestones.forEach(function(m) { if (m.done) completedCount++; });
+  var progressPct = Math.round((completedCount / milestones.length) * 100);
+
+  var firstIncomplete = -1;
+  for (var mi = 0; mi < milestones.length; mi++) {
+    if (!milestones[mi].done) { firstIncomplete = mi; break; }
+  }
+
+  var circumference = 2 * Math.PI * 38;
+  var dashOffset = circumference - (progressPct / 100) * circumference;
+  document.querySelector('.progress-ring-circle').setAttribute('stroke-dashoffset', dashOffset.toFixed(2));
+  document.querySelector('.progress-ring-circle').parentElement.nextElementSibling.querySelector('span').textContent = progressPct + '%';
+
+  var statusTitle = document.getElementById('statusTitle');
+  if (progressPct === 0) {
+    statusTitle.textContent = 'Getting Started';
+  } else if (progressPct < 60) {
+    statusTitle.textContent = 'In Progress';
+  } else if (progressPct < 100) {
+    statusTitle.textContent = 'Under Review';
+  } else {
+    statusTitle.textContent = 'Approved';
+  }
+
+  var timelineEl = document.getElementById('timeline');
+  var timelineHTML = '';
+  milestones.forEach(function(m, idx) {
+    var isLast = idx === milestones.length - 1;
+    var isActive = idx === firstIncomplete;
+    var connector = '';
+    if (!isLast) {
+      var connClass = m.done ? 'timeline-connector-done' : 'timeline-connector-pending';
+      connector = '<div class="absolute top-4 left-[calc(50%+18px)] right-[calc(-50%+18px)] h-0.5 z-0 ' + connClass + ' rounded-full"></div>';
+    }
+
+    if (m.done) {
+      timelineHTML += '<div class="flex-1 flex flex-col items-center text-center relative">';
+      timelineHTML += '  <div class="relative z-10 mb-2.5">';
+      timelineHTML += '    <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-sm">';
+      timelineHTML += '      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>';
+      timelineHTML += '    </div>';
+      timelineHTML += '  </div>';
+      timelineHTML += '  <span class="text-xs font-medium text-emerald-700 leading-tight">' + esc(m.label) + '</span>';
+      timelineHTML += '  <span class="font-mono text-[10px] text-ink-muted mt-0.5">' + formatShortDate(m.date) + '</span>';
+      timelineHTML += connector;
+      timelineHTML += '</div>';
+    } else if (isActive) {
+      timelineHTML += '<div class="flex-1 flex flex-col items-center text-center relative">';
+      timelineHTML += '  <div class="relative z-10 mb-2.5">';
+      timelineHTML += '    <div class="w-8 h-8 rounded-full bg-gold-soft border-2 border-gold flex items-center justify-center animate-pulse-ring">';
+      timelineHTML += '      <span class="w-2 h-2 rounded-full bg-gold animate-pulse-dot"></span>';
+      timelineHTML += '    </div>';
+      timelineHTML += '  </div>';
+      timelineHTML += '  <span class="text-xs font-semibold text-gold-deep leading-tight">' + esc(m.label) + '</span>';
+      timelineHTML += '  <span class="font-mono text-[10px] text-gold-deep mt-0.5 font-medium">In Progress</span>';
+      timelineHTML += connector;
+      timelineHTML += '</div>';
+    } else {
+      timelineHTML += '<div class="flex-1 flex flex-col items-center text-center' + (isLast ? '' : ' relative') + '">';
+      timelineHTML += '  <div class="relative z-10 mb-2.5">';
+      timelineHTML += '    <div class="w-8 h-8 rounded-full bg-cream-200 border-[1.5px] border-cream-400 text-ink-faint flex items-center justify-center text-xs font-semibold">' + (idx + 1) + '</div>';
+      timelineHTML += '  </div>';
+      timelineHTML += '  <span class="text-xs font-medium text-ink-faint leading-tight">' + esc(m.label) + '</span>';
+      timelineHTML += '  <span class="font-mono text-[10px] text-ink-faint mt-0.5">&mdash;</span>';
+      timelineHTML += connector;
+      timelineHTML += '</div>';
+    }
+  });
+  timelineEl.innerHTML = timelineHTML;
 
   // =========================================================================
   // Project Details (left column)
