@@ -552,6 +552,19 @@ tailwind.config = {
 (function() {
   'use strict';
 
+  // Propagate LO slug to internal navigation links
+  var _loSlug = '';
+  try {
+    var _urlP = new URLSearchParams(window.location.search);
+    _loSlug = _urlP.get('lo') || '';
+    if (!_loSlug) {
+      _loSlug = localStorage.getItem('builderLOSlug') || '';
+    }
+  } catch(e) {}
+  function navUrl(page) {
+    return page + (_loSlug ? '?lo=' + encodeURIComponent(_loSlug) : '');
+  }
+
   // =========================================================================
   // Load data from localStorage
   // =========================================================================
@@ -577,6 +590,10 @@ tailwind.config = {
     document.getElementById('noDataState').classList.remove('hidden');
     document.getElementById('noDataState').style.display = 'flex';
     document.getElementById('portalShell').style.display = 'none';
+    // Still propagate slug to the register link in the no-data state
+    document.querySelectorAll('a[href="register.html"]').forEach(function(a) {
+      a.href = navUrl(a.getAttribute('href'));
+    });
     return;
   }
 
@@ -960,9 +977,9 @@ tailwind.config = {
       navItems.forEach(function(n) { n.classList.remove('active'); });
       item.classList.add('active');
       var nav = item.getAttribute('data-nav');
-      if (nav === 'application') window.location.href = 'application.html';
-      else if (nav === 'documents') window.location.href = 'documents.html';
-      else if (nav === 'esign') window.location.href = 'review.html';
+      if (nav === 'application') window.location.href = navUrl('application.html');
+      else if (nav === 'documents') window.location.href = navUrl('documents.html');
+      else if (nav === 'esign') window.location.href = navUrl('review.html');
     });
   });
 
@@ -982,7 +999,7 @@ tailwind.config = {
       localStorage.removeItem('builderTutorialSeen');
       sessionStorage.clear();
     } catch (err) { /* ignore */ }
-    window.location.href = 'register.html';
+    window.location.href = navUrl('register.html');
   });
 
   // =========================================================================
@@ -1145,6 +1162,11 @@ tailwind.config = {
   });
 
   document.getElementById('schedDoneBtn').addEventListener('click', schedClose);
+
+  // Propagate LO slug to all internal <a> links
+  document.querySelectorAll('a[href="register.html"], a[href="application.html"], a[href="documents.html"], a[href="review.html"]').forEach(function(a) {
+    a.href = navUrl(a.getAttribute('href'));
+  });
 
 })();
 </script>

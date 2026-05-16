@@ -637,13 +637,18 @@
     <div style="text-align: left; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
       <div id="submitDocList"></div>
     </div>
-    <button class="btn-primary" onclick="window.location.href='documents.html'" style="width: 100%;">Continue to Documents</button>
+    <button class="btn-primary" id="continueToDocsBtn" style="width: 100%;">Continue to Documents</button>
   </div>
 </div>
 
 <script>
 (function() {
   'use strict';
+
+  // LO slug propagation for navigation
+  var _loSlug = '';
+  try { _loSlug = localStorage.getItem('builderLOSlug') || ''; } catch(e) {}
+  function navUrl(page) { return page + (_loSlug ? '?lo=' + encodeURIComponent(_loSlug) : ''); }
 
   // ---------------------------------------------------------------------------
   // Data from localStorage
@@ -1745,33 +1750,53 @@
     try { return localStorage.getItem('builderSubmissionToken') || ''; } catch(e) { return ''; }
   }
 
+  function showToast(msg, type) {
+    var t = document.createElement('div');
+    t.setAttribute('role', 'alert');
+    t.textContent = msg;
+    var bg = type === 'error' ? '#c0392b' : type === 'success' ? '#27ae60' : '#1F3D2E';
+    t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:' + bg + ';color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:99999;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:opacity .3s;';
+    document.body.appendChild(t);
+    setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 300); }, 3500);
+  }
+
   function pushToBackend(sigData) {
-    var token = getSubmissionToken();
-    if (!token) return;
+    return new Promise(function(resolve, reject) {
+      var token = getSubmissionToken();
+      if (!token) { reject('no-token'); return; }
 
-    var formData = {};
-    try { formData = JSON.parse(localStorage.getItem('builderFormData') || '{}'); } catch(e) {}
+      var formData = {};
+      try { formData = JSON.parse(localStorage.getItem('builderFormData') || '{}'); } catch(e) {}
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', API_BASE + '/builder-portal/submit', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-    xhr.onload = function() {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          localStorage.setItem('builderSubmitted', 'true');
-        } catch(e) {}
-      }
-    };
-    xhr.send(JSON.stringify({
-      application_data: formData,
-      signature_data: sigData
-    }));
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_BASE + '/builder-portal/submit', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try { localStorage.setItem('builderSubmitted', 'true'); } catch(e) {}
+          resolve();
+        } else {
+          reject('server-error');
+        }
+      };
+      xhr.onerror = function() { reject('network-error'); };
+      xhr.send(JSON.stringify({
+        application_data: formData,
+        signature_data: sigData
+      }));
+    });
   }
 
   window.submitPacket = function() {
     var sigInput = document.getElementById('finalSignature');
     if (!sigInput || sigInput.value.trim().length < 3) return;
+
+    // Debounce: disable both submit buttons immediately
+    var topBtn = document.getElementById('submitPacketBtn');
+    var bottomBtn = document.getElementById('completeSubmitBtn');
+    if (topBtn) topBtn.disabled = true;
+    if (bottomBtn) bottomBtn.disabled = true;
 
     // Build tamper-evident audit trail (ESIGN Act compliance)
     var signedName = sigInput.value.trim();
@@ -1791,15 +1816,25 @@
       };
       try { localStorage.setItem('builderSignature', JSON.stringify(sigData)); } catch(e) {}
 
-      // Push application data + signature to backend
-      pushToBackend(sigData);
+      // Push application data + signature to backend — wait for confirmation
+      pushToBackend(sigData).then(function() {
+        var listHtml = '';
+        documents.forEach(function(doc) {
+          listHtml += '<div class="doc-checklist-item"><div class="doc-checklist-check">&#10003;</div><span>' + escHtml(doc.title) + '</span><span style="margin-left: auto; font-family: Geist Mono, monospace; font-size: 10px; color: var(--success);">SIGNED</span></div>';
+        });
+        document.getElementById('submitDocList').innerHTML = listHtml;
+        document.getElementById('submitOverlay').classList.add('open');
+      }).catch(function(reason) {
+        // Re-enable buttons on failure
+        if (topBtn) topBtn.disabled = false;
+        if (bottomBtn) bottomBtn.disabled = false;
 
-      var listHtml = '';
-      documents.forEach(function(doc) {
-        listHtml += '<div class="doc-checklist-item"><div class="doc-checklist-check">&#10003;</div><span>' + escHtml(doc.title) + '</span><span style="margin-left: auto; font-family: Geist Mono, monospace; font-size: 10px; color: var(--success);">SIGNED</span></div>';
+        if (reason === 'no-token') {
+          showToast('No submission token — your application was not sent to the loan officer. Please re-register.', 'error');
+        } else {
+          showToast('Submission failed. Please check your connection and try again.', 'error');
+        }
       });
-      document.getElementById('submitDocList').innerHTML = listHtml;
-      document.getElementById('submitOverlay').classList.add('open');
     }
 
     if (window.crypto && window.crypto.subtle) {
@@ -1812,6 +1847,11 @@
       finishSubmit('unavailable');
     }
   };
+
+  // Continue to Documents button in submit overlay
+  document.getElementById('continueToDocsBtn').addEventListener('click', function() {
+    window.location.href = navUrl('documents.html');
+  });
 
   // Close submit overlay on overlay click
   document.getElementById('submitOverlay').addEventListener('click', function(e) {
@@ -2129,6 +2169,11 @@
   trapFocus(document.getElementById('initialModal'));
   trapFocus(document.getElementById('esignModal'));
   trapFocus(document.getElementById('submitOverlay'));
+
+  // Propagate LO slug to static HTML links
+  document.querySelectorAll('a[href="portal.html"], a[href="register.html"], a[href="application.html"], a[href="documents.html"]').forEach(function(a) {
+    a.href = navUrl(a.getAttribute('href'));
+  });
 })();
 </script>
 

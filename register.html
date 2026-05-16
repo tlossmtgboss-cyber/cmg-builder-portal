@@ -413,6 +413,12 @@
   const toastEl = document.getElementById('toast');
   const resumeLink = document.getElementById('resumeLink');
 
+  // Read LO slug from URL for use across the page
+  var _urlParams = new URLSearchParams(window.location.search);
+  var _loSlug = _urlParams.get('lo') || '';
+  try { if (!_loSlug) _loSlug = localStorage.getItem('builderLOSlug') || ''; } catch(e) {}
+  function navUrl(page) { return page + (_loSlug ? '?lo=' + encodeURIComponent(_loSlug) : ''); }
+
   // Field IDs and their validation rules
   const fields = [
     { id: 'companyName', errorId: 'companyNameError', validate: v => v.trim().length > 0 },
@@ -509,6 +515,10 @@
     var urlParams = new URLSearchParams(window.location.search);
     var loSlug = urlParams.get('lo') || '';
 
+    if (loSlug) {
+      try { localStorage.setItem('builderLOSlug', loSlug); } catch(e) {}
+    }
+
     var accountData = {
       companyName: document.getElementById('companyName').value.trim(),
       ein: document.getElementById('ein').value.trim(),
@@ -545,7 +555,7 @@
             localStorage.setItem('builderApplicationId', String(resp.application_id));
             localStorage.setItem('builderLOName', resp.lo_name || '');
           } catch (e) { /* continue anyway */ }
-          window.location.href = 'application.html';
+          window.location.href = 'application.html' + (loSlug ? '?lo=' + encodeURIComponent(loSlug) : '');
         } else {
           showToast('Registration failed (server error). Please try again or contact your loan officer.');
         }
@@ -564,7 +574,8 @@
         phone: accountData.phone
       }));
     } else {
-      window.location.href = 'application.html';
+      showToast('Proceeding in offline mode — your application will be saved locally only. Ask your loan officer for a portal link to submit online.');
+      setTimeout(function() { window.location.href = navUrl('application.html'); }, 3000);
     }
   });
 
@@ -580,7 +591,7 @@
     }
 
     if (existing) {
-      window.location.href = 'application.html';
+      window.location.href = navUrl('application.html');
     } else {
       showToast('No existing application found. Please create an account first.');
     }

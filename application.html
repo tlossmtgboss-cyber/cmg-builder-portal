@@ -540,6 +540,11 @@
     window.location.replace((document.querySelector('base') || {}).href + 'register.html');
   }
 
+  // LO slug propagation for navigation
+  var _loSlug = '';
+  try { _loSlug = localStorage.getItem('builderLOSlug') || ''; } catch(e) {}
+  function navUrl(page) { return page + (_loSlug ? '?lo=' + encodeURIComponent(_loSlug) : ''); }
+
   // =========================================================================
   // Step definitions — 9 steps only
   // =========================================================================
@@ -1093,7 +1098,7 @@
     toast.classList.add('visible');
     setTimeout(function() {
       toast.classList.remove('visible');
-      window.location.href = 'portal.html';
+      window.location.href = navUrl('portal.html');
     }, 1200);
   }
 
@@ -1368,7 +1373,7 @@
   function proceedToReview() {
     document.querySelectorAll('.field-error').forEach(function(el) { el.classList.remove('field-error'); el.removeAttribute('aria-invalid'); });
     saveFormData();
-    window.location.href = 'review.html';
+    window.location.href = navUrl('review.html');
   }
 
   function goToReview() {
@@ -1388,6 +1393,11 @@
   // =========================================================================
   restoreFormData();
   renderStepper();
+
+  // Propagate LO slug to static HTML links
+  document.querySelectorAll('a[href="portal.html"], a[href="register.html"], a[href="documents.html"], a[href="review.html"]').forEach(function(a) {
+    a.href = navUrl(a.getAttribute('href'));
+  });
 </script>
 
 <script src="aria-widget.js"></script>

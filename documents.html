@@ -817,6 +817,11 @@
 <script>
 (function() {
 
+  // LO slug propagation for navigation
+  var _loSlug = '';
+  try { _loSlug = localStorage.getItem('builderLOSlug') || ''; } catch(e) {}
+  function navUrl(page) { return page + (_loSlug ? '?lo=' + encodeURIComponent(_loSlug) : ''); }
+
   // ===== Document definitions =====
   var REQUIRED_DOCS = [
     { id: 'gl-insurance', name: 'General Liability Insurance', tag: 'INSURANCE', desc: 'Minimum $1M coverage, current term, CMG listed as Additional Insured' },
@@ -1296,7 +1301,7 @@
 
   // Done button
   document.getElementById('doneBtn').addEventListener('click', function() {
-    window.location.href = 'portal.html';
+    window.location.href = navUrl('portal.html');
   });
 
   function closeModal() {
@@ -1335,6 +1340,11 @@
         }
       }
     }
+  });
+
+  // Propagate LO slug to static HTML links
+  document.querySelectorAll('a[href="portal.html"], a[href="register.html"], a[href="application.html"], a[href="review.html"]').forEach(function(a) {
+    a.href = navUrl(a.getAttribute('href'));
   });
 
 })();
