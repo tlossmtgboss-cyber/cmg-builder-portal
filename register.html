@@ -537,6 +537,7 @@
       xhr.open('POST', API_BASE + '/builder-portal/register', true);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.onload = function() {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account'; }
         if (xhr.status >= 200 && xhr.status < 300) {
           try {
             var resp = JSON.parse(xhr.responseText);
@@ -544,12 +545,14 @@
             localStorage.setItem('builderApplicationId', String(resp.application_id));
             localStorage.setItem('builderLOName', resp.lo_name || '');
           } catch (e) { /* continue anyway */ }
+          window.location.href = 'application.html';
+        } else {
+          showToast('Registration failed (server error). Please try again or contact your loan officer.');
         }
-        window.location.href = 'application.html';
       };
       xhr.onerror = function() {
-        // Offline fallback — proceed without token, will retry on submit
-        window.location.href = 'application.html';
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Create Account'; }
+        showToast('Unable to connect to server. Please check your internet connection and try again.');
       };
       xhr.send(JSON.stringify({
         lo_slug: loSlug,
