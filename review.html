@@ -1742,7 +1742,28 @@
     if (bottomBtn) {
       bottomBtn.disabled = !canSubmit;
     }
+
+    var missing = [];
+    if (!allInitialed) missing.push((totalInitialable - totalInitialed) + ' page(s) not yet initialed');
+    if (!hasBafSig) missing.push('BAF signature required');
+    if (!w9Signed) missing.push('W-9 e-signature required (click "Sign Here" on the W-9 page)');
+    if (!hasConsent) missing.push('ESIGN consent checkbox not checked');
+    if (!hasSig) missing.push('Final signature required');
+    topBtn._missingSteps = missing;
+    if (bottomBtn) bottomBtn._missingSteps = missing;
   }
+
+  document.getElementById('submitPacketBtn').addEventListener('click', function() {
+    if (this.disabled && this._missingSteps && this._missingSteps.length > 0) {
+      showToast('Cannot submit yet: ' + this._missingSteps[0], 'error');
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'completeSubmitBtn' && e.target.disabled && e.target._missingSteps && e.target._missingSteps.length > 0) {
+      showToast('Cannot submit yet: ' + e.target._missingSteps[0], 'error');
+    }
+  });
 
   var API_BASE = 'https://api.perenniaai.com/api/v1';
 
