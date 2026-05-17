@@ -104,34 +104,6 @@
   .paper-fld.short { min-width: 80px; }
   .paper-fld.tiny { min-width: 50px; }
 
-  /* Editable W-9 input fields */
-  .w9-input {
-    display: inline-block;
-    background: transparent;
-    border: none;
-    border-bottom: 1.5px dotted var(--gold);
-    padding: 2px 6px 3px;
-    font-family: 'Crimson Pro', Georgia, serif;
-    font-size: 15px;
-    color: var(--brand);
-    font-weight: 500;
-    min-width: 120px;
-    outline: none;
-    transition: all 150ms ease;
-  }
-  .w9-input:focus {
-    background: var(--gold-soft);
-    border-bottom-style: solid;
-  }
-  .w9-input:hover:not(:focus) { background: rgba(184,146,74,.07); }
-  .w9-input.wider { min-width: 380px; width: 90%; }
-  .w9-input.wide { min-width: 260px; }
-  .w9-input.short { min-width: 80px; max-width: 100px; }
-  .w9-input.tiny { min-width: 50px; max-width: 60px; text-align: center; }
-  .w9-input.ein-input { font-family: 'Geist Mono', monospace; font-size: 20px; letter-spacing: 0.1em; text-align: center; }
-  .w9-cb { accent-color: var(--brand); cursor: pointer; width: 15px; height: 15px; }
-  .w9-cb-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
-
   /* Schedule Call widget (embedded in paper area) */
   .sched-nav-btn {
     width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
@@ -505,10 +477,6 @@
     .paper-doc-title { font-size: 22px; }
     .paper-section-title { font-size: 15px; }
     .paper-fld.wider, .paper-fld.wide { min-width: auto; width: 100%; display: inline-block; }
-    .w9-input.wider, .w9-input.wide { min-width: auto; width: 100%; }
-    .w9-input { font-size: 16px; }
-    .w9-header-grid { grid-template-columns: 1fr !important; }
-    .w9-header-grid > div { border-right: none !important; border-bottom: 1px solid #000; }
     .esign-style-grid { grid-template-columns: 1fr; }
   }
   @supports (padding: env(safe-area-inset-bottom)) {
@@ -577,65 +545,6 @@
   </div>
 </div>
 
-<!-- E-Signature Adoption Modal -->
-<div class="esign-overlay" id="esignModal">
-  <div class="esign-modal" role="dialog" aria-modal="true" aria-labelledby="esignModalTitle">
-    <div class="esign-modal-head">
-      <h3 id="esignModalTitle">Adopt Your E-Signature</h3>
-      <button class="esign-modal-close" onclick="closeEsignModal()">&times;</button>
-    </div>
-    <div class="esign-modal-body">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-        <span class="esign-setup-badge"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><path d="M11.5 1.5l3 3-9 9H2.5v-3z"/><path d="M9.5 3.5l3 3"/></svg> E-Signature Setup</span>
-        <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em;">IRS FORM W-9</span>
-      </div>
-
-      <div style="font-family: 'Geist', sans-serif; font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
-        Type your full legal name and select a signature style. This will be applied as your electronic signature on the W-9 form.
-      </div>
-
-      <label for="esignNameInput" style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin-bottom: 6px;">Full Legal Name</label>
-      <input type="text" id="esignNameInput" placeholder="e.g. Jane Smith" style="width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Geist', sans-serif; font-size: 16px; color: var(--text-primary); outline: none; transition: all 150ms ease; background: var(--bg-surface);" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'" />
-
-      <label style="font-family: 'Geist Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-deep); display: block; margin: 18px 0 8px;">Select Signature Style</label>
-      <div class="esign-style-grid" id="esignStyleGrid" role="radiogroup" aria-label="Signature style">
-        <div class="esign-style-option selected" data-font="'Fraunces', Georgia, serif" data-style="italic" onclick="selectSigStyle(this)" tabindex="0" role="radio" aria-checked="true" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
-          <div class="sig-preview" style="font-family: 'Fraunces', Georgia, serif; font-style: italic;" id="sigPreview0">—</div>
-          <div class="sig-label">Classic Serif</div>
-        </div>
-        <div class="esign-style-option" data-font="'Dancing Script', cursive" data-style="normal" onclick="selectSigStyle(this)" tabindex="-1" role="radio" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
-          <div class="sig-preview" style="font-family: 'Dancing Script', cursive;" id="sigPreview1">—</div>
-          <div class="sig-label">Script</div>
-        </div>
-        <div class="esign-style-option" data-font="'Caveat', cursive" data-style="normal" onclick="selectSigStyle(this)" tabindex="-1" role="radio" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
-          <div class="sig-preview" style="font-family: 'Caveat', cursive;" id="sigPreview2">—</div>
-          <div class="sig-label">Handwritten</div>
-        </div>
-        <div class="esign-style-option" data-font="'Geist', sans-serif" data-style="italic" onclick="selectSigStyle(this)" tabindex="-1" role="radio" aria-checked="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectSigStyle(this);}">
-          <div class="sig-preview" style="font-family: 'Geist', sans-serif; font-style: italic; font-weight: 500;" id="sigPreview3">—</div>
-          <div class="sig-label">Modern</div>
-        </div>
-      </div>
-
-      <div class="esign-preview-box">
-        <div style="font-family: 'Geist Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Signature Preview</div>
-        <div class="esign-preview-sig" id="esignPreviewSig" style="font-family: 'Fraunces', Georgia, serif; font-style: italic;">—</div>
-        <div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: var(--text-muted); margin-top: 6px;" id="esignPreviewDate"></div>
-      </div>
-
-      <div style="display: flex; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 12px; background: var(--brand-tint); border-radius: 8px; border: 1px solid #D6E0D9;">
-        <input type="checkbox" id="esignConsent" style="accent-color: var(--brand); margin-top: 2px; width: 16px; height: 16px; cursor: pointer;" />
-        <label for="esignConsent" style="font-family: 'Geist', sans-serif; font-size: 12px; color: var(--text-secondary); line-height: 1.5; cursor: pointer;">
-          I agree that my electronic signature is the legal equivalent of my handwritten signature. I consent to be legally bound by this document's terms.
-        </label>
-      </div>
-    </div>
-    <div class="esign-modal-footer">
-      <button onclick="closeEsignModal()" style="padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-surface); font-family: 'Geist', sans-serif; font-size: 14px; color: var(--text-secondary); cursor: pointer;">Cancel</button>
-      <button id="esignApplyBtn" onclick="applyEsign()" disabled style="padding: 10px 24px; border-radius: 8px; border: none; background: var(--brand); color: #fff; font-family: 'Geist', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; opacity: 0.5; transition: all 150ms ease;">Apply Signature</button>
-    </div>
-  </div>
-</div>
 
 <!-- Submit Success Overlay -->
 <div class="submit-overlay" id="submitOverlay" role="dialog" aria-modal="true" aria-labelledby="submitOverlayTitle">
@@ -1056,169 +965,7 @@
     });
   }
 
-  // --- DOC 5: W-9 ---
-  documents.push({
-    id: 'w9',
-    title: 'W-9 Form',
-    shortTitle: 'W-9',
-    pages: [
-      function() {
-        // Parse EIN into two groups if available (XX-XXXXXXX)
-        var einClean = (ein || '').replace(/[^0-9]/g, '');
-        var einGroup1 = einClean.substring(0, 2) || '';
-        var einGroup2 = einClean.substring(2) || '';
-
-        return '' +
-          // ── W-9 Top Banner ──
-          '<div style="border: 2px solid #000; margin-bottom: 0;">' +
-            '<div class="w9-header-grid" style="display: grid; grid-template-columns: 180px 1fr 180px; border-bottom: 2px solid #000;">' +
-              // Left column: Form number
-              '<div style="padding: 10px 14px; border-right: 2px solid #000;">' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 26px; font-weight: 700; line-height: 1.1;">Form <span style="font-size: 32px;">W-9</span></div>' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-top: 2px;">(Rev. March 2024)</div>' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 9.5px; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">Department of the Treasury<br/>Internal Revenue Service</div>' +
-              '</div>' +
-              // Center column: Title
-              '<div style="padding: 12px 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 17px; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em;">Request for Taxpayer<br/>Identification Number and Certification</div>' +
-              '</div>' +
-              // Right column: Instruction
-              '<div style="padding: 10px 14px; border-left: 2px solid #000; display: flex; flex-direction: column; justify-content: center;">' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; line-height: 1.4; text-align: center;">' +
-                  '<span style="font-weight: 600;">&#9654; Give Form to the requester.</span><br/>' +
-                  '<span style="font-style: italic;">Do not send to the IRS.</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-
-            // ── Line 1 ──
-            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>1</strong>&nbsp; Name of entity/individual as shown on your income tax return. Name is required on this line; do not leave this line blank.</div>' +
-              '<div><input class="w9-input wider" data-w9="name" value="' + escHtml(companyName || '') + '" placeholder="Legal name" aria-label="W-9 Line 1: Legal name" /></div>' +
-            '</div>' +
-
-            // ── Line 2 ──
-            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>2</strong>&nbsp; Business name/disregarded entity name, if different from above</div>' +
-              '<div><input class="w9-input wider" data-w9="dba" value="' + escHtml(dba || '') + '" placeholder="DBA name" aria-label="W-9 Line 2: Business name or DBA" /></div>' +
-            '</div>' +
-
-            // ── Line 3 ──
-            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 6px;"><strong>3</strong>&nbsp; Check appropriate box for federal tax classification of the person whose name is entered on line 1. Check only one of the following seven boxes.</div>' +
-              '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center;">' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="individual"/> Individual/sole proprietor or single-member LLC</label>' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="ccorp"/> C Corporation</label>' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="scorp"/> S Corporation</label>' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="partnership"/> Partnership</label>' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="trust"/> Trust/estate</label>' +
-              '</div>' +
-              '<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; align-items: center; margin-top: 4px;">' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="llc"/> LLC &mdash; Enter tax classification (C=C corporation, S=S corporation, P=partnership): <input class="w9-input tiny" data-w9="llcClass" style="margin-left: 4px; min-width: 30px;" placeholder="C/S/P" maxlength="1" /></label>' +
-                '<label class="w9-cb-label"><input type="radio" class="w9-cb" name="w9taxclass" value="other"/> Other (see instructions) &#9654; <input class="w9-input short" data-w9="otherClass" style="margin-left: 4px;" placeholder="Specify" /></label>' +
-              '</div>' +
-            '</div>' +
-
-            // ── Line 4: Exemptions ──
-            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 4px;"><strong>4</strong>&nbsp; Exemptions (codes apply only to certain entities, not individuals; see instructions on page 3)</div>' +
-              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exempt payee code (if any): <input class="w9-input short" data-w9="exemptPayee" placeholder="Code" aria-label="Exempt payee code" /></div>' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px;">Exemption from FATCA reporting code (if any): <input class="w9-input short" data-w9="fatcaCode" placeholder="Code" aria-label="FATCA exemption code" /></div>' +
-              '</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 9px; color: var(--text-muted); margin-top: 4px; font-style: italic;">(Applies to accounts maintained outside the U.S.)</div>' +
-            '</div>' +
-
-            // ── Line 5 ──
-            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>5</strong>&nbsp; Address (number, street, and apt. or suite no.) See instructions.</div>' +
-              '<div><input class="w9-input wider" data-w9="address" value="' + escHtml(companyAddress || '') + '" placeholder="Street address" aria-label="W-9 Line 5: Street address" /></div>' +
-            '</div>' +
-
-            // ── Line 6 ──
-            '<div style="border-bottom: 1px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>6</strong>&nbsp; City, state, and ZIP code</div>' +
-              '<div>' +
-                '<input class="w9-input" data-w9="city" value="' + escHtml(companyCity || '') + '" placeholder="City" aria-label="W-9 City" />' +
-                '<span style="margin: 0 6px; color: var(--text-muted);">,</span>' +
-                '<input class="w9-input tiny" data-w9="state" value="' + escHtml(companyState || '') + '" placeholder="ST" maxlength="2" aria-label="W-9 State" />' +
-                '<span style="margin: 0 6px;"></span>' +
-                '<input class="w9-input short" data-w9="zip" value="' + escHtml(companyZip || '') + '" placeholder="ZIP" aria-label="W-9 ZIP code" />' +
-              '</div>' +
-            '</div>' +
-
-            // ── Line 7 ──
-            '<div style="border-bottom: 2px solid #000; padding: 6px 14px 8px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; color: var(--text-secondary); margin-bottom: 2px;"><strong>7</strong>&nbsp; List account number(s) here (optional)</div>' +
-              '<div><input class="w9-input wider" data-w9="accounts" placeholder="Account number(s)" aria-label="W-9 Line 7: Account numbers" /></div>' +
-            '</div>' +
-
-          '</div>' +
-
-          // ── Part I: TIN ──
-          '<div style="border: 2px solid #000; border-top: none; margin-bottom: 0;">' +
-            '<div style="background: #000; color: #fff; padding: 5px 14px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em;">Part I&nbsp;&nbsp;&nbsp;&nbsp;Taxpayer Identification Number (TIN)</div>' +
-            '<div style="padding: 12px 14px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">Enter your TIN in the appropriate box. The TIN provided must match the name given on line 1 to avoid backup withholding. For individuals, this is generally your social security number (SSN). However, for a resident alien, sole proprietor, or disregarded entity, see the instructions for Part I, later. For other entities, it is your employer identification number (EIN). If you do not have a number, see <em>How to get a TIN</em>, later.</div>' +
-              '<div>' +
-                // EIN box (full width)
-                '<div style="border: 1.5px solid var(--border-strong); border-radius: 4px; padding: 10px 14px; text-align: center; ' + (einClean ? 'border-color: var(--brand); background: var(--brand-tint);' : '') + '">' +
-                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Employer Identification Number</div>' +
-                  '<div style="display: flex; align-items: center; justify-content: center; gap: 4px;">' +
-                    '<input class="w9-input ein-input" data-w9="ein1" inputmode="numeric" pattern="[0-9]*" style="min-width: 36px; max-width: 45px;" value="' + escHtml(einGroup1) + '" placeholder="__" maxlength="2" aria-label="EIN first two digits" />' +
-                    '<span style="font-size: 18px; color: #000; font-weight: 700;">&ndash;</span>' +
-                    '<input class="w9-input ein-input" data-w9="ein2" inputmode="numeric" pattern="[0-9]*" style="min-width: 100px; max-width: 120px;" value="' + escHtml(einGroup2) + '" placeholder="_______" maxlength="7" aria-label="EIN remaining seven digits" />' +
-                  '</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-
-          // ── Part II: Certification ──
-          '<div style="border: 2px solid #000; border-top: none;">' +
-            '<div style="background: #000; color: #fff; padding: 5px 14px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: 0.02em;">Part II&nbsp;&nbsp;&nbsp;&nbsp;Certification</div>' +
-            '<div style="padding: 12px 14px;">' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12.5px; line-height: 1.55; color: var(--text-primary); margin-bottom: 8px;"><strong>Under penalties of perjury, I certify that:</strong></div>' +
-              '<ol style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; line-height: 1.55; color: var(--text-secondary); padding-left: 22px; margin: 0 0 12px;">' +
-                '<li style="margin-bottom: 4px;">The number shown on this form is my correct taxpayer identification number (or I am waiting for a number to be issued to me); and</li>' +
-                '<li style="margin-bottom: 4px;">I am not subject to backup withholding because: (a) I am exempt from backup withholding, or (b) I have not been notified by the Internal Revenue Service (IRS) that I am subject to backup withholding as a result of a failure to report all interest or dividends, or (c) the IRS has notified me that I am no longer subject to backup withholding; and</li>' +
-                '<li style="margin-bottom: 4px;">I am a U.S. citizen or other U.S. person (defined below); and</li>' +
-                '<li style="margin-bottom: 4px;">The FATCA code(s) entered on this form (if any) indicating that I am exempt from FATCA reporting is correct.</li>' +
-              '</ol>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; font-style: italic;">Certification instructions. You must cross out item 2 above if you have been notified by the IRS that you are currently subject to backup withholding because you have failed to report all interest and dividends on your tax return. For real estate transactions, item 2 does not apply. For mortgage interest paid, acquisition or abandonment of secured property, cancellation of debt, contributions to an individual retirement arrangement (IRA), and generally, payments other than interest and dividends, you are not required to sign the certification, but you must provide your correct TIN. See the instructions for Part II, later.</div>' +
-              '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10.5px; color: var(--text-muted); line-height: 1.5; padding: 8px 12px; background: var(--bg-soft); border-radius: 3px; margin-bottom: 14px;">The Internal Revenue Service does not require your consent to any provision of this document other than the certifications required to avoid backup withholding.</div>' +
-
-              // E-Signature setup banner
-              '<div style="background: linear-gradient(135deg, rgba(184,146,74,.08) 0%, rgba(31,61,46,.06) 100%); border: 1px solid var(--gold); border-radius: 10px; padding: 16px 20px; margin-bottom: 16px;">' +
-                '<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">' +
-                  '<span class="esign-setup-badge"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><path d="M11.5 1.5l3 3-9 9H2.5v-3z"/><path d="M9.5 3.5l3 3"/></svg> E-Signature Required</span>' +
-                '</div>' +
-                '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 12px; color: var(--text-secondary); line-height: 1.4;">This form requires your electronic signature under penalties of perjury. Click "Sign Here" to adopt your signature.</div>' +
-              '</div>' +
-
-              // Signature section
-              '<div style="display: grid; grid-template-columns: 1fr 200px; gap: 24px; padding-top: 12px; border-top: 1.5px solid #000;">' +
-                '<div>' +
-                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Signature of U.S. person &#9654;</div>' +
-                  '<div id="w9SignArea" style="border-bottom: 1.5px solid var(--text-primary); height: 44px; position: relative;">' +
-                    '<button type="button" class="sign-here-btn" id="w9SignHereBtn" onclick="openEsignModal()">' +
-                      '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13.5 2.5l4 4-10 10H3.5v-4z"/><path d="M11.5 4.5l4 4"/><path d="M2 18h16"/></svg>' +
-                      'Sign Here' +
-                    '</button>' +
-                  '</div>' +
-                '</div>' +
-                '<div>' +
-                  '<div style="font-family: \'Crimson Pro\', Georgia, serif; font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px;">Date &#9654;</div>' +
-                  '<div id="w9SignDate" style="border-bottom: 1.5px solid var(--text-primary); height: 44px; font-family: \'Crimson Pro\', Georgia, serif; font-size: 14px; padding-top: 14px; color: var(--text-muted); font-style: italic;">Populated on signing</div>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>';
-      }
-    ]
-  });
-
-  // --- SCHEDULE CALL (calendar widget, between W-9 and E-Sign) ---
+  // --- SCHEDULE CALL (calendar widget, before E-Sign) ---
   documents.push({
     id: 'schedule',
     title: 'Schedule Call',
@@ -1742,7 +1489,7 @@
     var consentBox = document.getElementById('esignConsentCheck');
     var hasConsent = consentBox && consentBox.checked;
 
-    var canSubmit = allInitialed && hasSig && hasBafSig && w9Signed && hasConsent;
+    var canSubmit = allInitialed && hasSig && hasBafSig && hasConsent;
 
     var topBtn = document.getElementById('submitPacketBtn');
     topBtn.disabled = !canSubmit;
@@ -1755,7 +1502,6 @@
     var missing = [];
     if (!allInitialed) missing.push((totalInitialable - totalInitialed) + ' page(s) not yet initialed');
     if (!hasBafSig) missing.push('BAF signature required');
-    if (!w9Signed) missing.push('W-9 e-signature required (click "Sign Here" on the W-9 page)');
     if (!hasConsent) missing.push('ESIGN consent checkbox not checked');
     if (!hasSig) missing.push('Final signature required');
     topBtn._missingSteps = missing;
@@ -1831,9 +1577,7 @@
     // Build tamper-evident audit trail (ESIGN Act compliance)
     var signedName = sigInput.value.trim();
     var signedAt = new Date().toISOString();
-    var w9Snapshot = '';
-    try { w9Snapshot = localStorage.getItem('builderW9Data') || ''; } catch(e) {}
-    var auditPayload = signedName + '|' + signedAt + '|' + JSON.stringify(initialedPages) + '|' + w9Snapshot;
+    var auditPayload = signedName + '|' + signedAt + '|' + JSON.stringify(initialedPages);
 
     function finishSubmit(hash) {
       var sigData = {
@@ -1890,108 +1634,6 @@
     }
   });
 
-  // ---------------------------------------------------------------------------
-  // W-9 E-Signature Modal
-  // ---------------------------------------------------------------------------
-  var selectedSigFont = "'Fraunces', Georgia, serif";
-  var selectedSigStyle = "italic";
-  var w9Signed = false;
-
-  window.openEsignModal = function() {
-    if (w9Signed) return;
-    _modalTrigger = document.activeElement;
-    var modal = document.getElementById('esignModal');
-    var nameInput = document.getElementById('esignNameInput');
-    nameInput.value = (contactFirst + ' ' + contactLast).trim();
-    modal.classList.add('visible');
-    updateSigPreviews();
-    updateEsignBtn();
-    document.getElementById('esignPreviewDate').textContent = 'Signed: ' + todayDisplay;
-    nameInput.focus();
-  };
-
-  window.closeEsignModal = function() {
-    document.getElementById('esignModal').classList.remove('visible');
-    if (_modalTrigger && _modalTrigger.focus) { _modalTrigger.focus(); _modalTrigger = null; }
-  };
-
-  var ALLOWED_FONTS = ["'Fraunces', Georgia, serif", "'Dancing Script', cursive", "'Caveat', cursive", "'Geist', sans-serif"];
-  var ALLOWED_STYLES = ['normal', 'italic'];
-
-  window.selectSigStyle = function(el) {
-    var opts = document.querySelectorAll('.esign-style-option');
-    opts.forEach(function(o) { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); o.setAttribute('tabindex', '-1'); });
-    el.classList.add('selected');
-    el.setAttribute('aria-checked', 'true');
-    el.setAttribute('tabindex', '0');
-    el.focus();
-    var f = el.dataset.font;
-    var s = el.dataset.style;
-    selectedSigFont = ALLOWED_FONTS.indexOf(f) > -1 ? f : ALLOWED_FONTS[0];
-    selectedSigStyle = ALLOWED_STYLES.indexOf(s) > -1 ? s : 'italic';
-    var preview = document.getElementById('esignPreviewSig');
-    preview.style.fontFamily = selectedSigFont;
-    preview.style.fontStyle = selectedSigStyle;
-    if (selectedSigFont.indexOf('Geist') > -1) { preview.style.fontWeight = '500'; } else { preview.style.fontWeight = ''; }
-  };
-
-  document.getElementById('esignStyleGrid').addEventListener('keydown', function(e) {
-    if (['ArrowRight','ArrowDown','ArrowLeft','ArrowUp'].indexOf(e.key) === -1) return;
-    e.preventDefault();
-    var opts = Array.prototype.slice.call(document.querySelectorAll('.esign-style-option'));
-    var cur = opts.indexOf(document.activeElement);
-    if (cur === -1) return;
-    var next = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? (cur + 1) % opts.length : (cur - 1 + opts.length) % opts.length;
-    selectSigStyle(opts[next]);
-  });
-
-  function updateSigPreviews() {
-    var name = document.getElementById('esignNameInput').value.trim() || '—';
-    document.getElementById('sigPreview0').textContent = name;
-    document.getElementById('sigPreview1').textContent = name;
-    document.getElementById('sigPreview2').textContent = name;
-    document.getElementById('sigPreview3').textContent = name;
-    document.getElementById('esignPreviewSig').textContent = name;
-  }
-
-  function updateEsignBtn() {
-    var name = document.getElementById('esignNameInput').value.trim();
-    var consent = document.getElementById('esignConsent').checked;
-    var btn = document.getElementById('esignApplyBtn');
-    var ok = name.length >= 2 && consent;
-    btn.disabled = !ok;
-    btn.style.opacity = ok ? '1' : '0.5';
-  }
-
-  document.getElementById('esignNameInput').addEventListener('input', function() {
-    updateSigPreviews();
-    updateEsignBtn();
-  });
-  document.getElementById('esignConsent').addEventListener('change', updateEsignBtn);
-
-  document.getElementById('esignModal').addEventListener('click', function(e) {
-    if (e.target === this) closeEsignModal();
-  });
-
-  window.applyEsign = function() {
-    var name = document.getElementById('esignNameInput').value.trim();
-    if (name.length < 2) return;
-    w9Signed = true;
-    closeEsignModal();
-
-    var area = document.getElementById('w9SignArea');
-    if (area) {
-      area.innerHTML = '<div class="signed-display">' +
-        '<div class="sig-text" style="font-family: ' + selectedSigFont + '; font-style: ' + selectedSigStyle + ';">' + escHtml(name) + '</div>' +
-        '<span class="signed-seal">&#10003; E-Signed</span>' +
-      '</div>';
-    }
-    var dateEl = document.getElementById('w9SignDate');
-    if (dateEl) {
-      dateEl.style.color = 'var(--brand)';
-      dateEl.style.fontStyle = 'normal';
-      dateEl.textContent = todayDisplay;
-    }
     renderSidebar();
     updateSubmitState();
   };
@@ -2109,21 +1751,6 @@
       _schedRenderTimes();
       _schedUpdateBtn();
     }
-    // Restore persisted W-9 edits
-    try {
-      var w9Raw = localStorage.getItem('builderW9Data');
-      if (w9Raw) {
-        var w9 = JSON.parse(w9Raw);
-        document.querySelectorAll('[data-w9]').forEach(function(el) {
-          var key = el.getAttribute('data-w9');
-          if (w9[key] !== undefined && w9[key] !== '') el.value = w9[key];
-        });
-        if (w9._taxClass && W9_VALID_TAX_CLASSES.indexOf(w9._taxClass) !== -1) {
-          var radio = document.querySelector('input[name="w9taxclass"][value="' + w9._taxClass + '"]');
-          if (radio) radio.checked = true;
-        }
-      }
-    } catch(e) {}
   };
 
   // ---------------------------------------------------------------------------
@@ -2138,37 +1765,10 @@
     if (e.key === 'Escape') {
       var submitOv = document.getElementById('submitOverlay');
       if (submitOv && submitOv.classList.contains('open')) { submitOv.classList.remove('open'); return; }
-      if (document.getElementById('esignModal').classList.contains('visible')) closeEsignModal();
       if (document.getElementById('initialModal').classList.contains('open')) closeInitialModal();
     }
   });
 
-  // W-9: enforce numeric-only on EIN fields + persist W-9 edits
-  var pa = document.getElementById('paperArea');
-  if (pa) pa.addEventListener('input', function(e) {
-    var w = e.target.getAttribute('data-w9');
-    if (!w) return;
-    if (w.indexOf('ein') === 0) {
-      e.target.value = e.target.value.replace(/[^0-9]/g, '');
-    }
-    saveW9Data();
-  });
-  if (pa) pa.addEventListener('change', function(e) {
-    if (e.target.name === 'w9taxclass') saveW9Data();
-  });
-
-  var W9_VALID_TAX_CLASSES = ['individual','ccorp','scorp','partnership','trust','llc','other'];
-  function saveW9Data() {
-    var w9 = {};
-    document.querySelectorAll('[data-w9]').forEach(function(el) {
-      var key = el.getAttribute('data-w9');
-      if (key === 'ein1' || key === 'ein2') return;
-      w9[key] = el.value || '';
-    });
-    var sel = document.querySelector('input[name="w9taxclass"]:checked');
-    if (sel && W9_VALID_TAX_CLASSES.indexOf(sel.value) !== -1) w9._taxClass = sel.value;
-    try { localStorage.setItem('builderW9Data', JSON.stringify(w9)); } catch(e) {}
-  }
 
   // ---------------------------------------------------------------------------
   // Focus trapping for modals
@@ -2197,7 +1797,6 @@
   }
 
   trapFocus(document.getElementById('initialModal'));
-  trapFocus(document.getElementById('esignModal'));
   trapFocus(document.getElementById('submitOverlay'));
 
   // Propagate LO slug to static HTML links
