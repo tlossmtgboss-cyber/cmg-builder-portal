@@ -1405,11 +1405,12 @@
   // ---------------------------------------------------------------------------
   function saveReviewState() {
     try {
+      var prev = _getPersistedReviewState();
       var state = {
         initialedPages: initialedPages,
-        bafSignature: '',
-        finalSignature: '',
-        esignConsent: false,
+        bafSignature: prev.bafSignature || '',
+        finalSignature: prev.finalSignature || '',
+        esignConsent: !!prev.esignConsent,
         savedAt: new Date().toISOString()
       };
       var baf = document.getElementById('bafSignature');
