@@ -1473,6 +1473,13 @@
   // ---------------------------------------------------------------------------
   // Submit state
   // ---------------------------------------------------------------------------
+  function _getPersistedReviewState() {
+    try {
+      var raw = localStorage.getItem('builderReviewState');
+      return raw ? JSON.parse(raw) : {};
+    } catch(e) { return {}; }
+  }
+
   function updateSubmitState() {
     var schedPages = 0;
     documents.forEach(function(d) { if (d.isSchedule) schedPages += d.pages.length; });
@@ -1480,14 +1487,18 @@
     var totalInitialed = Object.keys(initialedPages).length;
     var allInitialed = totalInitialed >= totalInitialable;
 
+    var persisted = _getPersistedReviewState();
+
     var sigInput = document.getElementById('finalSignature');
-    var hasSig = sigInput && sigInput.value.trim().length >= 3;
+    var hasSig = sigInput ? sigInput.value.trim().length >= 3
+               : (persisted.finalSignature || '').trim().length >= 3;
 
     var bafSigInput = document.getElementById('bafSignature');
-    var hasBafSig = bafSigInput && bafSigInput.value.trim().length >= 3;
+    var hasBafSig = bafSigInput ? bafSigInput.value.trim().length >= 3
+                  : (persisted.bafSignature || '').trim().length >= 3;
 
     var consentBox = document.getElementById('esignConsentCheck');
-    var hasConsent = consentBox && consentBox.checked;
+    var hasConsent = consentBox ? consentBox.checked : !!persisted.esignConsent;
 
     var canSubmit = allInitialed && hasSig && hasBafSig && hasConsent;
 
