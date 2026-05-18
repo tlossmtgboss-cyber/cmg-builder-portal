@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com; form-action 'self'; base-uri 'self';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.perenniaai.com https://cloudflareinsights.com; form-action 'self'; base-uri 'self';" />
 <meta name="referrer" content="no-referrer" />
 <script>(function(){var p=location.pathname;var b=document.createElement('base');if(p.indexOf('/builder-application')===0)b.href='/builder-application/';else if(p.indexOf('/cmg-builder-portal/')===0)b.href=p.substring(0,p.indexOf('/cmg-builder-portal/')+20);else b.href=p.substring(0,p.lastIndexOf('/')+1);document.head.appendChild(b);})()</script>
 <title>CMG Builder Portal — Register</title>
@@ -130,25 +130,6 @@
     border-radius: 1px;
   }
 
-  /* Bullet styling */
-  .feature-list { list-style: none; padding: 0; margin: 0; }
-  .feature-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 6px 0;
-    font-size: 14px;
-    color: var(--text-secondary);
-    line-height: 1.45;
-  }
-  .feature-list li .bullet-icon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    margin-top: 1px;
-    color: var(--gold);
-  }
-
   /* Card */
   .form-card {
     background: var(--bg-surface);
@@ -221,33 +202,6 @@
       Complete your builder packet to get approved for CMG construction lending.
     </p>
 
-    <!-- Feature bullets -->
-    <div style="display: inline-block; text-align: left;">
-      <ul class="feature-list">
-        <li>
-          <svg class="bullet-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="14" height="14" rx="3" />
-            <path d="M7 10l2 2 4-4" />
-          </svg>
-          <span>90+ fields across 12 sections</span>
-        </li>
-        <li>
-          <svg class="bullet-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 14l4-4 3 3 5-6" />
-            <path d="M14 5h3v3" />
-          </svg>
-          <span>Upload required documents</span>
-        </li>
-        <li>
-          <svg class="bullet-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 17V7a2 2 0 012-2h6a2 2 0 012 2v10" />
-            <path d="M3 17h14" />
-            <path d="M8 11h4" />
-          </svg>
-          <span>E-sign your packet digitally</span>
-        </li>
-      </ul>
-    </div>
   </header>
 
   <!-- Registration Form -->
