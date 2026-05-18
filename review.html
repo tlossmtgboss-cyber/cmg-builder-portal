@@ -1093,6 +1093,11 @@
   var pendingInitialPageId = null;
   var defaultInitials = (contactFirst.charAt(0) + contactLast.charAt(0)).toUpperCase() || 'XX';
 
+  // In-memory cache for cross-page input values (survives DOM re-renders)
+  var _cachedBafSig = '';
+  var _cachedFinalSig = '';
+  var _cachedEsignConsent = false;
+
   // ---------------------------------------------------------------------------
   // Render sidebar
   // ---------------------------------------------------------------------------
@@ -1265,6 +1270,7 @@
     var sigInput = document.getElementById('finalSignature');
     if (sigInput) {
       sigInput.addEventListener('input', function() {
+        _cachedFinalSig = sigInput.value;
         saveReviewState();
         updateSubmitState();
         renderSidebar();
@@ -1275,6 +1281,7 @@
     var bafSigInput = document.getElementById('bafSignature');
     if (bafSigInput) {
       bafSigInput.addEventListener('input', function() {
+        _cachedBafSig = bafSigInput.value;
         saveReviewState();
         updateSubmitState();
       });
@@ -1284,6 +1291,7 @@
     var consentBox = document.getElementById('esignConsentCheck');
     if (consentBox) {
       consentBox.addEventListener('change', function() {
+        _cachedEsignConsent = consentBox.checked;
         saveReviewState();
         updateSubmitState();
       });
@@ -1444,6 +1452,9 @@
       var raw = localStorage.getItem('builderReviewState');
       if (!raw) return;
       var state = JSON.parse(raw);
+      if (state.bafSignature) _cachedBafSig = state.bafSignature;
+      if (state.finalSignature) _cachedFinalSig = state.finalSignature;
+      if (state.esignConsent) _cachedEsignConsent = true;
       var baf = document.getElementById('bafSignature');
       if (baf && state.bafSignature) baf.value = state.bafSignature;
       var fin = document.getElementById('finalSignature');
@@ -1488,18 +1499,14 @@
     var totalInitialed = Object.keys(initialedPages).length;
     var allInitialed = totalInitialed >= totalInitialable;
 
-    var persisted = _getPersistedReviewState();
-
     var sigInput = document.getElementById('finalSignature');
-    var hasSig = sigInput ? sigInput.value.trim().length >= 3
-               : (persisted.finalSignature || '').trim().length >= 3;
+    var hasSig = sigInput ? sigInput.value.trim().length >= 3 : _cachedFinalSig.trim().length >= 3;
 
     var bafSigInput = document.getElementById('bafSignature');
-    var hasBafSig = bafSigInput ? bafSigInput.value.trim().length >= 3
-                  : (persisted.bafSignature || '').trim().length >= 3;
+    var hasBafSig = bafSigInput ? bafSigInput.value.trim().length >= 3 : _cachedBafSig.trim().length >= 3;
 
     var consentBox = document.getElementById('esignConsentCheck');
-    var hasConsent = consentBox ? consentBox.checked : !!persisted.esignConsent;
+    var hasConsent = consentBox ? consentBox.checked : _cachedEsignConsent;
 
     var canSubmit = allInitialed && hasSig && hasBafSig && hasConsent;
 
@@ -1759,6 +1766,7 @@
       _schedRenderTimes();
       _schedUpdateBtn();
     }
+    updateSubmitState();
   };
 
   // ---------------------------------------------------------------------------
